@@ -144,6 +144,7 @@ function WorkspaceMemoryItem({
                 onChange={(e) => setDraft(e.target.value)}
                 className="w-full min-h-[160px] max-h-[400px] rounded-lg border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 py-2 text-xs font-mono text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] outline-none focus:ring-1 focus:ring-[var(--ring)] resize-y"
                 placeholder="Workspace memory (Markdown)..."
+                aria-label="Workspace memory"
               />
               <div className="flex gap-2 justify-end">
                 <Button

@@ -196,10 +196,16 @@ function ThinkingGroup({ texts }: { texts: string[] }) {
 /** Individual tool row in the timeline */
 function ToolRow({ tool }: { tool: ToolPart }) {
   const { t } = useTranslation("chat");
-  const [isOpen, setIsOpen] = useState(false);
   const ToolIcon = TOOL_ICONS[tool.tool] ?? Plug;
   const isRunning = tool.state.status === "running" || tool.state.status === "pending";
   const isError = tool.state.status === "error";
+  // Error rows start expanded so the failure detail is visible without a click
+  // (DESIGN.md §4.1: the expanded error message should persist). Also auto-open
+  // when a running tool transitions into an error after mount.
+  const [isOpen, setIsOpen] = useState(isError);
+  useEffect(() => {
+    if (isError) setIsOpen(true);
+  }, [isError]);
   const elapsed = getElapsed(tool);
   const title = getToolTitle(tool);
 
@@ -381,6 +387,7 @@ function ActivityPanelContent() {
           size="icon"
           className="h-7 w-7"
           onClick={close}
+          aria-label={t("closeActivity")}
         >
           <X className="h-4 w-4" />
         </Button>

@@ -125,7 +125,7 @@ export function ProgressCard() {
       >
         <div className="min-w-0 flex-1">
           <span className="block text-[13px] font-medium text-[var(--text-primary)]">
-            Progress
+            {t("workspaceProgress")}
           </span>
           <span className="mt-1 block text-[12px] text-[var(--text-tertiary)]">
             {activeCount === 0
@@ -189,7 +189,7 @@ export function ProgressCard() {
               {taskBatch && (
                 <div className="pb-1">
                   <p className="px-0 pb-1 pt-1 text-[11px] font-medium uppercase tracking-[0.08em] text-[var(--text-quaternary)]">
-                    {taskBatch.mode}
+                    {t(taskBatch.mode === "parallel" ? "taskBatchParallel" : "taskBatchSequential")}
                   </p>
                   {agentTasks.map((task) => (
                     <AgentTaskItem key={task.task_id} task={task} />

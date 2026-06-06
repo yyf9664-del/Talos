@@ -9,8 +9,8 @@ export type ColorKind = "accent" | "background" | "foreground";
 /** Stock theme defaults — match the base tokens in globals.css. Used as
  *  placeholder values in the UI when the user hasn't overridden yet. */
 export const APPEARANCE_DEFAULTS = {
-  light: { accent: "#339CFF", background: "#FFFFFF", foreground: "#1A1C1F" },
-  dark: { accent: "#339CFF", background: "#181818", foreground: "#FFFFFF" },
+  light: { accent: "#C96442", background: "#FBF9F5", foreground: "#2B2620" },
+  dark: { accent: "#E0795A", background: "#181818", foreground: "#FFFFFF" },
   uiFontSize: 13,
   codeFontSize: 12,
 } as const;

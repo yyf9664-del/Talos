@@ -61,6 +61,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
   const sidebarWidth = useSidebarStore((s) => s.width);
   const activityIsOpen = useActivityStore((s) => s.isOpen);
   const artifactIsOpen = useArtifactStore((s) => s.isOpen);
+  const artifactIsMaximized = useArtifactStore((s) => s.isMaximized);
   const workspaceIsOpen = useWorkspaceStore((s) => s.isOpen);
   const artifactWidth = useArtifactStore((s) => s.panelWidth);
   const planReviewIsOpen = usePlanReviewStore((s) => s.isOpen);
@@ -158,7 +159,9 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
     isDesktop && (isSettingsPage || !isCollapsed) ? sidebarWidth : 0;
   const showWorkspace = isDesktop && isActiveChat && workspaceIsOpen;
   const overlayWidth = artifactIsOpen
-    ? artifactWidth
+    ? artifactIsMaximized
+      ? 0
+      : artifactWidth
     : planReviewIsOpen
       ? planReviewWidth
       : activityIsOpen

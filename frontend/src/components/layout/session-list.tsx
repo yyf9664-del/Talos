@@ -214,35 +214,37 @@ export function SessionList() {
     return items;
   }, [hasSearch, filtered, pinned, unpinned, snippetMap, collapsedProjects, organizeMode]);
 
-  const flatItemsSignature = useMemo(
-    () =>
-      flatItems
-        .map((item) => {
-          if (item.type === "header") return `h:${item.label}:${item.first ? "first" : "rest"}`;
-          if (item.type === "project") return `p:${item.directory}:${item.collapsed ? "closed" : "open"}`;
-          return `s:${item.session.id}:${item.session.is_pinned ? "pinned" : "chat"}:${item.snippet ? "snippet" : "plain"}`;
-        })
-        .join("|"),
-    [flatItems],
-  );
-
   const scrollRef = useRef<HTMLDivElement>(null);
   const virtualizer = useVirtualizer({
     count: flatItems.length,
     getScrollElement: () => scrollRef.current,
+    // Cache measured row heights by stable identity instead of index. Without
+    // this, collapsing/expanding a project shifts row indices and the size
+    // cache gets reassigned to the wrong rows, briefly placing items at the
+    // wrong offset until they re-measure (visible as a line-spacing jump).
+    getItemKey: (index) => {
+      const item = flatItems[index];
+      if (!item) return index;
+      if (item.type === "header") return `h:${item.label}`;
+      if (item.type === "project") return `p:${item.directory}`;
+      return `s:${item.session.id}`;
+    },
     estimateSize: (index) => {
       const item = flatItems[index];
-      if (item.type === "header") return item.first ? 24 : 32;
+      if (item.type === "header") {
+        // Project/chat headers embed a toolbar (h-6 buttons) making them taller
+        // than plain text headers; non-first headers also get an extra pt-2
+        // (8px) from the wrapper. Match the real height so the first paint
+        // after a structural change doesn't shift layout.
+        const hasToolbar = !hasSearch && (item.label === "projects" || item.label === "chats");
+        const content = hasToolbar ? 36 : 25;
+        return item.first ? content : content + 8;
+      }
       if (item.type === "project") return 30;
       return item.snippet ? 44 : 30;
     },
     overscan: 10,
   });
-
-  useEffect(() => {
-    const frame = requestAnimationFrame(() => virtualizer.measure());
-    return () => cancelAnimationFrame(frame);
-  }, [flatItemsSignature, virtualizer]);
 
   // Fetch next page when scrolling near bottom
   useEffect(() => {
@@ -487,7 +489,7 @@ export function SessionList() {
       <div className="flex-1 px-4 py-3">
         <div className="flex h-full min-h-0 flex-col gap-2">
           {Array.from({ length: 12 }).map((_, i) => (
-            <Skeleton key={i} className="h-12 w-full rounded-2xl" />
+            <Skeleton key={i} className="h-8 w-full rounded-lg" />
           ))}
           <div className="flex-1" />
         </div>
@@ -556,8 +558,8 @@ export function SessionList() {
                 style={{ transform: `translateY(${virtualRow.start}px)` }}
               >
                 {item.type === "header" ? (
-                  <div className="flex items-center justify-between gap-2 pl-5 pr-3 pb-1 pt-1">
-                    <p className="text-ui-3xs font-semibold uppercase tracking-[0.12em] text-[var(--text-tertiary)]">
+                  <div className="flex items-center justify-between gap-2 pl-5 pr-3 pb-1.5 pt-1.5">
+                    <p className="text-ui-3xs font-semibold uppercase tracking-[0.14em] text-[var(--text-tertiary)]">
                       {t(item.label)}
                     </p>
                     {!hasSearch && item.label === "projects" && (
@@ -689,8 +691,8 @@ function ProjectRow({
       <ContextMenuTrigger asChild>
         <div
           className={cn(
-            "group/project relative mx-3 rounded-lg focus-within:bg-[var(--sidebar-active)] focus-within:shadow-[var(--sidebar-active-shadow)] data-[state=open]:bg-[var(--sidebar-active)] data-[state=open]:shadow-[var(--sidebar-active-shadow)]",
-            menuOpen && "bg-[var(--sidebar-active)] shadow-[var(--sidebar-active-shadow)]",
+            "group/project relative mx-2.5 rounded-lg transition-colors focus-within:bg-[var(--sidebar-hover)] data-[state=open]:bg-[var(--sidebar-hover)]",
+            menuOpen && "bg-[var(--sidebar-hover)]",
           )}
         >
           <button

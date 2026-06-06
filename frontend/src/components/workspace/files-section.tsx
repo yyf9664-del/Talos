@@ -2,12 +2,15 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown, ChevronRight, FileText, FolderOpen } from "lucide-react";
+import { ChevronDown, ChevronRight, FileText } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useWorkspaceStore, type WorkspaceFile } from "@/stores/workspace-store";
 import { useArtifactStore } from "@/stores/artifact-store";
+import { artifactTypeFromExtension, languageFromExtension } from "@/lib/artifacts";
 import { cn } from "@/lib/utils";
 
 function FileItem({ file }: { file: WorkspaceFile }) {
+  const { t } = useTranslation("chat");
   const handleClick = () => {
     const store = useArtifactStore.getState();
     // Match by filePath first, then fall back to matching by title (for artifacts
@@ -23,15 +26,16 @@ function FileItem({ file }: { file: WorkspaceFile }) {
     }
     store.openArtifact({
       id: `workspace-${file.path}`,
-      type: "file-preview",
+      type: artifactTypeFromExtension(file.path) ?? "file-preview",
       title: file.name,
       content: "",
+      language: languageFromExtension(file.path),
       filePath: file.path,
     });
   };
 
   const displayName =
-    file.type === "instructions" ? `Instructions \u00b7 ${file.name}` : file.name;
+    file.type === "instructions" ? `${t("workspaceInstructions")} · ${file.name}` : file.name;
 
   return (
     <button
@@ -47,6 +51,7 @@ function FileItem({ file }: { file: WorkspaceFile }) {
 }
 
 function Scratchpad() {
+  const { t } = useTranslation("chat");
   const content = useWorkspaceStore((s) => s.scratchpadContent);
   const setContent = useWorkspaceStore((s) => s.setScratchpadContent);
   const [expanded, setExpanded] = useState(false);
@@ -69,7 +74,7 @@ function Scratchpad() {
           <ChevronRight className="h-3 w-3 text-[var(--text-tertiary)]" />
         )}
         <span className="text-[13px] text-[var(--text-tertiary)]">
-          Scratchpad
+          {t("workspaceScratchpad")}
         </span>
       </button>
       {expanded && (
@@ -81,7 +86,8 @@ function Scratchpad() {
             "border border-[var(--border-focus)] focus:outline-none",
             "min-h-[80px]",
           )}
-          placeholder="Notes, ideas, reminders..."
+          placeholder={t("workspaceScratchpadPlaceholder")}
+          aria-label={t("workspaceScratchpad")}
           value={content}
           onChange={(e) => setContent(e.target.value)}
           autoFocus
@@ -92,6 +98,7 @@ function Scratchpad() {
 }
 
 export function FilesCard() {
+  const { t } = useTranslation("chat");
   const workspaceFiles = useWorkspaceStore((s) => s.workspaceFiles);
   const scratchpadContent = useWorkspaceStore((s) => s.scratchpadContent);
   const collapsed = useWorkspaceStore((s) => s.collapsedSections["files"]);
@@ -105,27 +112,22 @@ export function FilesCard() {
         className="flex w-full items-start justify-between px-4 py-4 text-left transition-colors hover:bg-white/[0.02]"
         onClick={() => toggleSection("files")}
       >
-        <div className="flex min-w-0 flex-1 items-start gap-3">
-          <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-2xl border border-white/8 bg-white/[0.04]">
-            <FolderOpen className="h-4 w-4 text-[var(--text-tertiary)]" />
-          </div>
-          <div className="min-w-0">
-            <span className="block text-[13px] font-medium text-[var(--text-primary)]">
-              Files
+        <div className="min-w-0 flex-1">
+          <span className="block text-[13px] font-medium text-[var(--text-primary)]">
+            {t("workspaceFiles")}
+          </span>
+          <span className="mt-1 block text-[12px] text-[var(--text-tertiary)]">
+            {workspaceFiles.length > 0
+              ? t("workspaceGeneratedFiles", { count: workspaceFiles.length })
+              : hasContent
+                ? t("workspaceNotesAvailable")
+                : t("workspaceNoFilesYet")}
+          </span>
+          {latestFile && (
+            <span className="mt-2 block truncate text-[12px] text-[var(--text-secondary)]">
+              {t("workspaceLatestFile", { name: latestFile.name })}
             </span>
-            <span className="mt-1 block text-[12px] text-[var(--text-tertiary)]">
-              {workspaceFiles.length > 0
-                ? `${workspaceFiles.length} generated file${workspaceFiles.length === 1 ? "" : "s"}`
-                : hasContent
-                  ? "Notes available"
-                  : "No files yet"}
-            </span>
-            {latestFile && (
-              <span className="mt-2 block truncate text-[12px] text-[var(--text-secondary)]">
-                Latest: {latestFile.name}
-              </span>
-            )}
-          </div>
+          )}
         </div>
         <div className="ml-3 flex items-center gap-2">
           {workspaceFiles.length > 0 && (
@@ -159,7 +161,7 @@ export function FilesCard() {
                 </div>
               ) : (
                 <p className="px-4 py-2 text-[12px] text-[var(--text-quaternary)]">
-                  No files yet
+                  {t("workspaceNoFilesYet")}
                 </p>
               )}
               <div className="mt-2">

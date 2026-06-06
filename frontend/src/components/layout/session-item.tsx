@@ -304,14 +304,14 @@ export const SessionItem = memo(function SessionItem({
             cancel();
           }}
           className={cn(
-            "group/session relative mx-3 flex cursor-pointer items-center gap-2 overflow-hidden rounded-lg text-sm transition-colors duration-150 ease-out",
+            "group/session relative mx-2.5 flex cursor-pointer items-center gap-2 overflow-hidden rounded-lg text-sm transition-colors duration-150 ease-out",
             "pl-9 pr-2",
             snippet ? "min-h-11 py-1.5" : "h-7 py-1",
             isActive
-              ? "bg-[var(--sidebar-active)] text-[var(--text-primary)] shadow-[var(--sidebar-active-shadow)]"
-              : "text-[var(--text-primary)] hover:bg-[var(--sidebar-hover)] focus-within:bg-[var(--sidebar-active)] focus-within:shadow-[var(--sidebar-active-shadow)] data-[state=open]:bg-[var(--sidebar-active)] data-[state=open]:shadow-[var(--sidebar-active-shadow)]",
-            (menuOpen || dropdownOpen) && "bg-[var(--sidebar-active)] shadow-[var(--sidebar-active-shadow)]",
-            isEditing && "ring-1 ring-[var(--brand-primary)]",
+              ? "bg-[var(--sidebar-active)] text-[var(--text-primary)]"
+              : "text-[var(--text-primary)] hover:bg-[var(--sidebar-hover)] focus-within:bg-[var(--sidebar-hover)] data-[state=open]:bg-[var(--sidebar-hover)]",
+            (menuOpen || dropdownOpen) && "bg-[var(--sidebar-hover)]",
+            isEditing && "ring-1 ring-[var(--border-heavy)]",
           )}
         >
           <button
@@ -322,7 +322,7 @@ export const SessionItem = memo(function SessionItem({
               onTogglePin?.(session.id, !session.is_pinned);
             }}
             className={cn(
-              "absolute left-1.5 top-1/2 z-10 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-md text-[var(--text-tertiary)] opacity-0 transition-opacity hover:bg-[var(--surface-tertiary)] hover:text-[var(--text-primary)] focus:outline-none focus-visible:ring-1 focus-visible:ring-[var(--brand-primary)] focus-visible:opacity-100 group-hover/session:opacity-100",
+              "absolute left-1.5 top-1/2 z-10 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-md text-[var(--text-tertiary)] opacity-0 transition-all hover:bg-[var(--surface-tertiary)] hover:text-[var(--text-secondary)] focus:outline-none focus-visible:ring-1 focus-visible:ring-[var(--border-heavy)] focus-visible:opacity-100 group-hover/session:opacity-100",
               isEditing && "hidden",
             )}
             aria-label={pinLabel}
@@ -347,6 +347,7 @@ export const SessionItem = memo(function SessionItem({
                 onBlur={handleSubmitRename}
                 onClick={(e) => e.stopPropagation()}
                 className="w-full border-b border-[var(--brand-primary)] bg-transparent py-0.5 text-sm text-[var(--text-primary)] outline-none"
+                aria-label={t("rename")}
               />
             ) : (
               <>
@@ -403,7 +404,7 @@ export const SessionItem = memo(function SessionItem({
                 onArchive?.(session.id);
               }}
               className={cn(
-                "absolute right-9 top-1/2 z-10 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-md text-[var(--text-tertiary)] opacity-0 transition-opacity hover:bg-[var(--surface-tertiary)] hover:text-[var(--text-primary)] focus:outline-none focus-visible:ring-1 focus-visible:ring-[var(--brand-primary)] focus-visible:opacity-100 group-hover/session:opacity-100",
+                "absolute right-9 top-1/2 z-10 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-md text-[var(--text-tertiary)] opacity-0 transition-all hover:bg-[var(--surface-tertiary)] hover:text-[var(--text-secondary)] focus:outline-none focus-visible:ring-1 focus-visible:ring-[var(--border-heavy)] focus-visible:opacity-100 group-hover/session:opacity-100",
               )}
               aria-label={t('archiveChat')}
               title={t('archiveChat')}
@@ -422,7 +423,7 @@ export const SessionItem = memo(function SessionItem({
                   type="button"
                   onClick={(e) => e.stopPropagation()}
                   className={cn(
-                    "absolute right-1.5 top-1/2 z-10 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-md text-[var(--text-tertiary)] opacity-0 transition-opacity hover:bg-[var(--surface-tertiary)] hover:text-[var(--text-primary)] focus:outline-none focus-visible:ring-1 focus-visible:ring-[var(--brand-primary)] focus-visible:opacity-100 group-hover/session:opacity-100 data-[state=open]:opacity-100",
+                    "absolute right-1.5 top-1/2 z-10 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-md text-[var(--text-tertiary)] opacity-0 transition-all hover:bg-[var(--surface-tertiary)] hover:text-[var(--text-secondary)] focus:outline-none focus-visible:ring-1 focus-visible:ring-[var(--border-heavy)] focus-visible:opacity-100 group-hover/session:opacity-100 data-[state=open]:opacity-100",
                   )}
                   aria-label={t('moreActions', { defaultValue: 'More actions' })}
                   title={t('moreActions', { defaultValue: 'More actions' })}

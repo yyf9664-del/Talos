@@ -153,7 +153,7 @@ The `--code-block-*` tokens stay close in light/dark but shift slightly so the d
 
 ### 1.4 Other principles worth knowing
 
-- **Monochrome + one accent.** UI chrome is grayscale; brand blue (`#339CFF`) appears only on primary actions and focus rings. Resist coloring chrome.
+- **Warm paper + one accent.** Surfaces are a warm off-white paper family (Claude-style); brand terracotta (`#C96442`, lifted to `#E0795A` in dark) appears only on primary actions and focus rings. Resist coloring chrome.
 - **Border-by-default.** `* { border-color: var(--border-default); }` ([`globals.css:172-174`](frontend/src/app/globals.css:172)) — any element using `border` Tailwind utility picks up the theme border without extra plumbing.
 - **`overflow: hidden` on `html` and `body`.** OpenYak is a desktop shell, not a scrolling document. Layout owns scroll; never add page-level scroll.
 
@@ -263,7 +263,7 @@ Every tool call moves through four data states. The current rendering collapses 
 
 Canonical implementation: [`activity/activity-panel.tsx`](frontend/src/components/activity/activity-panel.tsx) and [`parts/reasoning-part.tsx`](frontend/src/components/parts/reasoning-part.tsx). When building a new tool-state UI, match this pattern.
 
-**On the unused tokens.** `--tool-pending` (amber) and `--tool-running` (near-black / brand-blue in dark) are defined in [`globals.css:67-71`](frontend/src/app/globals.css:67) but **not currently bound** to any rendered state — the live UI uses the neutral spinner above. Treat them as reserved tokens; do not introduce them into UI without a deliberate design change to the lifecycle visualization.
+**On the unused tokens.** `--tool-pending` (amber) and `--tool-running` (near-black / brand-terracotta in dark) are defined in [`globals.css:67-71`](frontend/src/app/globals.css:67) but **not currently bound** to any rendered state — the live UI uses the neutral spinner above. Treat them as reserved tokens; do not introduce them into UI without a deliberate design change to the lifecycle visualization.
 
 **Rule:** A tool part **must persist a terminal state** (`completed` or `error`) — never leave the icon spinning after the part settles. This is enforced backend-side via `update_part_data()`; the UI must respect the data.
 
@@ -342,7 +342,7 @@ Users with `prefers-reduced-motion: reduce` get all animations collapsed to ~0 m
 ### 6.3 Color & contrast
 
 - Text on every surface meets **WCAG AA 4.5:1** at 13 px. The token pairs were chosen with this constraint; do not pair `--text-tertiary` with `--surface-tertiary`.
-- Brand blue (`#339CFF`) is used **only on filled buttons with white text or as a focus ring** — it does not pass AA as text on white. Do not use it for body text or links in light mode (use `--prose-link` instead).
+- Brand terracotta (`#C96442`) is used **only on filled buttons with white text or as a focus ring** — it does not pass AA as text on the warm paper surface. Do not use it for body text or links in light mode (use `--prose-link` instead).
 - Tool-status colors are paired with both an icon shape **and** copy, never color alone.
 
 ### 6.4 Keyboard

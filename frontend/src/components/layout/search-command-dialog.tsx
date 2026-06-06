@@ -124,6 +124,7 @@ export function SearchCommandDialog() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder={t("searchChats")}
+              aria-label={t("searchChats")}
               className="flex-1 bg-transparent text-base text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] outline-none"
             />
           </div>

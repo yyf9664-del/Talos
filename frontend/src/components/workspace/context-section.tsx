@@ -4,6 +4,7 @@ import { useState, useCallback, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown, Plug, Brain, Pencil, Check, X, Download, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import { useConnectors } from "@/hooks/use-connectors";
 import { useSkills } from "@/hooks/use-plugins";
 import { useAnySessionGenerating } from "@/stores/chat-store";
@@ -23,6 +24,7 @@ const STATUS_DOT: Record<string, string> = {
 };
 
 function ConnectorsBlock() {
+  const { t } = useTranslation("chat");
   const { data, isLoading } = useConnectors();
   const connectors = data?.connectors ? Object.values(data.connectors) : [];
   // Only show connectors that are actually connected (not just enabled)
@@ -39,11 +41,11 @@ function ConnectorsBlock() {
   return (
     <div className="mb-1">
       <p className="px-4 py-1.5 text-[11px] font-medium text-[var(--text-tertiary)]">
-        Connectors
+        {t("workspaceConnectors")}
       </p>
       {connected.length === 0 ? (
         <p className="px-4 py-1 text-[12px] text-[var(--text-quaternary)]">
-          No connectors active
+          {t("workspaceNoConnectorsActive")}
         </p>
       ) : (
         <div className="space-y-0.5">
@@ -71,6 +73,7 @@ function ConnectorsBlock() {
 }
 
 function SkillsSummary() {
+  const { t } = useTranslation("chat");
   const { data: skills, isLoading } = useSkills();
 
   if (isLoading) return null;
@@ -79,11 +82,11 @@ function SkillsSummary() {
   return (
     <div>
       <p className="px-4 py-1.5 text-[11px] font-medium text-[var(--text-tertiary)]">
-        Skills
+        {t("workspaceSkills")}
       </p>
       <div className="px-4 py-1">
         <span className="text-[13px] text-[var(--text-secondary)]">
-          {skills.length} skills available
+          {t("workspaceSkillsAvailable", { count: skills.length })}
         </span>
       </div>
     </div>
@@ -91,6 +94,7 @@ function SkillsSummary() {
 }
 
 function MemoryBlock() {
+  const { t } = useTranslation("chat");
   const workspacePath = useWorkspaceStore((s) => s.activeWorkspacePath);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const refreshTimestampRef = useRef<string | null>(null);
@@ -143,12 +147,12 @@ function MemoryBlock() {
       {
         onSuccess: () => {
           setIsEditing(false);
-          toast.success("Memory saved");
+          toast.success(t("workspaceMemorySaved"));
         },
-        onError: () => toast.error("Failed to save memory"),
+        onError: () => toast.error(t("workspaceMemorySaveFailed")),
       },
     );
-  }, [workspacePath, editContent, updateMutation]);
+  }, [workspacePath, editContent, updateMutation, t]);
 
   const handleCancel = useCallback(() => {
     setIsEditing(false);
@@ -162,18 +166,18 @@ function MemoryBlock() {
     refreshMutation.mutate(workspacePath, {
       onError: () => {
         setIsRefreshing(false);
-        toast.error("Failed to refresh memory");
+        toast.error(t("workspaceMemoryRefreshFailed"));
       },
     });
-  }, [workspacePath, data?.time_updated, refreshMutation]);
+  }, [workspacePath, data?.time_updated, refreshMutation, t]);
 
   const handleExport = useCallback(() => {
     if (!workspacePath) return;
     exportMutation.mutate(workspacePath, {
-      onSuccess: (res) => toast.success(`Exported to ${res.exported_to}`),
-      onError: () => toast.error("Failed to export"),
+      onSuccess: (res) => toast.success(t("workspaceMemoryExported", { path: res.exported_to })),
+      onError: () => toast.error(t("workspaceMemoryExportFailed")),
     });
-  }, [workspacePath, exportMutation]);
+  }, [workspacePath, exportMutation, t]);
 
   if (!workspacePath) return null;
 
@@ -183,7 +187,7 @@ function MemoryBlock() {
         <div className="flex items-center gap-1.5">
           <Brain className="h-3.5 w-3.5 text-[var(--text-tertiary)]" />
           <p className="text-[11px] font-medium text-[var(--text-tertiary)]">
-            Memory
+            {t("workspaceMemory")}
           </p>
         </div>
         <div className="flex items-center gap-0.5">
@@ -193,14 +197,14 @@ function MemoryBlock() {
                 onClick={handleSave}
                 disabled={updateMutation.isPending}
                 className="rounded p-1 text-[var(--text-tertiary)] hover:text-green-500 hover:bg-[var(--surface-tertiary)] transition-colors disabled:opacity-50"
-                title="Save"
+                title={t("workspaceSave")}
               >
                 <Check className="h-3 w-3" />
               </button>
               <button
                 onClick={handleCancel}
                 className="rounded p-1 text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-tertiary)] transition-colors"
-                title="Cancel"
+                title={t("cancel")}
               >
                 <X className="h-3 w-3" />
               </button>
@@ -211,14 +215,14 @@ function MemoryBlock() {
                 onClick={handleRefresh}
                 disabled={isRefreshing}
                 className="rounded p-1 text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-tertiary)] transition-colors disabled:opacity-50"
-                title="Refresh"
+                title={t("workspaceRefresh")}
               >
                 <RefreshCw className={cn("h-3 w-3", isRefreshing && "animate-spin")} />
               </button>
               <button
                 onClick={handleStartEdit}
                 className="rounded p-1 text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-tertiary)] transition-colors"
-                title="Edit"
+                title={t("workspaceEdit")}
               >
                 <Pencil className="h-3 w-3" />
               </button>
@@ -227,7 +231,7 @@ function MemoryBlock() {
                   onClick={handleExport}
                   disabled={exportMutation.isPending}
                   className="rounded p-1 text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-tertiary)] transition-colors disabled:opacity-50"
-                  title="Export"
+                  title={t("workspaceExport")}
                 >
                   <Download className="h-3 w-3" />
                 </button>
@@ -242,7 +246,8 @@ function MemoryBlock() {
             value={editContent}
             onChange={(e) => setEditContent(e.target.value)}
             className="w-full min-h-[80px] max-h-[200px] p-2 text-[11px] font-mono rounded-lg border border-[var(--border-default)] bg-[var(--surface-primary)] text-[var(--text-primary)] resize-y focus:outline-none focus:ring-1 focus:ring-[var(--accent-primary)]"
-            placeholder="Workspace memory (Markdown)..."
+            placeholder={t("workspaceMemoryPlaceholder")}
+            aria-label={t("workspaceMemoryPlaceholder")}
           />
         ) : isLoading || isRefreshing ? (
           <div className="space-y-1">
@@ -257,7 +262,7 @@ function MemoryBlock() {
           </div>
         ) : (
           <p className="text-[11px] text-[var(--text-quaternary)]">
-            No memory yet
+            {t("workspaceNoMemoryYet")}
           </p>
         )}
       </div>
@@ -266,6 +271,7 @@ function MemoryBlock() {
 }
 
 export function ContextCard() {
+  const { t } = useTranslation("chat");
   const collapsed = useWorkspaceStore((s) => s.collapsedSections["context"]);
   const toggleSection = useWorkspaceStore((s) => s.toggleSection);
   const workspacePath = useWorkspaceStore((s) => s.activeWorkspacePath);
@@ -278,27 +284,27 @@ export function ContextCard() {
       >
         <div className="min-w-0 flex-1">
           <span className="block text-[13px] font-medium text-[var(--text-primary)]">
-            Context
+            {t("workspaceContext")}
           </span>
           <span className="mt-1 block truncate text-[12px] text-[var(--text-tertiary)]">
-            {workspacePath ? "Memory, connectors, and skills" : "Workspace-aware context"}
+            {workspacePath ? t("workspaceContextReady") : t("workspaceContextAware")}
           </span>
           <div className="mt-3 flex flex-wrap gap-1.5">
             {workspacePath ? (
               <>
                 <span className="rounded-full border border-white/10 bg-white/[0.03] px-2 py-1 text-[10px] text-[var(--text-secondary)]">
-                  Memory
+                  {t("workspaceMemory")}
                 </span>
                 <span className="rounded-full border border-white/10 bg-white/[0.03] px-2 py-1 text-[10px] text-[var(--text-secondary)]">
-                  Skills
+                  {t("workspaceSkills")}
                 </span>
                 <span className="rounded-full border border-white/10 bg-white/[0.03] px-2 py-1 text-[10px] text-[var(--text-secondary)]">
-                  Connectors
+                  {t("workspaceConnectors")}
                 </span>
               </>
             ) : (
               <span className="rounded-full border border-white/10 bg-white/[0.03] px-2 py-1 text-[10px] text-[var(--text-secondary)]">
-                Waiting for workspace
+                {t("workspaceWaitingForWorkspace")}
               </span>
             )}
           </div>

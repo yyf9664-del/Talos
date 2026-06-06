@@ -256,7 +256,7 @@ export function HeaderModelDropdown() {
       <button
         type="button"
         disabled
-        className="inline-flex h-7 max-w-[220px] items-center gap-1.5 rounded-lg border-none bg-transparent px-3 text-[13px] font-semibold text-[var(--text-tertiary)] shadow-none focus:outline-none cursor-default"
+        className="inline-flex h-8 max-w-[240px] cursor-default items-center gap-2 rounded-lg border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 text-[13px] font-medium text-[var(--text-tertiary)] focus:outline-none"
       >
         <Loader2 className="h-4 w-4 animate-spin shrink-0" />
         <span className="truncate">
@@ -274,7 +274,7 @@ export function HeaderModelDropdown() {
             <button
               type="button"
               onClick={() => router.push("/settings?tab=providers")}
-              className="inline-flex h-7 max-w-[220px] items-center gap-1.5 rounded-lg border-none bg-transparent px-3 text-[13px] font-semibold text-[var(--text-secondary)] shadow-none transition-colors hover:bg-[var(--surface-secondary)] focus:outline-none cursor-pointer"
+              className="inline-flex h-8 max-w-[240px] cursor-pointer items-center gap-2 rounded-lg border border-[var(--color-destructive)]/20 bg-[var(--surface-primary)] px-3 text-[13px] font-medium text-[var(--text-secondary)] transition-colors hover:bg-[var(--surface-secondary)] focus:outline-none"
             >
               <AlertCircle className="h-4 w-4 shrink-0 text-[var(--color-destructive)]" />
               <span className="truncate">
@@ -301,7 +301,7 @@ export function HeaderModelDropdown() {
       <button
         type="button"
         onClick={() => router.push("/settings?tab=providers")}
-        className="inline-flex h-7 max-w-[220px] items-center gap-1.5 rounded-lg border-none bg-transparent px-3 text-[13px] font-semibold text-[var(--text-secondary)] shadow-none transition-colors hover:bg-[var(--surface-secondary)] focus:outline-none cursor-pointer"
+        className="inline-flex h-8 max-w-[240px] cursor-pointer items-center gap-2 rounded-lg border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 text-[13px] font-medium text-[var(--text-secondary)] transition-colors hover:bg-[var(--surface-secondary)] focus:outline-none"
       >
         <span className="truncate">{t("setupProvider")}</span>
         <ChevronDown className="h-4 w-4 opacity-50 shrink-0" />
@@ -324,17 +324,17 @@ export function HeaderModelDropdown() {
           }
           title={selectedLabel}
           className={cn(
-            "inline-flex translate-y-[1px] items-center gap-1.5 rounded-lg border-none bg-transparent px-3 shadow-none transition-colors hover:bg-[var(--surface-secondary)] focus:outline-none cursor-pointer",
+            "inline-flex translate-y-[1px] cursor-pointer items-center gap-2 rounded-lg border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 transition-colors hover:bg-[var(--surface-secondary)] focus:outline-none",
             // Two-line layout when a variant is detected; otherwise keep single
             // line so the visual matches the existing dropdown trigger height.
             modelVariant
-              ? "h-10 max-w-[320px] sm:max-w-[420px] py-1"
-              : "h-7 max-w-[320px] sm:max-w-[420px] text-[13px] font-semibold text-[var(--text-primary)]",
+              ? "h-10 max-w-[320px] py-1 sm:max-w-[420px]"
+              : "h-8 max-w-[320px] text-[13px] font-medium text-[var(--text-primary)] sm:max-w-[420px]",
           )}
         >
           {modelVariant ? (
             <span className="flex flex-col items-start min-w-0 leading-tight">
-              <span className="truncate max-w-full text-[13px] font-semibold text-[var(--text-primary)]">
+              <span className="truncate max-w-full text-[13px] font-medium text-[var(--text-primary)]">
                 {modelFamily}
               </span>
               <span className="truncate max-w-full text-[10px] font-medium uppercase tracking-[0.08em] text-[var(--text-tertiary)]">
@@ -348,15 +348,15 @@ export function HeaderModelDropdown() {
         </button>
       </PopoverTrigger>
       <PopoverContent
-        className="w-[min(520px,calc(100vw-24px))] p-0 overflow-hidden"
+        className="w-[min(520px,calc(100vw-24px))] overflow-hidden rounded-xl border border-[var(--border-default)] bg-[var(--surface-primary)] p-0 shadow-[var(--shadow-md)]"
         align="start"
-        sideOffset={4}
+        sideOffset={8}
       >
         <TooltipProvider delayDuration={300}>
           <Command>
             <CommandInput placeholder={t("searchModels")} />
             {/* Sort bar */}
-            <div className="flex items-center gap-1 px-3 py-1.5 border-b border-[var(--border-default)]">
+            <div className="flex items-center gap-1 border-b border-[var(--border-default)] bg-[var(--surface-secondary)] px-3 py-1.5">
               <span className="text-[10px] text-[var(--text-tertiary)] uppercase tracking-wider mr-auto">
                 {t("sortBy")}
               </span>
@@ -367,9 +367,9 @@ export function HeaderModelDropdown() {
                   onPointerDown={(e) => e.preventDefault()}
                   onClick={() => setSortBy(key)}
                   className={cn(
-                    "px-2 py-0.5 text-[11px] rounded-md transition-colors",
+                    "rounded-md px-2 py-1 text-[11px] transition-colors",
                     sortBy === key
-                      ? "bg-[var(--surface-secondary)] text-[var(--text-primary)]"
+                      ? "bg-[var(--surface-primary)] text-[var(--text-primary)]"
                       : "text-[var(--text-tertiary)] hover:text-[var(--text-secondary)]",
                   )}
                 >

@@ -3,21 +3,21 @@
 /* ─── OpenYak — Codex-aligned defaults ─── */
 
 :root {
-  /* Surface */
-  --surface-primary: #FFFFFF;
-  --surface-secondary: #F6F6F6;
-  --surface-tertiary: #EFEFEF;
-  --surface-chat: #FFFFFF;
+  /* Surface — Claude warm paper */
+  --surface-primary: #FBF9F5;
+  --surface-secondary: #F0EBE2;
+  --surface-tertiary: #E7E0D4;
+  --surface-chat: #F7F4EF;
 
   /* Text */
-  --text-primary: #1A1C1F;
-  --text-secondary: #5F6368;
-  --text-tertiary: #8A8F98;
+  --text-primary: #2B2620;
+  --text-secondary: #6B6258;
+  --text-tertiary: #978C7C;
 
   /* Border */
-  --border-default: #E3E4E7;
-  --border-heavy: #D2D5DA;
-  --border-subtle: rgba(26, 28, 31, 0.08);
+  --border-default: #E6DECF;
+  --border-heavy: #D8CDB8;
+  --border-subtle: rgba(43, 38, 32, 0.08);
 
   /* Code block surfaces (light theme uses dark code blocks like ChatGPT/Claude) */
   --code-block-bg: #2F2F2F;
@@ -27,9 +27,9 @@
   --code-block-text-hover: #FFFFFF;
   --code-block-success: #4EC9B0;
 
-  /* Brand */
-  --brand-primary: #339CFF;
-  --brand-primary-hover: #238EFF;
+  /* Brand — Claude terracotta */
+  --brand-primary: #C96442;
+  --brand-primary-hover: #B5573A;
   --brand-primary-text: #FFFFFF;
 
   /* Semantic */
@@ -38,44 +38,44 @@
   --color-destructive: #EF4444;
 
   /* Sidebar */
-  --sidebar-bg: #F7F7F8;
+  --sidebar-bg: #F2EDE4;
   /* Translucent bg over macOS vibrancy / unpredictable wallpapers. Light mode
      needs high alpha so dark text stays readable regardless of what's behind. */
-  --sidebar-translucent-bg: rgba(247, 247, 248, 0.88);
-  --sidebar-hover: #EEEEF0;
-  --sidebar-active: #E7E9ED;
-  --sidebar-active-shadow: 0 1px 2px rgba(26, 28, 31, 0.05);
-  --sidebar-active-border: rgba(26, 28, 31, 0.05);
+  --sidebar-translucent-bg: rgba(242, 237, 228, 0.88);
+  --sidebar-hover: #EBE4D7;
+  --sidebar-active: #E8E1D4;
+  --sidebar-active-shadow: 0 1px 2px rgba(60, 45, 28, 0.05);
+  --sidebar-active-border: rgba(43, 38, 32, 0.05);
 
   /* User message bubble */
-  --user-bubble-bg: #F4F5F7;
+  --user-bubble-bg: #EDE7DB;
 
   /* Ring */
-  --ring: #339CFF;
+  --ring: #C96442;
 
   /* Radius */
   --radius: 0.625rem;
 
-  /* Shadows */
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.07);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.08);
+  /* Shadows — warm-tinted */
+  --shadow-sm: 0 1px 2px rgba(60, 45, 28, 0.07);
+  --shadow-md: 0 4px 6px -1px rgba(60, 45, 28, 0.09), 0 2px 4px -2px rgba(60, 45, 28, 0.09);
+  --shadow-lg: 0 10px 15px -3px rgba(60, 45, 28, 0.10), 0 4px 6px -4px rgba(60, 45, 28, 0.10);
 
   /* Switch */
-  --switch-checked: #171717;
+  --switch-checked: #2B2620;
 
   /* Tool colors */
   --tool-pending: #EAB308;
-  --tool-running: #171717;
+  --tool-running: #2B2620;
   --tool-completed: #22C55E;
   --tool-error: #EF4444;
 
   /* Prose — content styling */
-  --prose-body: #212121;
-  --prose-link: #2563EB;
-  --prose-accent: #3B82F6;
-  --prose-blockquote-bg: rgba(59, 130, 246, 0.04);
-  --prose-marker: #A3A3A3;
+  --prose-body: #2B2620;
+  --prose-link: #C96442;
+  --prose-accent: #C96442;
+  --prose-blockquote-bg: rgba(201, 100, 66, 0.05);
+  --prose-marker: #B0A593;
 
   /* Typography scale */
   --ui-font-size-base: 13px;
@@ -125,9 +125,9 @@
   --code-block-text-hover: #f8f9fb;
   --code-block-success: #55d6a6;
 
-  /* Brand */
-  --brand-primary: #339CFF;
-  --brand-primary-hover: #4AA8FF;
+  /* Brand — Claude terracotta (lifted for dark contrast) */
+  --brand-primary: #E0795A;
+  --brand-primary-hover: #E88C6E;
   --brand-primary-text: #FFFFFF;
 
   /* Semantic */
@@ -148,10 +148,10 @@
   --user-bubble-bg: #232323;
 
   /* Ring */
-  --ring: #339CFF;
+  --ring: #E0795A;
 
   /* Switch */
-  --switch-checked: #339CFF;
+  --switch-checked: #E0795A;
 
   /* Shadows */
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.18);
@@ -160,9 +160,9 @@
 
   /* Prose */
   --prose-body: #e8e8e8;
-  --prose-link: #8ab4ff;
-  --prose-accent: #9fc1ff;
-  --prose-blockquote-bg: rgba(138, 180, 255, 0.06);
+  --prose-link: #E59B82;
+  --prose-accent: #E59B82;
+  --prose-blockquote-bg: rgba(224, 121, 90, 0.08);
   --prose-marker: #727272;
 }
 

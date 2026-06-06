@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
+import { useTranslation } from "react-i18next";
+import type { TFunction } from "i18next";
 import { ShieldAlert, ShieldCheck, ShieldX, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -14,43 +16,43 @@ interface PermissionDialogProps {
   onRespond: (allow: boolean, remember?: boolean) => void;
 }
 
-const TOOL_EXPLANATIONS: Record<string, {
-  action: string;
-  impact: string;
-  safeguard: string;
-}> = {
-  read: {
-    action: "Read files from your selected workspace",
-    impact: "No files will be modified",
-    safeguard: "You can deny if the path looks unrelated",
-  },
-  write: {
-    action: "Create or overwrite a file",
-    impact: "File content will change on disk",
-    safeguard: "Allow only when the target file/path is expected",
-  },
-  edit: {
-    action: "Edit an existing file",
-    impact: "Existing content may be replaced",
-    safeguard: "Allow only for files you intend to update now",
-  },
-  bash: {
-    action: "Run a shell command",
-    impact: "May change files or system state",
-    safeguard: "Deny if command scope is unclear",
-  },
-  web_fetch: {
-    action: "Fetch content from a URL",
-    impact: "No local files changed",
-    safeguard: "Allow trusted domains only",
-  },
-};
+function getToolExplanation(tool: string, t: TFunction<"chat">) {
+  const explanations: Record<string, {
+    action: string;
+    impact: string;
+    safeguard: string;
+  }> = {
+    read: {
+      action: t("permissionActionRead", "Read files from your selected workspace"),
+      impact: t("permissionImpactRead", "No files will be modified"),
+      safeguard: t("permissionSafeguardRead", "You can deny if the path looks unrelated"),
+    },
+    write: {
+      action: t("permissionActionWrite", "Create or overwrite a file"),
+      impact: t("permissionImpactWrite", "File content will change on disk"),
+      safeguard: t("permissionSafeguardWrite", "Allow only when the target file/path is expected"),
+    },
+    edit: {
+      action: t("permissionActionEdit", "Edit an existing file"),
+      impact: t("permissionImpactEdit", "Existing content may be replaced"),
+      safeguard: t("permissionSafeguardEdit", "Allow only for files you intend to update now"),
+    },
+    bash: {
+      action: t("permissionActionBash", "Run a shell command"),
+      impact: t("permissionImpactBash", "May change files or system state"),
+      safeguard: t("permissionSafeguardBash", "Deny if command scope is unclear"),
+    },
+    web_fetch: {
+      action: t("permissionActionWebFetch", "Fetch content from a URL"),
+      impact: t("permissionImpactWebFetch", "No local files changed"),
+      safeguard: t("permissionSafeguardWebFetch", "Allow trusted domains only"),
+    },
+  };
 
-function getToolExplanation(tool: string) {
-  return TOOL_EXPLANATIONS[tool] ?? {
-    action: "Run a tool action",
-    impact: "May read or modify workspace data",
-    safeguard: "Review details before allowing",
+  return explanations[tool] ?? {
+    action: t("permissionActionDefault", "Run a tool action"),
+    impact: t("permissionImpactDefault", "May read or modify workspace data"),
+    safeguard: t("permissionSafeguardDefault", "Review details before allowing"),
   };
 }
 
@@ -81,6 +83,7 @@ function PermissionDetails({
   permission: PermissionRequest;
   compact?: boolean;
 }) {
+  const { t } = useTranslation("chat");
   const args = permission.arguments ?? {};
   const command = getPermissionCommand(args);
   const target = getPermissionTarget(args, permission.patterns);
@@ -95,10 +98,10 @@ function PermissionDetails({
   if (!permission.message && !target && !hasArgs) return null;
 
   return (
-    <div className="rounded-lg bg-[var(--surface-secondary)] border border-[var(--border-default)] p-2.5 space-y-2">
+    <div className="space-y-2 rounded-lg border border-[var(--border-default)] bg-[var(--surface-secondary)] p-2.5">
       {permission.message && (
         <div>
-          <p className={labelClass}>Request</p>
+          <p className={labelClass}>{t("permissionRequest", "Request")}</p>
           <p className="text-xs text-[var(--text-secondary)] whitespace-pre-wrap break-words">
             {permission.message}
           </p>
@@ -107,26 +110,26 @@ function PermissionDetails({
 
       {target && (
         <div>
-          <p className={labelClass}>Target</p>
+          <p className={labelClass}>{t("permissionTarget", "Target")}</p>
           <p className="text-xs text-[var(--text-secondary)] break-all">{target}</p>
         </div>
       )}
 
       {command ? (
         <div>
-          <p className={labelClass}>Command</p>
+          <p className={labelClass}>{t("permissionCommand", "Command")}</p>
           <pre className={codeClass}>{command}</pre>
         </div>
       ) : hasArgs ? (
         <div>
-          <p className={labelClass}>Arguments</p>
+          <p className={labelClass}>{t("permissionArguments", "Arguments")}</p>
           <pre className={codeClass}>{stringifyPermissionArguments(args)}</pre>
         </div>
       ) : null}
 
       {permission.argumentsTruncated && (
         <p className="text-[11px] text-[var(--color-warning)]">
-          Argument preview was truncated.
+          {t("permissionArgumentTruncated", "Argument preview was truncated.")}
         </p>
       )}
     </div>
@@ -157,6 +160,7 @@ function useRequestNotificationPermission() {
 }
 
 export function PermissionDialog({ permission, onRespond }: PermissionDialogProps) {
+  const { t } = useTranslation("chat");
   const [remainingMs, setRemainingMs] = useState(PERMISSION_TIMEOUT);
   const [rememberChoice, setRememberChoice] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -166,7 +170,7 @@ export function PermissionDialog({ permission, onRespond }: PermissionDialogProp
   const respondRef = useRef<(allow: boolean) => void>(undefined);
   const savePermissionRule = useSettingsStore((s) => s.savePermissionRule);
   const displayTool = permission.tool || permission.permission || "this action";
-  const details = getToolExplanation(permission.tool || permission.permission);
+  const details = getToolExplanation(permission.tool || permission.permission, t);
   const isMobile = isRemoteMode();
 
   useRequestNotificationPermission();
@@ -261,14 +265,20 @@ export function PermissionDialog({ permission, onRespond }: PermissionDialogProp
   if (isMobile) {
     return (
       <div className="px-3 pb-[max(env(safe-area-inset-bottom),8px)]">
-        <div className="rounded-2xl border-2 border-[var(--color-warning)]/40 bg-[var(--surface-primary)] shadow-lg p-4 animate-slide-up">
+        <div className="relative overflow-hidden rounded-2xl border border-[var(--border-default)] bg-[var(--surface-primary)] p-3 shadow-[var(--shadow-md)] animate-slide-up">
+          <div className="absolute left-0 top-0 h-full w-1 bg-[var(--border-heavy)]" aria-hidden="true" />
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <ShieldAlert className="h-5 w-5 text-[var(--color-warning)]" />
+                <ShieldAlert className="h-4 w-4 text-[var(--text-tertiary)]" />
                 <h3 className="text-base font-semibold text-[var(--text-primary)]">
-                  Permission Required
+                  {t("permissionRequired", "Permission Required")}
                 </h3>
+                {!expired && (
+                  <span className="rounded-full bg-[var(--surface-secondary)] px-2 py-0.5 text-[11px] font-medium text-[var(--text-tertiary)]">
+                    {displayTool}
+                  </span>
+                )}
               </div>
               {!expired && (
                 <span className={`flex items-center gap-1 text-xs tabular-nums ${
@@ -282,12 +292,13 @@ export function PermissionDialog({ permission, onRespond }: PermissionDialogProp
 
             {expired ? (
               <p className="text-sm text-[var(--color-destructive)]">
-                This permission request has timed out.
+                {t("permissionTimedOut", "This permission request has timed out.")}
               </p>
             ) : (
               <div className="text-sm text-[var(--text-secondary)] space-y-1">
                 <p>
-                  Wants to use <span className="font-medium text-[var(--text-primary)]">{displayTool}</span>
+                  {t("permissionWantsUse", "The assistant wants to use")}{" "}
+                  <span className="font-medium text-[var(--text-primary)]">{displayTool}</span>
                 </p>
                 <p className="text-xs">{details.action} &middot; {details.impact}</p>
               </div>
@@ -307,7 +318,7 @@ export function PermissionDialog({ permission, onRespond }: PermissionDialogProp
                 <div className="h-1.5 rounded-full bg-[var(--surface-tertiary)] overflow-hidden">
                   <div
                     className={`h-full rounded-full transition-all duration-1000 ease-linear ${
-                      isUrgent ? "bg-[var(--color-destructive)]" : "bg-[var(--color-warning)]"
+                      isUrgent ? "bg-[var(--color-destructive)]" : "bg-[var(--border-heavy)]"
                     }`}
                     style={{ width: `${progressPercent}%` }}
                   />
@@ -323,7 +334,8 @@ export function PermissionDialog({ permission, onRespond }: PermissionDialogProp
                     htmlFor="remember-choice-mobile"
                     className="text-sm text-[var(--text-secondary)] cursor-pointer select-none"
                   >
-                    Remember for <span className="font-medium text-[var(--text-primary)]">{displayTool}</span>
+                    {t("permissionRememberFor", "Remember for")}{" "}
+                    <span className="font-medium text-[var(--text-primary)]">{displayTool}</span>
                   </label>
                 </div>
                 <div className="flex items-center gap-3">
@@ -331,19 +343,19 @@ export function PermissionDialog({ permission, onRespond }: PermissionDialogProp
                     type="button"
                     onClick={() => void handleRespond(false)}
                     disabled={submitting}
-                    className="flex-1 h-12 flex items-center justify-center gap-2 rounded-xl border-2 border-[var(--border-default)] bg-[var(--surface-secondary)] text-[var(--text-primary)] text-base font-medium active:scale-[0.97] transition-all disabled:opacity-50"
+                    className="flex-1 h-12 flex items-center justify-center gap-2 rounded-xl border border-[var(--color-destructive)]/25 bg-[var(--color-destructive)]/5 text-[var(--color-destructive)] text-base font-medium active:scale-[0.97] transition-all disabled:opacity-50"
                   >
                     <ShieldX className="h-5 w-5" />
-                    Deny
+                    {t("permissionDeny", "Deny")}
                   </button>
                   <button
                     type="button"
                     onClick={() => void handleRespond(true)}
                     disabled={submitting}
-                    className="flex-1 h-12 flex items-center justify-center gap-2 rounded-xl bg-[var(--text-primary)] text-[var(--surface-primary)] text-base font-medium active:scale-[0.97] transition-all disabled:opacity-50"
+                    className="flex-1 h-12 flex items-center justify-center gap-2 rounded-xl bg-[var(--brand-primary)] text-[var(--brand-primary-text)] text-base font-medium active:scale-[0.97] transition-all disabled:opacity-50"
                   >
                     <ShieldCheck className="h-5 w-5" />
-                    Allow
+                    {t("permissionAllow", "Allow")}
                   </button>
                 </div>
               </>
@@ -354,19 +366,26 @@ export function PermissionDialog({ permission, onRespond }: PermissionDialogProp
     );
   }
 
-  // Desktop layout (unchanged)
   return (
     <div className="px-4 pb-3">
       <div className="mx-auto max-w-3xl xl:max-w-4xl">
-        <div className="rounded-xl border-2 border-[var(--color-warning)]/40 bg-[var(--color-warning)]/5 p-4 animate-slide-up">
+        <div className="relative overflow-hidden rounded-2xl border border-[var(--border-default)] bg-[var(--surface-primary)] p-3 shadow-[var(--shadow-md)] animate-slide-up">
+          <div className="absolute left-0 top-0 h-full w-1 bg-[var(--border-heavy)]" aria-hidden="true" />
           <div className="flex items-start gap-3">
-            <ShieldAlert className="h-5 w-5 text-[var(--color-warning)] shrink-0 mt-0.5" />
+            <ShieldAlert className="h-4 w-4 text-[var(--text-tertiary)] shrink-0 mt-0.5" />
             <div className="flex-1 space-y-3">
               <div>
                 <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-semibold text-[var(--text-primary)]">
-                    Permission Required
-                  </h3>
+                  <div className="flex min-w-0 items-center gap-2">
+                    <h3 className="text-sm font-semibold text-[var(--text-primary)]">
+                      {t("permissionRequired", "Permission Required")}
+                    </h3>
+                    {!expired && (
+                      <span className="rounded-full bg-[var(--surface-secondary)] px-2 py-0.5 text-[11px] font-medium text-[var(--text-tertiary)]">
+                        {displayTool}
+                      </span>
+                    )}
+                  </div>
                   {!expired && (
                     <span className={`flex items-center gap-1 text-[11px] tabular-nums ${
                       isUrgent ? "text-[var(--color-destructive)]" : "text-[var(--text-tertiary)]"
@@ -378,16 +397,17 @@ export function PermissionDialog({ permission, onRespond }: PermissionDialogProp
                 </div>
                 {expired ? (
                   <p className="text-xs text-[var(--color-destructive)] mt-1">
-                    This permission request has timed out. The agent will continue without this action.
+                    {t("permissionTimedOutContinue", "This permission request has timed out. The agent will continue without this action.")}
                   </p>
                 ) : (
                   <div className="text-xs text-[var(--text-secondary)] mt-1 space-y-1">
                     <p>
-                       The assistant wants to use <span className="font-medium">{displayTool}</span>.
+                      {t("permissionWantsUse", "The assistant wants to use")}{" "}
+                      <span className="font-medium text-[var(--text-primary)]">{displayTool}</span>.
                     </p>
-                    <p>Will do: {details.action}</p>
-                    <p>Impact: {details.impact}</p>
-                    <p>Tip: {details.safeguard}</p>
+                    <p>{t("permissionWillDo", "Will do")}: {details.action}</p>
+                    <p>{t("permissionImpact", "Impact")}: {details.impact}</p>
+                    <p>{t("permissionTip", "Tip")}: {details.safeguard}</p>
                   </div>
                 )}
               </div>
@@ -400,7 +420,7 @@ export function PermissionDialog({ permission, onRespond }: PermissionDialogProp
                   <div className="h-1 rounded-full bg-[var(--surface-tertiary)] overflow-hidden">
                     <div
                       className={`h-full rounded-full transition-all duration-1000 ease-linear ${
-                        isUrgent ? "bg-[var(--color-destructive)]" : "bg-[var(--color-warning)]"
+                        isUrgent ? "bg-[var(--color-destructive)]" : "bg-[var(--border-heavy)]"
                       }`}
                       style={{ width: `${progressPercent}%` }}
                     />
@@ -416,7 +436,8 @@ export function PermissionDialog({ permission, onRespond }: PermissionDialogProp
                       htmlFor="remember-choice"
                       className="text-xs text-[var(--text-secondary)] cursor-pointer select-none"
                     >
-                      Remember this choice for <span className="font-medium text-[var(--text-primary)]">{displayTool}</span>
+                      {t("permissionRememberThisChoiceFor", "Remember this choice for")}{" "}
+                      <span className="font-medium text-[var(--text-primary)]">{displayTool}</span>
                     </label>
                   </div>
                   <div className="flex items-center gap-2">
@@ -426,10 +447,10 @@ export function PermissionDialog({ permission, onRespond }: PermissionDialogProp
                       size="sm"
                       onClick={() => void handleRespond(false)}
                       disabled={submitting}
-                      className="gap-1.5 flex-1"
+                      className="gap-1.5 flex-1 border-[var(--color-destructive)]/25 bg-[var(--color-destructive)]/5 text-[var(--color-destructive)] hover:bg-[var(--color-destructive)]/10 hover:text-[var(--color-destructive)]"
                     >
                       <ShieldX className="h-3.5 w-3.5" />
-                      Deny
+                      {t("permissionDeny", "Deny")}
                       <kbd className="ml-1 text-[10px] opacity-50 font-normal">N</kbd>
                     </Button>
                     <Button
@@ -438,10 +459,10 @@ export function PermissionDialog({ permission, onRespond }: PermissionDialogProp
                       size="sm"
                       onClick={() => void handleRespond(true)}
                       disabled={submitting}
-                      className="gap-1.5 flex-1"
+                      className="gap-1.5 flex-1 bg-[var(--brand-primary)] text-[var(--brand-primary-text)] hover:bg-[var(--brand-primary-hover)]"
                     >
                       <ShieldCheck className="h-3.5 w-3.5" />
-                      Allow
+                      {t("permissionAllow", "Allow")}
                       <kbd className="ml-1 text-[10px] opacity-50 font-normal">Y</kbd>
                     </Button>
                   </div>

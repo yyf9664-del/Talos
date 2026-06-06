@@ -15,6 +15,19 @@ import zhUsage from "./locales/zh/usage.json";
 import zhPlugins from "./locales/zh/plugins.json";
 import zhAutomations from "./locales/zh/automations.json";
 
+function detectInitialLanguage(): "en" | "zh" {
+  if (typeof window === "undefined") return "en";
+
+  try {
+    const stored = window.localStorage.getItem("openyak-language");
+    if (stored === "en" || stored === "zh") return stored;
+  } catch {
+    // localStorage can be unavailable in restricted browser contexts.
+  }
+
+  return window.navigator.language.toLowerCase().startsWith("zh") ? "zh" : "en";
+}
+
 i18n.use(initReactI18next).init({
   resources: {
     en: {
@@ -35,7 +48,7 @@ i18n.use(initReactI18next).init({
     },
   },
   fallbackLng: "en",
-  lng: "en",
+  lng: detectInitialLanguage(),
   defaultNS: "common",
   ns: ["common", "chat", "settings", "usage", "plugins", "automations"],
   interpolation: {
@@ -44,12 +57,7 @@ i18n.use(initReactI18next).init({
 });
 
 export function getClientLanguagePreference(): "en" | "zh" {
-  if (typeof window === "undefined") return "en";
-
-  const stored = window.localStorage.getItem("openyak-language");
-  if (stored === "en" || stored === "zh") return stored;
-
-  return window.navigator.language.toLowerCase().startsWith("zh") ? "zh" : "en";
+  return detectInitialLanguage();
 }
 
 export default i18n;

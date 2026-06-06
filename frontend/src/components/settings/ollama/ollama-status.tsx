@@ -50,6 +50,7 @@ export function RemoveConfirmation({
           checked={deleteModels}
           onChange={(e) => setDeleteModels(e.target.checked)}
           className="rounded border-[var(--border-default)]"
+          aria-label={t("ollamaDeleteModels", "Also delete all downloaded models")}
         />
         <span className="text-xs text-[var(--text-secondary)]">
           {t("ollamaDeleteModels", "Also delete all downloaded models")}

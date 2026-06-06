@@ -64,7 +64,7 @@ export function PlanAcceptPrompt({ onRespond }: PlanAcceptPromptProps) {
   if (isMobile) {
     return (
       <div ref={containerRef} className="px-3 pb-[max(env(safe-area-inset-bottom),8px)]">
-        <div className="rounded-2xl border border-[var(--border-default)] bg-[var(--surface-primary)] shadow-lg p-4 space-y-3 animate-slide-up">
+        <div className="rounded-2xl border border-[var(--border-default)] bg-[var(--surface-primary)] p-3 shadow-[var(--shadow-md)] space-y-3 animate-slide-up">
           {/* Header */}
           <div className="flex items-center justify-between">
             <div>
@@ -77,9 +77,9 @@ export function PlanAcceptPrompt({ onRespond }: PlanAcceptPromptProps) {
             </div>
             <button
               onClick={() => onRespond("stop")}
-              className="px-3 py-1.5 text-sm text-[var(--text-tertiary)] active:text-[var(--text-primary)]"
+              className="rounded-full px-3 py-1.5 text-sm text-[var(--text-tertiary)] active:bg-[var(--surface-secondary)] active:text-[var(--text-primary)]"
             >
-              Cancel
+              {t("cancel")}
             </button>
           </div>
 
@@ -116,6 +116,7 @@ export function PlanAcceptPrompt({ onRespond }: PlanAcceptPromptProps) {
               if (e.key === "Enter") handleFeedbackSubmit();
             }}
             placeholder={t("planFeedbackPlaceholder")}
+            aria-label={t("planFeedbackPlaceholder")}
             className="w-full rounded-xl border border-[var(--border-default)] bg-[var(--surface-secondary)] px-4 py-3 text-base text-[var(--text-primary)] outline-none focus:ring-1 focus:ring-[var(--ring)] placeholder:text-[var(--text-secondary)]"
           />
         </div>
@@ -127,43 +128,55 @@ export function PlanAcceptPrompt({ onRespond }: PlanAcceptPromptProps) {
   return (
     <div ref={containerRef} className="px-4 pb-4 pt-2">
       <div className="mx-auto max-w-3xl xl:max-w-4xl">
-        <div className="rounded-xl border border-[var(--border-default)] bg-[var(--surface-primary)] p-4 space-y-3 animate-slide-up">
+        <div className="rounded-2xl border border-[var(--border-default)] bg-[var(--surface-primary)] p-3 shadow-[var(--shadow-md)] animate-slide-up">
           {/* Header */}
-          <div>
-            <h3 className="text-sm font-semibold text-[var(--text-primary)]">
-              {t("planAcceptPrompt")}
-            </h3>
-            <p className="text-xs text-[var(--text-tertiary)] mt-0.5">
-              {t("planSelectText")}
-            </p>
+          <div className="mb-3 flex items-center justify-between gap-3">
+            <div className="min-w-0">
+              <div className="flex items-center gap-2">
+                <span className="rounded-full bg-[var(--brand-primary)]/10 px-2 py-0.5 text-[11px] font-medium text-[var(--brand-primary)]">
+                  {t("planReadyForReview")}
+                </span>
+                <h3 className="truncate text-sm font-semibold text-[var(--text-primary)]">
+                  {t("planAcceptPrompt")}
+                </h3>
+              </div>
+              <p className="mt-0.5 text-xs text-[var(--text-tertiary)]">
+                {t("planSelectText")}
+              </p>
+            </div>
+            <span className="shrink-0 text-[11px] text-[var(--text-quaternary)]">
+              {t("planEscToCancel")}
+            </span>
           </div>
 
-          {/* Option 1: Yes, and auto-accept — highlighted/primary */}
-          <button
-            onClick={() => onRespond("accept", { mode: "auto" })}
-            className="w-full flex items-center gap-3 rounded-lg bg-[var(--brand-primary)] px-4 py-2.5 text-left transition-colors hover:bg-[var(--brand-primary-hover)]"
-          >
-            <span className="flex items-center justify-center w-5 h-5 text-xs font-bold shrink-0 text-[var(--brand-primary-text)]/70">1</span>
-            <span className="text-sm font-medium text-[var(--brand-primary-text)]">{t("planOptionAutoAccept")}</span>
-          </button>
+          <div className="grid gap-2 sm:grid-cols-3">
+            {/* Option 1: Yes, and auto-accept — highlighted/primary */}
+            <button
+              onClick={() => onRespond("accept", { mode: "auto" })}
+              className="flex items-center gap-2 rounded-lg border border-[var(--border-heavy)] bg-[var(--surface-secondary)] px-3 py-2 text-left transition-colors hover:bg-[var(--surface-tertiary)]"
+            >
+              <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[var(--brand-primary)]/10 text-[11px] font-semibold text-[var(--brand-primary)]">1</span>
+              <span className="min-w-0 text-sm font-medium leading-snug text-[var(--text-primary)]">{t("planOptionAutoAccept")}</span>
+            </button>
 
-          {/* Option 2: Yes, and manually approve edits */}
-          <button
-            onClick={() => onRespond("accept", { mode: "ask" })}
-            className="w-full flex items-center gap-3 rounded-lg border border-[var(--border-default)] bg-[var(--surface-secondary)] px-4 py-2.5 text-left transition-colors hover:bg-[var(--surface-tertiary)]"
-          >
-            <span className="flex items-center justify-center w-5 h-5 text-xs font-bold shrink-0 text-[var(--text-secondary)]">2</span>
-            <span className="text-sm font-medium text-[var(--text-primary)]">{t("planOptionManualApprove")}</span>
-          </button>
+            {/* Option 2: Yes, and manually approve edits */}
+            <button
+              onClick={() => onRespond("accept", { mode: "ask" })}
+              className="flex items-center gap-2 rounded-lg border border-[var(--border-default)] bg-[var(--surface-secondary)] px-3 py-2 text-left transition-colors hover:bg-[var(--surface-tertiary)]"
+            >
+              <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[var(--surface-tertiary)] text-[11px] font-semibold text-[var(--text-secondary)]">2</span>
+              <span className="min-w-0 text-sm font-medium leading-snug text-[var(--text-primary)]">{t("planOptionManualApprove")}</span>
+            </button>
 
-          {/* Option 3: No, keep planning */}
-          <button
-            onClick={() => onRespond("stop")}
-            className="w-full flex items-center gap-3 rounded-lg border border-[var(--border-default)] bg-[var(--surface-secondary)] px-4 py-2.5 text-left transition-colors hover:bg-[var(--surface-tertiary)]"
-          >
-            <span className="flex items-center justify-center w-5 h-5 text-xs font-bold shrink-0 text-[var(--text-secondary)]">3</span>
-            <span className="text-sm font-medium text-[var(--text-primary)]">{t("planOptionKeepPlanning")}</span>
-          </button>
+            {/* Option 3: No, keep planning */}
+            <button
+              onClick={() => onRespond("stop")}
+              className="flex items-center gap-2 rounded-lg border border-[var(--border-default)] bg-[var(--surface-secondary)] px-3 py-2 text-left transition-colors hover:bg-[var(--surface-tertiary)]"
+            >
+              <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[var(--surface-tertiary)] text-[11px] font-semibold text-[var(--text-secondary)]">3</span>
+              <span className="min-w-0 text-sm font-medium leading-snug text-[var(--text-primary)]">{t("planOptionKeepPlanning")}</span>
+            </button>
+          </div>
 
           {/* Text input for custom feedback */}
           <input
@@ -174,13 +187,9 @@ export function PlanAcceptPrompt({ onRespond }: PlanAcceptPromptProps) {
               if (e.key === "Enter") handleFeedbackSubmit();
             }}
             placeholder={t("planFeedbackPlaceholder")}
-            className="w-full rounded-lg border border-[var(--border-default)] bg-[var(--surface-secondary)] px-4 py-2.5 text-sm text-[var(--text-primary)] outline-none focus:ring-1 focus:ring-[var(--ring)] placeholder:text-[var(--text-secondary)]"
+            aria-label={t("planFeedbackPlaceholder")}
+            className="mt-2 w-full rounded-lg border border-[var(--border-default)] bg-[var(--surface-secondary)] px-3 py-2 text-sm text-[var(--text-primary)] outline-none placeholder:text-[var(--text-secondary)] focus:ring-1 focus:ring-[var(--ring)]"
           />
-
-          {/* Esc hint */}
-          <p className="text-xs text-[var(--text-secondary)]">
-            {t("planEscToCancel")}
-          </p>
         </div>
       </div>
     </div>

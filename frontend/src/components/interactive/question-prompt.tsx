@@ -77,9 +77,10 @@ function LegacyQuestionPrompt({
   return (
     <div className={isMobile ? "px-3 pb-[max(env(safe-area-inset-bottom),8px)]" : "px-4 pb-3"}>
       <div className={isMobile ? "" : "mx-auto max-w-3xl xl:max-w-4xl"}>
-        <div className={`rounded-${isMobile ? "2xl" : "xl"} border-2 border-[var(--brand-primary)]/40 bg-${isMobile ? "[var(--surface-primary)] shadow-lg" : "[var(--brand-primary)]/5"} p-4 animate-slide-up`}>
+        <div className={`relative overflow-hidden rounded-${isMobile ? "2xl" : "xl"} border border-[var(--border-default)] bg-[var(--surface-primary)] p-3 shadow-[var(--shadow-sm)] animate-slide-up`}>
+          <div className="absolute left-0 top-0 h-full w-1 bg-[var(--brand-primary)]/35" aria-hidden="true" />
           <div className="flex items-start gap-3">
-            <HelpCircle className="h-5 w-5 text-[var(--brand-primary)] shrink-0 mt-0.5" />
+            <HelpCircle className="h-4 w-4 text-[var(--brand-primary)] shrink-0 mt-0.5" />
             <div className="flex-1 space-y-3">
               <div>
                 <h3 className={`${isMobile ? "text-base" : "text-sm"} font-semibold text-[var(--text-primary)]`}>
@@ -98,7 +99,7 @@ function LegacyQuestionPrompt({
                     <button
                       key={`${opt.label}-${i}`}
                       onClick={() => onRespond(opt.label)}
-                      className={`w-full text-left rounded-${isMobile ? "xl" : "lg"} border border-[var(--border-default)] bg-[var(--surface-secondary)] px-3 ${isMobile ? "py-3 min-h-[48px]" : "py-2"} text-sm hover:bg-[var(--surface-tertiary)] active:scale-[0.98] transition-all`}
+                      className={`w-full text-left rounded-${isMobile ? "xl" : "lg"} border border-[var(--border-default)] bg-[var(--surface-secondary)] px-3 ${isMobile ? "py-3 min-h-[48px]" : "py-2"} text-sm transition-colors hover:bg-[var(--surface-tertiary)] active:scale-[0.98]`}
                     >
                       <span className="font-medium text-[var(--text-primary)]">
                         {opt.label}
@@ -120,13 +121,14 @@ function LegacyQuestionPrompt({
                   onChange={(e) => setAnswer(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
                   placeholder={t("typeAnswer")}
+                  aria-label={t("typeAnswer")}
                   className={`flex-1 rounded-${isMobile ? "xl" : "lg"} border border-[var(--border-default)] bg-[var(--surface-secondary)] px-3 ${isMobile ? "py-3 text-base" : "py-2 text-sm"} outline-none focus:ring-1 focus:ring-[var(--ring)]`}
                 />
                 <Button
                   size={isMobile ? "default" : "sm"}
                   onClick={handleSubmit}
                   disabled={!answer.trim()}
-                  className={`gap-1.5 ${isMobile ? "h-12 px-4" : ""}`}
+                  className={`gap-1.5 bg-[var(--text-primary)] text-[var(--surface-primary)] hover:bg-[var(--text-primary)]/90 ${isMobile ? "h-12 px-4" : ""}`}
                 >
                   <Send className={isMobile ? "h-4 w-4" : "h-3.5 w-3.5"} />
                   {t("submit")}
@@ -242,11 +244,11 @@ function MultiQuestionPrompt({
   if (isMobile) {
     return (
       <div className="px-3 pb-[max(env(safe-area-inset-bottom),8px)]">
-        <div className="rounded-2xl border-2 border-[var(--brand-primary)]/40 bg-[var(--surface-primary)] shadow-lg animate-slide-up overflow-hidden">
+        <div className="overflow-hidden rounded-2xl border border-[var(--border-default)] bg-[var(--surface-primary)] shadow-[var(--shadow-sm)] animate-slide-up">
           {/* Header */}
-          <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--border-default)]">
+          <div className="flex items-center justify-between border-b border-[var(--border-default)] px-4 py-3">
             <div className="flex items-center gap-2">
-              <HelpCircle className="h-5 w-5 text-[var(--brand-primary)]" />
+              <HelpCircle className="h-4 w-4 text-[var(--brand-primary)]" />
               <span className="text-base font-semibold text-[var(--text-primary)]">
                 {questions.length} questions
               </span>
@@ -255,7 +257,7 @@ function MultiQuestionPrompt({
               onClick={() => onRespond({ __cancelled__: "true" })}
               className="px-3 py-1.5 text-sm text-[var(--text-tertiary)] active:text-[var(--text-primary)]"
             >
-              Cancel
+              {t("cancel")}
             </button>
           </div>
 
@@ -376,10 +378,10 @@ function MultiQuestionPrompt({
   return (
     <div className="px-4 pb-3">
       <div className="mx-auto max-w-3xl xl:max-w-4xl">
-        <div className="rounded-xl border-2 border-[var(--brand-primary)]/40 bg-[var(--brand-primary)]/5 animate-slide-up overflow-hidden">
+        <div className="overflow-hidden rounded-2xl border border-[var(--border-default)] bg-[var(--surface-primary)] shadow-[var(--shadow-sm)] animate-slide-up">
           {/* Tab bar */}
           <div
-            className="flex border-b border-[var(--border-default)]"
+            className="flex border-b border-[var(--border-default)] bg-[var(--surface-secondary)]/55"
             role="tablist"
           >
             {questions.map((q, i) => {
@@ -397,9 +399,9 @@ function MultiQuestionPrompt({
                   role="tab"
                   aria-selected={isActive}
                   onClick={() => setActiveTab(i)}
-                  className={`px-4 py-2.5 text-sm font-medium transition-colors relative ${
+                  className={`relative px-4 py-2.5 text-sm font-medium transition-colors ${
                     isActive
-                      ? "text-[var(--text-primary)] border-b-2 border-[var(--brand-primary)]"
+                      ? "bg-[var(--surface-primary)] text-[var(--text-primary)] shadow-[0_1px_0_var(--border-default)]"
                       : "text-[var(--text-tertiary)] hover:text-[var(--text-secondary)]"
                   }`}
                 >
@@ -413,7 +415,7 @@ function MultiQuestionPrompt({
             {/* Close button */}
             <button
               onClick={() => onRespond({ __cancelled__: "true" })}
-              className="ml-auto px-3 py-2 text-[var(--text-tertiary)] hover:text-[var(--text-primary)] transition-colors"
+              className="ml-auto px-3 py-2 text-[var(--text-tertiary)] transition-colors hover:bg-[var(--surface-tertiary)] hover:text-[var(--text-primary)]"
               aria-label="Close"
             >
               &times;
@@ -421,15 +423,15 @@ function MultiQuestionPrompt({
           </div>
 
           {/* Tab content */}
-          <div className="p-4" role="tabpanel">
+          <div className="p-3" role="tabpanel">
             {/* Question text */}
-            <div className="text-sm font-semibold text-[var(--text-primary)] mb-3">
+            <div className="mb-3 text-sm font-semibold text-[var(--text-primary)]">
               <ReactMarkdown remarkPlugins={[remarkGfm]}>
                 {currentQ.question}
               </ReactMarkdown>
             </div>
 
-            <div className={`flex gap-4 ${hasPreview ? "" : ""}`}>
+            <div className="flex gap-3">
               {/* Options */}
               <div className={`space-y-1.5 ${hasPreview ? "flex-1" : "w-full"}`}>
                 {currentQ.options?.map((opt, i) => (
@@ -478,7 +480,7 @@ function MultiQuestionPrompt({
 
               {/* Preview panel */}
               {hasPreview && (
-                <div className="flex-1 rounded-lg border border-[var(--border-default)] bg-[var(--surface-secondary)] p-3 max-h-64 overflow-y-auto">
+                <div className="max-h-64 flex-1 overflow-y-auto rounded-lg border border-[var(--border-default)] bg-[var(--surface-secondary)] p-3">
                   {selectedPreview ? (
                     <div className="text-sm text-[var(--text-secondary)] prose prose-sm prose-invert max-w-none [&>p]:m-0 font-mono">
                       <ReactMarkdown remarkPlugins={[remarkGfm]}>
@@ -496,7 +498,7 @@ function MultiQuestionPrompt({
           </div>
 
           {/* Bottom bar */}
-          <div className="flex items-center justify-between px-4 py-2.5 border-t border-[var(--border-default)]">
+          <div className="flex items-center justify-between border-t border-[var(--border-default)] px-3 py-2.5">
             <span className="text-xs text-[var(--text-tertiary)]">
               {t("questionEscCancel", "Esc to cancel")}
             </span>
@@ -504,7 +506,7 @@ function MultiQuestionPrompt({
               size="sm"
               onClick={handleSubmit}
               disabled={!allAnswered}
-              className="gap-1.5"
+              className="gap-1.5 bg-[var(--text-primary)] text-[var(--surface-primary)] hover:bg-[var(--text-primary)]/90"
             >
               <Send className="h-3.5 w-3.5" />
               {t("questionSubmitAll", "Submit answers")}
@@ -539,7 +541,7 @@ function OptionRow({
     <label
       className={`flex items-start gap-3 cursor-pointer rounded-${isMobile ? "xl" : "lg"} border px-3 ${isMobile ? "py-3 min-h-[48px]" : "py-2"} text-sm transition-all active:scale-[0.98] ${
         selected
-          ? "border-[var(--brand-primary)] bg-[var(--brand-primary)]/10"
+          ? "border-[var(--brand-primary)]/30 bg-[var(--brand-primary)]/5 shadow-[inset_2px_0_0_var(--brand-primary)]"
           : "border-[var(--border-default)] bg-[var(--surface-secondary)] hover:bg-[var(--surface-tertiary)]"
       }`}
     >
@@ -549,6 +551,7 @@ function OptionRow({
         value={option.label}
         checked={selected}
         onChange={onSelect}
+        aria-label={option.label}
         className={`${isMobile ? "mt-1 h-5 w-5" : "mt-0.5"} accent-[var(--brand-primary)]`}
       />
       <div className="flex-1 min-w-0">
@@ -593,7 +596,7 @@ function OtherOption({
       <label
         className={`flex items-start gap-3 cursor-pointer rounded-${isMobile ? "xl" : "lg"} border px-3 ${isMobile ? "py-3 min-h-[48px]" : "py-2"} text-sm transition-all active:scale-[0.98] ${
           selected
-            ? "border-[var(--brand-primary)] bg-[var(--brand-primary)]/10"
+            ? "border-[var(--brand-primary)]/30 bg-[var(--brand-primary)]/5 shadow-[inset_2px_0_0_var(--brand-primary)]"
             : "border-[var(--border-default)] bg-[var(--surface-secondary)] hover:bg-[var(--surface-tertiary)]"
         }`}
       >
@@ -603,6 +606,7 @@ function OtherOption({
           value={OTHER_SENTINEL}
           checked={selected}
           onChange={onSelect}
+          aria-label={t("questionOther", "Other")}
           className={`${isMobile ? "mt-1 h-5 w-5" : "mt-0.5"} accent-[var(--brand-primary)]`}
         />
         <span className="font-medium text-[var(--text-primary)]">
@@ -615,6 +619,7 @@ function OtherOption({
           value={otherText}
           onChange={(e) => onTextChange(e.target.value)}
           placeholder={t("questionOtherPlaceholder", "Type your answer...")}
+          aria-label={t("questionOtherPlaceholder", "Type your answer...")}
           className={`mt-1.5 w-full rounded-${isMobile ? "xl" : "lg"} border border-[var(--border-default)] bg-[var(--surface-secondary)] px-3 ${isMobile ? "py-3 text-base" : "py-2 text-sm"} outline-none focus:ring-1 focus:ring-[var(--ring)]`}
           autoFocus
         />

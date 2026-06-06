@@ -13,10 +13,11 @@ import type { ProviderInfo } from "@/types/usage";
 
 interface ByokPanelProps {
   providers: ProviderInfo[] | undefined;
+  description?: string;
   onSaved: () => void;
 }
 
-export function ByokPanel({ providers, onSaved }: ByokPanelProps) {
+export function ByokPanel({ providers, description, onSaved }: ByokPanelProps) {
   const { t } = useTranslation("settings");
   const qc = useQueryClient();
 
@@ -81,7 +82,9 @@ export function ByokPanel({ providers, onSaved }: ByokPanelProps) {
 
   return (
     <div className="space-y-4">
-      <p className="text-xs text-[var(--text-secondary)]">{t("byokDesc")}</p>
+      <p className="text-xs text-[var(--text-secondary)]">
+        {description ?? t("byokDesc")}
+      </p>
 
       {byokProviders.map((p) => (
         <div

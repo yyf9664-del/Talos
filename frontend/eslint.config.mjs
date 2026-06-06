@@ -27,6 +27,21 @@ const eslintConfig = [
       "prefer-const": "warn",
     },
   },
+  {
+    // Icon-only buttons must expose an accessible name (aria-label / title /
+    // sr-only text). Guards against the regression audited in P4.
+    files: ["src/components/**/*.{ts,tsx}"],
+    rules: {
+      "jsx-a11y/control-has-associated-label": [
+        "warn",
+        {
+          labelAttributes: ["aria-label", "title"],
+          controlComponents: ["Button"],
+          depth: 3,
+        },
+      ],
+    },
+  },
 ];
 
 export default eslintConfig;

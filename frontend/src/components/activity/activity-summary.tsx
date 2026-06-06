@@ -60,7 +60,7 @@ export function ActivitySummary({ data }: ActivitySummaryProps) {
       )}
       <span>{parts.join(" · ")}</span>
       <ChevronRight
-        className={`h-3 w-3 transition-transform duration-200 ${isActiveOpen ? "rotate-90" : ""}`}
+        className={`h-3 w-3 shrink-0 transition-transform duration-200 ${isActiveOpen ? "rotate-90" : ""}`}
       />
     </button>
   );
