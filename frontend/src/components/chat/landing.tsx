@@ -5,7 +5,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import {
   Mail, FileDiff, CalendarDays, Settings,
   Receipt, FolderOpen, Trash2, Images, Table2,
-  MessagesSquare,
+  MessagesSquare, Sparkles,
 } from "lucide-react";
 import Link from "next/link";
 import { useTranslation } from 'react-i18next';
@@ -116,12 +116,12 @@ export function Landing({ directoryParam = null }: LandingProps) {
             <div className="px-4 py-3">
               <div className="mx-auto max-w-3xl xl:max-w-4xl">
                 <motion.div
-                  className="flex justify-end"
+                  className="flex flex-col items-end"
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
                 >
-                  <div className="max-w-[85%] sm:max-w-[70%] rounded-2xl bg-[var(--user-bubble-bg)] px-4 py-2.5 shadow-[var(--shadow-sm)] border border-[var(--border-default)]">
+                  <div className="max-w-[85%] sm:max-w-[70%] rounded-xl border border-[var(--border-default)] bg-[var(--user-bubble-bg)] px-4 py-2.5">
                     <div className="text-[13px] text-[var(--text-primary)] whitespace-pre-wrap break-words leading-relaxed">
                       {displayText}
                     </div>
@@ -133,6 +133,9 @@ export function Landing({ directoryParam = null }: LandingProps) {
                       </div>
                     )}
                   </div>
+                  {/* Reserve the real UserMessage action-bar row (mt-1 + h-7)
+                      so the optimistic→persisted swap doesn't push "思考中" down. */}
+                  <div className="mt-1 h-7" aria-hidden="true" />
                 </motion.div>
               </div>
             </div>
@@ -164,11 +167,11 @@ export function Landing({ directoryParam = null }: LandingProps) {
   }
 
   return (
-    <div className="relative flex flex-1 flex-col h-full overflow-hidden">
+    <div className="relative flex flex-1 flex-col h-full overflow-hidden bg-[var(--surface-chat)]">
       <OfflineOverlay />
       <ChatHeader />
 
-      <div className="flex flex-1 flex-col items-center justify-center px-4 pb-8">
+      <div className="relative flex flex-1 flex-col items-center justify-center px-4 pb-8">
         <div className="w-full max-w-3xl xl:max-w-4xl">
           {/* Provider setup prompt */}
           {!activeProvider && (
@@ -176,9 +179,11 @@ export function Landing({ directoryParam = null }: LandingProps) {
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
-              className="mb-6 flex items-center gap-4 rounded-xl border border-[var(--brand-primary)]/30 bg-[var(--brand-primary)]/5 px-5 py-4"
+              className="mb-6 flex items-center gap-4 rounded-xl border border-[var(--brand-primary)]/25 bg-[var(--brand-primary)]/5 px-5 py-4"
             >
-              <Settings className="h-5 w-5 shrink-0 text-[var(--brand-primary)]" />
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[var(--brand-primary)]/10 text-[var(--brand-primary)]">
+                <Settings className="h-[18px] w-[18px]" />
+              </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-[var(--text-primary)]">
                   {t('setupProvider')}
@@ -189,7 +194,7 @@ export function Landing({ directoryParam = null }: LandingProps) {
               </div>
               <Link
                 href="/settings?tab=providers"
-                className="shrink-0 inline-flex items-center rounded-lg border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 py-1.5 text-xs font-medium text-[var(--text-primary)] hover:bg-[var(--surface-secondary)] transition-colors"
+                className="shrink-0 inline-flex items-center rounded-lg border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 py-1.5 text-xs font-medium text-[var(--text-primary)] transition-colors hover:bg-[var(--surface-secondary)]"
               >
                 {t('configureSettings')}
               </Link>
@@ -198,11 +203,18 @@ export function Landing({ directoryParam = null }: LandingProps) {
 
           {/* Greeting — becomes workspace-aware when a folder is set, mirroring Codex */}
           <div className="mb-6 text-center pb-2">
-            <h1 className="text-3xl sm:text-[2.5rem] font-medium text-[var(--text-primary)] tracking-tight">
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-[var(--border-default)] bg-[var(--surface-secondary)] px-3 py-1.5 text-[11px] font-medium text-[var(--text-secondary)]">
+              <Sparkles className="h-3.5 w-3.5 text-[var(--brand-primary)]" />
+              AdMind AI Workspace
+            </div>
+            <h1 className="text-3xl font-medium tracking-tight text-[var(--text-primary)] sm:text-[2.5rem]">
               {workspaceName
                 ? t('greetingInWorkspace', { workspace: workspaceName })
                 : t('greeting')}
             </h1>
+            <p className="mx-auto mt-3 max-w-xl text-sm leading-6 text-[var(--text-secondary)]">
+              连接公司 AI 网关，处理文件、数据、素材和日常办公任务。
+            </p>
           </div>
 
           {/* Input — the focal point */}
@@ -212,6 +224,7 @@ export function Landing({ directoryParam = null }: LandingProps) {
             onSendTaskBatch={sendTaskBatch}
             onStop={stopGeneration}
             directory={globalWorkspace}
+            className="px-0"
           />
 
           {/* Suggested starters — mx-7 aligns suggestion icons with the folder picker icon inside the input container */}
@@ -231,7 +244,7 @@ export function Landing({ directoryParam = null }: LandingProps) {
                   onClick={() => useArtifactStore.getState().requestFix(t(starter.promptKey))}
                   disabled={isGenerating}
                   className={cn(
-                    "group flex w-full items-center gap-3 px-3 py-2.5 text-left text-[14px] text-[var(--text-tertiary)] transition-colors hover:text-[var(--text-secondary)] disabled:opacity-50 disabled:cursor-not-allowed",
+                    "group flex w-full items-center gap-3 px-3 py-2.5 text-left text-[14px] text-[var(--text-tertiary)] transition-colors hover:text-[var(--text-secondary)] disabled:cursor-not-allowed disabled:opacity-50",
                     index > 0 && "border-t border-[var(--border-default)]/40",
                   )}
                 >

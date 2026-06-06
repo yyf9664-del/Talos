@@ -34,6 +34,7 @@ import type { PaginatedMessages } from "@/types/message";
  */
 
 const PROGRESSIVE_BUFFER_INTERVAL_MS = 60;
+const FINALIZE_RETRY_DELAYS_MS = [0, 120, 250, 500, 1000, 2000];
 
 // After a desktop backend restart, wait a beat before reconciling: the
 // companion onBackendRestart handler in constants.ts (registered at module
@@ -196,8 +197,10 @@ export async function startStream(sessionId: string, streamId: string): Promise<
 
   const store = useChatStore;
   const connectionStore = useConnectionStore;
+  let sawTextOutput = false;
 
   const textBuffer = new ProgressiveBuffer((text) => {
+    if (text.trim()) sawTextOutput = true;
     store.getState().appendTextDelta(sessionId, text);
   });
   const reasoningBuffer = new ProgressiveBuffer((text) => {
@@ -209,6 +212,36 @@ export async function startStream(sessionId: string, streamId: string): Promise<
       requestAnimationFrame(() => requestAnimationFrame(() => r())),
     );
 
+  const bucketHasTextOutput = (sid: string) => {
+    const bucket = store.getState().sessions[sid];
+    if (!bucket) return false;
+    if (bucket.streamingText.trim()) return true;
+    return bucket.streamingParts.some(
+      (part) => part.type === "text" && !!part.text.trim(),
+    );
+  };
+
+  const messageHasTerminalStep = (message: PaginatedMessages["messages"][number]) =>
+    message.parts.some((part) => {
+      if (part.data.type !== "step-finish") return false;
+      return part.data.reason !== "tool_use";
+    });
+
+  const messageHasTextOutput = (message: PaginatedMessages["messages"][number]) =>
+    message.parts.some(
+      (part) => part.data.type === "text" && !!part.data.text.trim(),
+    );
+
+  const canFinalizeMessage = (
+    sid: string,
+    message: PaginatedMessages["messages"][number] | undefined,
+  ) => {
+    if (!message || message.data.role !== "assistant") return false;
+    if (!messageHasTerminalStep(message)) return false;
+    if ((sawTextOutput || bucketHasTextOutput(sid)) && !messageHasTextOutput(message)) return false;
+    return true;
+  };
+
   const canFinalizeFromCache = (sid: string) => {
     const qc = queryClientRef;
     if (!qc) return false;
@@ -216,20 +249,12 @@ export async function startStream(sessionId: string, streamId: string): Promise<
       queryKeys.messages.list(sid),
     );
     const latestMessage = data?.pages.at(-1)?.messages.at(-1);
-    if (!latestMessage || latestMessage.data.role !== "assistant") return false;
-    return latestMessage.parts.some((part) => {
-      if (part.data.type !== "step-finish") return false;
-      return part.data.reason !== "tool_use";
-    });
+    return canFinalizeMessage(sid, latestMessage);
   };
 
-  const canFinalizeFromPayload = (messages: PaginatedMessages | null | undefined) => {
+  const canFinalizeFromPayload = (sid: string, messages: PaginatedMessages | null | undefined) => {
     const latestMessage = messages?.messages.at(-1);
-    if (!latestMessage || latestMessage.data.role !== "assistant") return false;
-    return latestMessage.parts.some((part) => {
-      if (part.data.type !== "step-finish") return false;
-      return part.data.reason !== "tool_use";
-    });
+    return canFinalizeMessage(sid, latestMessage);
   };
 
   const finishFromDatabase = async (sid: string) => {
@@ -269,7 +294,7 @@ export async function startStream(sessionId: string, streamId: string): Promise<
             },
           );
         }
-        if (!canFinalizeFromPayload(latestPage)) return false;
+        if (!canFinalizeFromPayload(sid, latestPage)) return false;
       } catch {
         return false;
       }
@@ -286,6 +311,17 @@ export async function startStream(sessionId: string, streamId: string): Promise<
     }
     if (qc) qc.invalidateQueries({ queryKey: queryKeys.sessions.all });
     return true;
+  };
+
+  const finishFromDatabaseWithRetries = async (sid: string) => {
+    for (const delay of FINALIZE_RETRY_DELAYS_MS) {
+      if (delay > 0) {
+        await new Promise<void>((resolve) => setTimeout(resolve, delay));
+      }
+      if (!store.getState().sessions[sid]?.isGenerating) return true;
+      if (await finishFromDatabase(sid)) return true;
+    }
+    return false;
   };
 
   const client = new SSEClient({
@@ -345,7 +381,10 @@ export async function startStream(sessionId: string, streamId: string): Promise<
     cancelPendingStepFinish();
     const bucket = store.getState().sessions[sessionId];
     if (bucket?.isModelLoading) store.getState().setModelLoading(sessionId, false);
-    if (data.text) textBuffer.push(data.text);
+    if (data.text) {
+      if (data.text.trim()) sawTextOutput = true;
+      textBuffer.push(data.text);
+    }
   });
 
   client.on(SSE_EVENTS.REASONING_DELTA, (data) => {
@@ -573,9 +612,20 @@ export async function startStream(sessionId: string, streamId: string): Promise<
   });
 
   client.on(SSE_EVENTS.QUESTION_RESOLVED, (data) => {
-    const pending = store.getState().sessions[sessionId]?.pendingQuestion;
-    if (pending && data.call_id === pending.callId) {
+    const bucket = store.getState().sessions[sessionId];
+    const pendingQuestion = bucket?.pendingQuestion;
+    if (pendingQuestion && data.call_id === pendingQuestion.callId) {
       store.getState().clearQuestion(sessionId);
+    }
+    const pendingPlanReview = bucket?.pendingPlanReview;
+    if (pendingPlanReview && data.call_id === pendingPlanReview.callId) {
+      store.getState().clearPlanReview(sessionId);
+      try {
+        const { usePlanReviewStore } = require("@/stores/plan-review-store");
+        usePlanReviewStore.getState().close();
+      } catch {
+        // ignore — store may not be available during SSR
+      }
     }
   });
 
@@ -639,9 +689,8 @@ export async function startStream(sessionId: string, streamId: string): Promise<
     cancelPendingStepFinish();
     textBuffer.flush();
     reasoningBuffer.flush();
-    try {
-      await finishFromDatabase(sessionId);
-    } finally {
+    const finalized = await finishFromDatabaseWithRetries(sessionId);
+    if (!finalized) {
       store.getState().finishGeneration(sessionId);
     }
     const qc = queryClientRef;

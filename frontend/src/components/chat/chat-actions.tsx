@@ -24,7 +24,7 @@ export function ChatActions({ isBusy, canSend, onSend, onStop }: ChatActionsProp
           <TooltipTrigger asChild>
             <Button
               size="icon"
-              className="h-8 w-8 rounded-full bg-[var(--text-primary)] text-[var(--surface-primary)] hover:bg-[var(--text-primary)]/90 disabled:bg-[var(--text-tertiary)]/30 disabled:text-[var(--surface-primary)] disabled:opacity-100"
+              className="h-7 w-7 rounded-full bg-[var(--text-primary)] text-[var(--surface-primary)] hover:bg-[var(--text-primary)]/90 disabled:bg-[var(--text-tertiary)]/30 disabled:text-[var(--surface-primary)] disabled:opacity-100"
               onClick={isBusy ? onStop : onSend}
               disabled={!interactive}
               aria-label={isBusy ? t("stopAction") : t("sendAction")}
@@ -39,9 +39,9 @@ export function ChatActions({ isBusy, canSend, onSend, onStop }: ChatActionsProp
                   className="flex items-center justify-center"
                 >
                   {isBusy ? (
-                    <Square className="h-3.5 w-3.5 fill-current" />
+                    <Square className="h-3 w-3 fill-current" />
                   ) : (
-                    <ArrowUp className="h-[18px] w-[18px]" />
+                    <ArrowUp className="h-4 w-4" />
                   )}
                 </motion.span>
               </AnimatePresence>

@@ -86,29 +86,29 @@ export function WorkspaceToggle({ sessionId, directory, isIndexing }: WorkspaceT
     <>
       {displayName ? (
         <div
-          className="inline-flex items-center rounded-full bg-[var(--surface-tertiary)] text-[var(--text-primary)] max-w-[220px]"
+          className="inline-flex max-w-[200px] items-center rounded-full bg-[var(--surface-tertiary)] text-[var(--text-primary)]"
           title={currentPath ?? undefined}
         >
           <button
             type="button"
             onClick={handleBrowse}
-            className="inline-flex items-center gap-1.5 pl-3 pr-1 py-1.5 text-[13px] min-w-0"
+            className="inline-flex min-w-0 items-center gap-1.5 py-1 pl-2.5 pr-1 text-[12px]"
           >
             {isIndexing ? (
-              <Loader2 className="h-4 w-4 shrink-0 animate-spin" />
+              <Loader2 className="h-3.5 w-3.5 shrink-0 animate-spin" />
             ) : (
-              <FolderOpen className="h-4 w-4 shrink-0" />
+              <FolderOpen className="h-3.5 w-3.5 shrink-0" />
             )}
             <span className="truncate">{pillLabel}</span>
             {isIndexing && (
-              <span className="text-[11px] text-[var(--text-tertiary)] shrink-0">Indexing…</span>
+              <span className="shrink-0 text-[11px] text-[var(--text-tertiary)]">Indexing…</span>
             )}
           </button>
           <button
             type="button"
             onClick={handleClear}
             aria-label={t("workspaceClear")}
-            className="flex items-center justify-center pr-2 pl-1 py-1.5 text-[var(--text-tertiary)] hover:text-[var(--text-primary)]"
+            className="flex items-center justify-center py-1 pl-1 pr-2 text-[var(--text-tertiary)] hover:text-[var(--text-primary)]"
           >
             <X className="h-3.5 w-3.5" />
           </button>
@@ -117,9 +117,9 @@ export function WorkspaceToggle({ sessionId, directory, isIndexing }: WorkspaceT
         <button
           type="button"
           onClick={handleBrowse}
-          className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[13px] transition-colors max-w-[220px] text-[var(--text-tertiary)] hover:text-[var(--text-secondary)] hover:bg-[var(--surface-tertiary)]"
+          className="inline-flex max-w-[200px] items-center gap-1.5 rounded-full px-2.5 py-1 text-[12px] text-[var(--text-tertiary)] transition-colors hover:bg-[var(--surface-tertiary)] hover:text-[var(--text-secondary)]"
         >
-          <FolderOpen className="h-4 w-4 shrink-0" />
+          <FolderOpen className="h-3.5 w-3.5 shrink-0" />
           <span className="truncate">{pillLabel}</span>
         </button>
       )}

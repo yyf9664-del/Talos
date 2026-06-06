@@ -522,13 +522,13 @@ export function ChatForm({ isGenerating, isCompacting = false, onSend, onSendTas
   const handleSendTaskBatch = useCallback(async () => {
     if (!onSendTaskBatch || isGenerating || isCompacting || sendingRef.current) return;
     if (attachments.length > 0) {
-      toast.error("Task batches do not support attachments yet.");
+      toast.error(t("taskBatchNoAttachments"));
       return;
     }
 
     const hasIncompleteTask = batchTasks.some((task) => !task.title.trim() || !task.prompt.trim());
     if (hasIncompleteTask) {
-      toast.error("Each task needs a title and prompt.");
+      toast.error(t("taskBatchIncomplete"));
       return;
     }
 
@@ -554,7 +554,7 @@ export function ChatForm({ isGenerating, isCompacting = false, onSend, onSendTas
     } finally {
       sendingRef.current = false;
     }
-  }, [attachments.length, batchMode, batchTasks, draftKey, isCompacting, isGenerating, onSendTaskBatch, selectedAgent]);
+  }, [attachments.length, batchMode, batchTasks, draftKey, isCompacting, isGenerating, onSendTaskBatch, selectedAgent, t]);
 
   const handleBrowse = useCallback(async () => {
     setUploading(true);
@@ -681,12 +681,12 @@ export function ChatForm({ isGenerating, isCompacting = false, onSend, onSendTas
     !isIndexing;
 
   return (
-    <div className={cn("px-4 pb-4", className)}>
+    <div className={cn("px-4 pb-3", className)}>
       <div className="mx-auto max-w-3xl xl:max-w-4xl">
         <div
           ref={dropTargetRef}
           className={cn(
-            "relative rounded-3xl bg-[var(--surface-secondary)] shadow-[var(--shadow-sm)] transition-all duration-200 focus-within:shadow-[var(--shadow-md)]",
+            "relative overflow-hidden rounded-2xl border border-[var(--border-default)] bg-[var(--surface-primary)] shadow-[var(--shadow-sm)] transition-colors duration-200 focus-within:border-[var(--border-heavy)]",
             isDragOver && "ring-1 ring-[var(--border-heavy)]",
           )}
           onDragOver={(e) => {
@@ -711,61 +711,57 @@ export function ChatForm({ isGenerating, isCompacting = false, onSend, onSendTas
             />
           )}
 
-          {/* Inner panel — lighter pill holding textarea + action bar.
-              Fully rounded so the bottom corners curve inward, letting the
-              darker outer frame the pill on all sides. */}
-          <div className="rounded-3xl bg-[var(--surface-tertiary)]">
-          {/* Top section: file chips + textarea */}
-          <div className="px-4 pt-3 pb-2">
-            {/* File chips */}
-            {(attachments.length > 0 || uploading) && (
-              <div className="flex flex-wrap gap-1.5 pb-2">
-                {attachments.map((att) => (
-                  <FileChip
-                    key={att.file_id}
-                    file={att}
-                    onRemove={() => handleRemoveAttachment(att.file_id)}
-                  />
-                ))}
-                {uploading && (
-                  <div className="inline-flex items-center gap-1.5 text-xs text-[var(--text-tertiary)]">
-                    <span className="animate-spin h-3 w-3 border border-current border-t-transparent rounded-full" />
-                    {t('uploading')}
-                  </div>
-                )}
-              </div>
-            )}
+          {/* Primary input area: textarea, attachments, and action buttons. */}
+          <div className="bg-[var(--surface-primary)]">
+            <div className="px-3.5 pb-1 pt-2.5">
+              {(attachments.length > 0 || uploading) && (
+                <div className="flex flex-wrap gap-1.5 pb-1.5">
+                  {attachments.map((att) => (
+                    <FileChip
+                      key={att.file_id}
+                      file={att}
+                      onRemove={() => handleRemoveAttachment(att.file_id)}
+                    />
+                  ))}
+                  {uploading && (
+                    <div className="inline-flex items-center gap-1.5 text-xs text-[var(--text-tertiary)]">
+                      <span className="h-3 w-3 animate-spin rounded-full border border-current border-t-transparent" />
+                      {t('uploading')}
+                    </div>
+                  )}
+                </div>
+              )}
 
-            {imageNeedsVisionModel && (
-              <div className="flex items-start gap-1.5 pb-2 text-xs text-[var(--color-warning)]">
-                <AlertTriangle className="h-3.5 w-3.5 shrink-0 mt-px" />
-                <span>{t('imageNeedsVisionModel')}</span>
-              </div>
-            )}
+              {imageNeedsVisionModel && (
+                <div className="flex items-start gap-1.5 pb-1.5 text-xs text-[var(--color-warning)]">
+                  <AlertTriangle className="mt-px h-3.5 w-3.5 shrink-0" />
+                  <span>{t('imageNeedsVisionModel')}</span>
+                </div>
+              )}
 
-            <ChatTextarea
-              ref={ref}
-              value={input}
-              onChange={handleInputChange}
-              onPaste={handlePaste}
-              onSelect={handleSelect}
-              onSubmit={handleSend}
-              mentionActive={mentionActive}
-              placeholder={noModelsAvailable ? t('noModelPlaceholder') : hasWorkspace ? t('placeholder') + t('placeholderMention') : t('placeholder')}
-              className="min-h-[28px] max-h-[200px] py-1"
-              disabled={isInputDisabled}
-            />
-
-          </div>
+              <ChatTextarea
+                ref={ref}
+                value={input}
+                onChange={handleInputChange}
+                onPaste={handlePaste}
+                onSelect={handleSelect}
+                onSubmit={handleSend}
+                mentionActive={mentionActive}
+                placeholder={noModelsAvailable ? t('noModelPlaceholder') : hasWorkspace ? t('placeholder') + t('placeholderMention') : t('placeholder')}
+                className="min-h-[24px] max-h-[180px] py-0.5"
+                disabled={isInputDisabled}
+              />
+            </div>
 
           {/* Bottom action bar */}
-          <div className="flex items-center gap-2 px-3 pb-1.5">
+          <div className="flex items-center gap-1.5 px-2.5 pb-2">
             {/* Hidden file input */}
             <input
               ref={fileInputRef}
               type="file"
               multiple
               className="hidden"
+              aria-label={t("attachFile")}
               onChange={(e) => {
                 if (e.target.files && e.target.files.length > 0) {
                   handleFiles(e.target.files);
@@ -775,15 +771,15 @@ export function ChatForm({ isGenerating, isCompacting = false, onSend, onSendTas
             />
 
             <button
-                type="button"
-                disabled={isInputDisabled}
-                className="shrink-0 flex items-center justify-center h-8 w-8 rounded-full hover:bg-[var(--surface-tertiary)] transition-colors text-[var(--text-secondary)]"
-                aria-label={t('attachFile')}
-                title={t('attachFile')}
-                onClick={handleBrowse}
-              >
-                <Plus className="h-4 w-4" />
-              </button>
+              type="button"
+              disabled={isInputDisabled}
+              className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[var(--text-secondary)] transition-colors hover:bg-[var(--surface-secondary)]"
+              aria-label={t('attachFile')}
+              title={t('attachFile')}
+              onClick={handleBrowse}
+            >
+              <Plus className="h-3.5 w-3.5" />
+            </button>
 
             <div className={cn(isInputDisabled && "pointer-events-none opacity-50")}>
               <AgentToggle />
@@ -795,11 +791,11 @@ export function ChatForm({ isGenerating, isCompacting = false, onSend, onSendTas
                   <button
                     type="button"
                     disabled={isInputDisabled}
-                    className="shrink-0 flex items-center justify-center h-8 w-8 rounded-full hover:bg-[var(--surface-tertiary)] transition-colors text-[var(--text-secondary)] disabled:opacity-50"
-                    aria-label="Multi-agent tasks"
-                    title="Multi-agent tasks"
+                    className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[var(--text-secondary)] transition-colors hover:bg-[var(--surface-secondary)] disabled:opacity-50"
+                    aria-label={t("multiAgentTasks")}
+                    title={t("multiAgentTasks")}
                   >
-                    <GitBranch className="h-4 w-4" />
+                    <GitBranch className="h-3.5 w-3.5" />
                   </button>
                 </PopoverTrigger>
                 <PopoverContent align="start" sideOffset={8} className="w-[min(720px,calc(100vw-32px))] p-3">
@@ -818,7 +814,7 @@ export function ChatForm({ isGenerating, isCompacting = false, onSend, onSendTas
                                 : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]",
                             )}
                           >
-                            {mode}
+                            {t(mode === "parallel" ? "taskBatchParallel" : "taskBatchSequential")}
                           </button>
                         ))}
                       </div>
@@ -828,7 +824,7 @@ export function ChatForm({ isGenerating, isCompacting = false, onSend, onSendTas
                         disabled={!input.trim()}
                         className="rounded-full px-3 py-1.5 text-[12px] font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-secondary)] disabled:opacity-40"
                       >
-                        Use input
+                        {t("useInput")}
                       </button>
                       <div className="flex-1" />
                       <button
@@ -837,7 +833,7 @@ export function ChatForm({ isGenerating, isCompacting = false, onSend, onSendTas
                         className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12px] font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-secondary)]"
                       >
                         <Plus className="h-3.5 w-3.5" />
-                        Add task
+                        {t("addTask")}
                       </button>
                     </div>
 
@@ -855,7 +851,8 @@ export function ChatForm({ isGenerating, isCompacting = false, onSend, onSendTas
                               <input
                                 value={task.title}
                                 onChange={(e) => updateBatchTask(task.id, { title: e.target.value })}
-                                placeholder="Task title"
+                                placeholder={t("taskTitle")}
+                                aria-label={t("taskTitle")}
                                 className="min-w-0 flex-1 rounded-md border border-[var(--border-default)] bg-[var(--surface-primary)] px-2.5 py-1.5 text-[13px] text-[var(--text-primary)] outline-none focus:border-[var(--border-heavy)]"
                               />
                               <button
@@ -863,7 +860,7 @@ export function ChatForm({ isGenerating, isCompacting = false, onSend, onSendTas
                                 onClick={() => removeBatchTask(task.id)}
                                 disabled={batchTasks.length <= 1}
                                 className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[var(--text-tertiary)] hover:bg-[var(--surface-secondary)] hover:text-[var(--text-primary)] disabled:opacity-35"
-                                aria-label="Remove task"
+                                aria-label={t("removeTask")}
                               >
                                 <Trash2 className="h-4 w-4" />
                               </button>
@@ -871,7 +868,8 @@ export function ChatForm({ isGenerating, isCompacting = false, onSend, onSendTas
                             <textarea
                               value={task.prompt}
                               onChange={(e) => updateBatchTask(task.id, { prompt: e.target.value })}
-                              placeholder="Prompt for this agent"
+                              placeholder={t("taskPrompt")}
+                              aria-label={t("taskPrompt")}
                               rows={3}
                               className="mt-2 w-full resize-none rounded-md border border-[var(--border-default)] bg-[var(--surface-primary)] px-2.5 py-2 text-[13px] leading-relaxed text-[var(--text-primary)] outline-none placeholder:text-[var(--text-tertiary)] focus:border-[var(--border-heavy)]"
                             />
@@ -901,7 +899,7 @@ export function ChatForm({ isGenerating, isCompacting = false, onSend, onSendTas
                                 }}
                                 className="min-w-0 rounded-md border border-[var(--border-default)] bg-[var(--surface-primary)] px-2.5 py-1.5 text-[13px] text-[var(--text-primary)] outline-none focus:border-[var(--border-heavy)]"
                               >
-                                <option value="">Current model</option>
+                                <option value="">{t("currentModel")}</option>
                                 {providerModels.map((model) => (
                                   <option key={`${model.provider_id}:${model.id}`} value={`${model.provider_id}::${model.id}`}>
                                     {model.name}
@@ -920,7 +918,7 @@ export function ChatForm({ isGenerating, isCompacting = false, onSend, onSendTas
                         onClick={() => setBatchOpen(false)}
                         className="rounded-full px-3 py-1.5 text-[13px] font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-secondary)]"
                       >
-                        Cancel
+                        {t("cancel")}
                       </button>
                       <button
                         type="button"
@@ -929,7 +927,7 @@ export function ChatForm({ isGenerating, isCompacting = false, onSend, onSendTas
                         className="inline-flex items-center gap-1.5 rounded-full bg-[var(--text-primary)] px-3 py-1.5 text-[13px] font-medium text-[var(--surface-primary)] transition-opacity disabled:opacity-40"
                       >
                         <Play className="h-3.5 w-3.5" />
-                        Start batch
+                        {t("startBatch")}
                       </button>
                     </div>
                   </div>
@@ -954,9 +952,9 @@ export function ChatForm({ isGenerating, isCompacting = false, onSend, onSendTas
           </div>
           </div>
 
-          {/* Context row — outer layer, lighter bg, visually wraps the inner panel */}
+          {/* Context row — compact secondary strip for workspace scope. */}
           <div className={cn(
-            "flex items-center gap-2 px-3 py-2",
+            "flex items-center gap-2 border-t border-[var(--border-subtle)] bg-[var(--surface-secondary)]/55 px-2.5 py-1",
             isInputDisabled && "pointer-events-none opacity-50",
           )}>
             <WorkspaceToggle sessionId={sessionId} directory={directory} isIndexing={isIndexing} />
@@ -992,7 +990,7 @@ function AgentToggle() {
       <button
         type="button"
         disabled
-        className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[13px] font-medium bg-[var(--surface-tertiary)] text-[var(--text-primary)] opacity-70"
+        className="inline-flex h-7 items-center gap-1.5 rounded-full bg-[var(--surface-secondary)] px-2.5 text-[12px] font-medium text-[var(--text-primary)] opacity-70"
       >
         <span>{active.label}</span>
         <ChevronDown className="h-3 w-3 opacity-50 shrink-0" />
@@ -1005,7 +1003,7 @@ function AgentToggle() {
       <PopoverTrigger asChild>
         <button
           type="button"
-          className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[13px] font-medium transition-colors bg-[var(--surface-tertiary)] text-[var(--text-primary)] hover:bg-[var(--surface-tertiary)]/80"
+        className="inline-flex h-7 items-center gap-1.5 rounded-full bg-[var(--surface-secondary)] px-2.5 text-[12px] font-medium text-[var(--text-primary)] transition-colors hover:bg-[var(--surface-tertiary)]"
         >
           <span>{active.label}</span>
           <ChevronDown className="h-3 w-3 opacity-50 shrink-0" />

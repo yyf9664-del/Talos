@@ -16,7 +16,7 @@ export function FileChip({ file, onRemove }: FileChipProps) {
   const sizeLabel = formatBytes(file.size);
 
   return (
-    <div className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--border-default)] bg-[var(--surface-tertiary)] px-2.5 py-1.5 text-xs text-[var(--text-secondary)] max-w-[200px]">
+    <div className="inline-flex max-w-[180px] items-center gap-1.5 rounded-md border border-[var(--border-default)] bg-[var(--surface-tertiary)] px-2 py-1 text-xs text-[var(--text-secondary)]">
       <Icon className="h-3.5 w-3.5 shrink-0 text-[var(--text-tertiary)]" />
       <span className="truncate" title={file.name}>
         {file.name}

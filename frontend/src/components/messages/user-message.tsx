@@ -246,6 +246,7 @@ export function UserMessage({ message, isNew = true, onEditAndResend, isGenerati
             }}
             className="w-full resize-none bg-transparent text-[13px] text-[var(--text-primary)] leading-relaxed outline-none"
             rows={1}
+            aria-label="Edit message"
           />
           {(editAttachments.length > 0 || uploading) && (
             <div className="flex flex-wrap gap-1.5 mt-2">
@@ -265,6 +266,7 @@ export function UserMessage({ message, isNew = true, onEditAndResend, isGenerati
             type="file"
             multiple
             className="hidden"
+            aria-label="Attach file"
             onChange={(e) => {
               if (e.target.files && e.target.files.length > 0) {
                 handleUploadFiles(e.target.files);

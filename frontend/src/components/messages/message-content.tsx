@@ -31,6 +31,12 @@ const FILE_CARD_EXTENSIONS = new Set([
   ".docx",
   ".html",
   ".htm",
+  ".png",
+  ".jpg",
+  ".jpeg",
+  ".gif",
+  ".webp",
+  ".avif",
   ".md",
   ".mdx",
   ".pdf",
@@ -268,7 +274,10 @@ export function MessageContent({ parts, isStreaming, activityKey }: MessageConte
       {/* Content parts (text, subtask, artifacts, presented files) */}
       {contentParts.map((part, contentIndex) => {
         if (isFileCardToolPart(part)) {
-          if (contentIndex > 0 && isFileCardToolPart(contentParts[contentIndex - 1])) {
+          if (
+            contentIndex > 0 &&
+            isFileCardToolPart(contentParts[contentIndex - 1])
+          ) {
             return null;
           }
 

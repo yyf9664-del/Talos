@@ -71,10 +71,10 @@ export function ChatHeader({ sessionId }: ChatHeaderProps) {
   // Derive stream status label for remote mode
   const streamStatus = (() => {
     if (!remote || !isGenerating) return null;
-    if (streamingParts.length === 0) return "Starting...";
+    if (streamingParts.length === 0) return t("streamStarting");
     const lastPart = streamingParts[streamingParts.length - 1];
-    if (lastPart.type === "tool" && lastPart.state.status === "running") return "Using tools...";
-    return "Generating...";
+    if (lastPart.type === "tool" && lastPart.state.status === "running") return t("streamUsingTools");
+    return t("streamGenerating");
   })();
 
   const handleExportPdf = useCallback(async () => {
@@ -86,7 +86,7 @@ export function ChatHeader({ sessionId }: ChatHeaderProps) {
       if (IS_DESKTOP) {
         if (!res.ok) {
           const errorText = await res.text();
-          throw new Error(errorText || "Export failed");
+          throw new Error(errorText || t("exportFailed"));
         }
         // WebView2 does not support blob-URL downloads via <a>.click(),
         // so use a Tauri command with native save dialog instead.
@@ -108,7 +108,7 @@ export function ChatHeader({ sessionId }: ChatHeaderProps) {
             statusText: res.statusText,
             detail: errorDetail
           });
-          throw new Error(`PDF export failed: ${errorDetail}`);
+          throw new Error(t("pdfExportFailed", { detail: errorDetail }));
         }
 
         const blob = await res.blob();
@@ -138,12 +138,12 @@ export function ChatHeader({ sessionId }: ChatHeaderProps) {
     } finally {
       setPdfLoading(false);
     }
-  }, [sessionId]);
+  }, [sessionId, t]);
 
   return (
     <TooltipProvider delayDuration={200}>
       <header
-        className="relative z-10 flex h-13 items-center gap-1 pr-3 backdrop-blur-sm"
+        className="relative z-10 flex h-13 items-center gap-1 border-b border-[var(--border-subtle)] bg-[var(--surface-primary)] pr-3"
         style={{ paddingLeft: leftPad }}
       >
         {/* Remote mode: task list button */}
@@ -153,7 +153,7 @@ export function ChatHeader({ sessionId }: ChatHeaderProps) {
             size="icon"
             className="h-9 w-9"
             onClick={() => router.push("/m")}
-            aria-label="Task list"
+            aria-label={t("taskList")}
           >
             <List className="h-[18px] w-[18px]" />
           </Button>
