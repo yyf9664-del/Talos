@@ -533,10 +533,9 @@ export function useChat(currentSessionId?: string) {
       };
 
       try {
-        chatState.clearQuestion(targetSessionId);
         await api.post(API.CHAT.RESPOND, req);
+        chatState.clearQuestion(targetSessionId);
       } catch (err) {
-        chatState.setQuestion(targetSessionId, question);
         console.error("Failed to respond to question:", err);
         toast.error("Failed to respond");
       }
@@ -571,8 +570,8 @@ export function useChat(currentSessionId?: string) {
       };
 
       try {
-        chatState.clearPlanReview(targetSessionId);
         await api.post(API.CHAT.RESPOND, req);
+        chatState.clearPlanReview(targetSessionId);
 
         if (action === "accept") {
           try {
@@ -582,7 +581,6 @@ export function useChat(currentSessionId?: string) {
           useSettingsStore.getState().setWorkMode(options?.mode ?? "auto");
         }
       } catch (err) {
-        chatState.setPlanReview(targetSessionId, review);
         console.error("Failed to respond to plan review:", err);
         toast.error("Failed to respond");
       }

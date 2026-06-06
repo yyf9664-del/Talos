@@ -3,8 +3,6 @@
 import { useState, useMemo, memo, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { motion } from "framer-motion";
-import { ChevronRight } from "lucide-react";
-import { OpenYakLogo } from "@/components/ui/openyak-logo";
 import { MessageContent } from "./message-content";
 import { MessageActions } from "./message-actions";
 import { CompactionPart } from "@/components/parts/compaction-part";
@@ -39,7 +37,6 @@ export function AssistantMessage({ message, combinedParts, onRegenerate, isNew =
 
   // Extract text content for copy
   const textContent = extractTextFromParts(mainParts);
-  const hasActionableContent = textContent.trim().length > 0;
 
   // Build activity data from parts
   const activityData = useMemo<ActivityData | null>(() => {
@@ -99,18 +96,17 @@ export function AssistantMessage({ message, combinedParts, onRegenerate, isNew =
           <MessageContent parts={mainParts} activityKey={activityKey} />
         </motion.div>
 
-        {hasActionableContent && (
-          <div
-            className={`transition-opacity duration-150 ${hovered ? "opacity-100" : "opacity-0 pointer-events-none"}`}
-          >
-            <MessageActions
-              content={textContent}
-              onRegenerate={onRegenerate}
-              activityData={activityData}
-              activityKey={activityKey}
-            />
-          </div>
-        )}
+        {/* Action bar — always in DOM to avoid layout shift, opacity-only toggle */}
+        <div
+          className={`transition-opacity duration-150 ${hovered ? "opacity-100" : "opacity-0 pointer-events-none"}`}
+        >
+          <MessageActions
+            content={textContent}
+            onRegenerate={onRegenerate}
+            activityData={activityData}
+            activityKey={activityKey}
+          />
+        </div>
       </div>
 
       {compactionParts.length > 0 && (
@@ -160,6 +156,19 @@ export const StreamingMessage = memo(function StreamingMessage({ sessionId, part
     return result;
   }, [parts, streamingReasoning, streamingText]);
 
+  // No content yet — show a SINGLE "Thinking" stage indicator (the same one
+  // the content phase renders at the top, so it carries over seamlessly).
+  //
+  // Deliberately render it WITHOUT the animate-fade-in wrapper: sending the
+  // first message navigates Landing → /c/{id}, which unmounts and remounts
+  // this component mid-think. Fading the bare indicator back in on that
+  // remount reads as a page "jolt" followed by a second thinking animation.
+  // (This phase also used to stack a separate StreamingIndicator dot-row on
+  // top of the stage, so two different thinking animations showed at once.)
+  if (liveParts.length === 0) {
+    return <StreamingStage label={t("stageThinking")} />;
+  }
+
   // Check if there's active text/reasoning streaming.
   // If not, the agent is in a "quiet" phase (e.g., executing tool after
   // permission, waiting between steps) — show a trailing indicator.
@@ -186,20 +195,10 @@ export const StreamingMessage = memo(function StreamingMessage({ sessionId, part
   if (hasRunningTool) stageLabel = t("stageWorkingWithTools");
   else if (!isActivelyStreaming && hasAnyTool) stageLabel = t("stageFinalizing");
 
-  // Unify the empty ("Thinking" only) and content phases under the SAME wrapper.
-  // Previously the empty phase returned a bare <StreamingStage> while the content
-  // phase returned a wrapped <div>. The instant the first part arrived, the root
-  // element switched (bare → wrapped), remounting the indicator and shifting its
-  // position — exactly the jump seen right when "Thinking" first appears. Keeping
-  // one stable wrapper lets the indicator stay mounted continuously, and since
-  // freshMountRef never changes, the fade-in animation plays once at mount and
-  // does not replay when content streams in.
   return (
     <div className={freshMountRef.current ? "animate-fade-in" : undefined}>
-      {!hasAnyActivity && (
-        <StreamingStage label={isModelLoading ? t("stageThinking") : stageLabel} />
-      )}
-      {liveParts.length > 0 && <MessageContent parts={liveParts} isStreaming />}
+      {!hasAnyActivity && <StreamingStage label={isModelLoading ? t("stageThinking") : stageLabel} />}
+      <MessageContent parts={liveParts} isStreaming />
       {showTail && (
         <div className="mt-2">
           <StreamingIndicator label={stageLabel} />
@@ -210,19 +209,17 @@ export const StreamingMessage = memo(function StreamingMessage({ sessionId, part
 });
 
 function StreamingStage({ label }: { label: string }) {
-  // Mirror the ReasoningPart trigger layout exactly (chevron + OpenYak logo +
-  // shimmer text, same gap/size/padding) so that when the reasoning section
-  // takes over, the "Thinking" text stays in the same position and size —
-  // otherwise it visibly jumps (dot → logo shifts it right, 11px → 12px).
   return (
     <div
-      className="flex items-center gap-2 py-1 text-xs text-[var(--text-tertiary)]"
+      className="mb-2 flex items-center gap-2 text-[11px] text-[var(--text-tertiary)]"
       role="status"
       aria-live="polite"
     >
-      <ChevronRight className="h-3 w-3 shrink-0" aria-hidden="true" />
-      <OpenYakLogo size={14} className="shimmer-icon" />
-      <span className="shimmer-text">{label}</span>
+      <span
+        className="inline-block h-1.5 w-1.5 rounded-full bg-[var(--text-tertiary)] animate-[pulse-dot_1.4s_ease-in-out_infinite]"
+        aria-hidden="true"
+      />
+      <span>{label}</span>
     </div>
   );
 }

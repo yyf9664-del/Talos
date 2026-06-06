@@ -13,8 +13,6 @@ import type { FileAttachment } from "@/types/chat";
 import { extractTextFromPartResponses } from "@/lib/utils";
 import type { MessageResponse, PartData } from "@/types/message";
 
-const STREAMING_HANDOFF_FALLBACK_MS = 8000;
-
 /** A user message or a group of consecutive assistant messages. */
 type MessageGroup =
   | { kind: "user"; message: MessageResponse }
@@ -69,100 +67,6 @@ function groupMessages(messages: MessageResponse[]): MessageGroup[] {
   flushBatch();
 
   return groups;
-}
-
-function groupHasRenderableContent(group: MessageGroup | undefined): boolean {
-  if (!group || group.kind !== "assistant") return false;
-  return group.messages.some((message) =>
-    message.parts.some((part) => {
-      const type = part.data.type;
-      return type !== "compaction" &&
-        type !== "reasoning" &&
-        type !== "step-start" &&
-        type !== "step-finish";
-    }),
-  );
-}
-
-function latestUserGroupIndex(groups: MessageGroup[]): number {
-  for (let i = groups.length - 1; i >= 0; i -= 1) {
-    if (groups[i].kind === "user") return i;
-  }
-  return -1;
-}
-
-function isRenderableUserMessage(message: MessageResponse): boolean {
-  return (
-    message.data.role === "user" &&
-    !(message.data as unknown as Record<string, unknown>).system
-  );
-}
-
-/**
- * Optimistic user bubble shown before the API confirms a sent message.
- * Rendered both during first-load (static) and in the live list (animated),
- * so it lives in one place to avoid the two copies drifting apart.
- */
-function PendingUserBubble({
-  text,
-  attachments,
-  animated = false,
-  className,
-}: {
-  text: string;
-  attachments?: FileAttachment[] | null;
-  animated?: boolean;
-  className?: string;
-}) {
-  const bubble = (
-    <div className="max-w-[85%] sm:max-w-[70%] rounded-2xl bg-[var(--user-bubble-bg)] px-4 py-2.5 shadow-[var(--shadow-sm)] border border-[var(--border-default)]">
-      <div className="text-[13px] text-[var(--text-primary)] whitespace-pre-wrap break-words leading-relaxed">
-        {text}
-      </div>
-      {attachments && attachments.length > 0 && (
-        <div className="flex flex-wrap gap-1.5 mt-2">
-          {attachments.map((att) => (
-            <FileChip key={att.file_id} file={att} />
-          ))}
-        </div>
-      )}
-    </div>
-  );
-
-  // The real UserMessage always reserves an action-bar row (copy/edit) below
-  // the bubble — see user-message.tsx. The optimistic bubble must reserve the
-  // SAME height (mt-1 + h-7 = 32px) or the optimistic→persisted swap suddenly
-  // adds that row and shoves the assistant "思考中" line down a notch.
-  const content = (
-    <>
-      {bubble}
-      <div className="mt-1 h-7" aria-hidden="true" />
-    </>
-  );
-
-  return (
-    <div className={className}>
-      <div className="mx-auto max-w-3xl xl:max-w-4xl">
-        {animated ? (
-          <motion.div
-            className="flex flex-col items-end"
-            initial={{ opacity: 0, y: 6 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{
-              type: "spring",
-              stiffness: 300,
-              damping: 30,
-              opacity: { duration: 0.2 },
-            }}
-          >
-            {content}
-          </motion.div>
-        ) : (
-          <div className="flex flex-col items-end">{content}</div>
-        )}
-      </div>
-    </div>
-  );
 }
 
 interface MessageListProps {
@@ -225,29 +129,28 @@ export function MessageList({
 
   useEffect(() => {
     if (isGenerating) {
-      if (!wasGeneratingRef.current) {
-        wasGeneratingRef.current = true;
-        prevMessageCountRef.current = messages?.length ?? 0;
-      }
+      wasGeneratingRef.current = true;
+      prevMessageCountRef.current = messages?.length ?? 0;
       setShowStreamingFallback(false);
     } else if (wasGeneratingRef.current) {
       wasGeneratingRef.current = false;
       setShowStreamingFallback(true);
-      const timer = setTimeout(
-        () => setShowStreamingFallback(false),
-        STREAMING_HANDOFF_FALLBACK_MS,
-      );
+      const timer = setTimeout(() => setShowStreamingFallback(false), 2000);
       return () => clearTimeout(timer);
     }
   }, [isGenerating, messages.length]);
+
+  useEffect(() => {
+    if (showStreamingFallback && (messages?.length ?? 0) > prevMessageCountRef.current) {
+      setShowStreamingFallback(false);
+    }
+  }, [messages.length, showStreamingFallback]);
 
   useEffect(() => {
     if (anchoredSessionRef.current === sessionId) return;
     anchoredSessionRef.current = sessionId;
     setCanFetchOlderMessages(false);
     streamedHandoffIdsRef.current = new Set();
-    lastVisibleStreamingRef.current = null;
-    lastPendingUserRef.current = null;
   }, [sessionId]);
 
   useEffect(() => {
@@ -294,15 +197,6 @@ export function MessageList({
   // Messages that appear later are "new" — animate in.
   const knownIdsRef = useRef<Set<string>>(new Set());
   const initialLoadDoneRef = useRef(false);
-  const lastVisibleStreamingRef = useRef<{
-    parts: PartData[];
-    streamingText: string;
-    streamingReasoning: string;
-  } | null>(null);
-  const lastPendingUserRef = useRef<{
-    text: string;
-    attachments?: FileAttachment[] | null;
-  } | null>(null);
 
   // Message IDs whose content was already shown live by the StreamingMessage.
   // When the stream ends, the persisted DB bubble replaces the live one in the
@@ -357,73 +251,15 @@ export function MessageList({
     [messages]
   );
 
-  const latestUserIndex = latestUserGroupIndex(groups);
-  const lastGroup = groups[groups.length - 1];
-  const lastAssistantGroupBelongsToLatestTurn =
-    latestUserIndex >= 0 &&
-    lastGroup?.kind === "assistant" &&
-    groups.length - 1 > latestUserIndex;
-  const currentAssistantGroupHasRenderableContent =
-    lastAssistantGroupBelongsToLatestTurn &&
-    messages.length > prevMessageCountRef.current &&
-    groupHasRenderableContent(lastGroup);
-
-  const latestUserGroup = latestUserIndex >= 0 ? groups[latestUserIndex] : undefined;
-
-  useEffect(() => {
-    if (showStreamingFallback && currentAssistantGroupHasRenderableContent) {
-      setShowStreamingFallback(false);
-    }
-  }, [currentAssistantGroupHasRenderableContent, showStreamingFallback]);
-
   // The shell message only exists after the backend created it (streamId is set).
   // During beginSending (streamId is null), we must NOT hide the previous response.
   const hasActiveStream = !!streamId;
-  // Only hide the persisted DB group while the live StreamingMessage actually
-  // has visible content to replace it with. Without this guard, the DB group
-  // is hidden even after the streaming buffers have been cleared, leaving a
-  // blank gap (content disappears) until the fallback window ends and the DB
-  // group finally renders (content reappears) — the "blink out then flash
-  // back" seen at stream end, most visible for plain-text replies.
   const hasVisibleStreamingReplacement = useMemo(() => {
     if (streamingText.trim() || streamingReasoning.trim()) return true;
     return streamingParts.some(
       (part) => part.type !== "step-start" && part.type !== "step-finish",
     );
   }, [streamingParts, streamingReasoning, streamingText]);
-
-  if (pendingUserText) {
-    lastPendingUserRef.current = {
-      text: pendingUserText,
-      attachments: pendingAttachments,
-    };
-  } else if (
-    latestUserGroup &&
-    latestUserGroup.kind === "user" &&
-    newMessageIds.has(latestUserGroup.message.id) &&
-    messages.length > prevMessageCountRef.current
-  ) {
-    const text = extractTextFromPartResponses(latestUserGroup.message.parts);
-    if (text.trim()) {
-      lastPendingUserRef.current = {
-        text,
-        attachments: null,
-      };
-    }
-  }
-
-  useEffect(() => {
-    if (isGenerating && !hasVisibleStreamingReplacement) {
-      lastVisibleStreamingRef.current = null;
-      return;
-    }
-    if (!hasVisibleStreamingReplacement) return;
-    lastVisibleStreamingRef.current = {
-      parts: streamingParts,
-      streamingText,
-      streamingReasoning,
-    };
-  }, [hasVisibleStreamingReplacement, isGenerating, streamingParts, streamingReasoning, streamingText]);
 
   // Don't show the optimistic user bubble if the DB-fetched messages already
   // contain a matching user message. This prevents duplicates after navigating
@@ -433,30 +269,12 @@ export function MessageList({
     if (!pendingUserText) return false;
     if (messages.length === 0) return true;
     const hasPendingInDb = messages.some((m) => {
-      if (!isRenderableUserMessage(m)) return false;
+      if ((m.data as { role: string }).role !== "user") return false;
       const fullText = extractTextFromPartResponses(m.parts);
       return fullText.includes(pendingUserText);
     });
     return !hasPendingInDb;
   }, [pendingUserText, messages]);
-
-  const cachedPendingUserInDb = useMemo(() => {
-    const cached = lastPendingUserRef.current;
-    if (!cached) return true;
-    return messages.some((m) => {
-      if (!isRenderableUserMessage(m)) return false;
-      const fullText = extractTextFromPartResponses(m.parts);
-      return fullText.includes(cached.text);
-    });
-  }, [messages]);
-
-  const showCachedPendingBubble =
-    !showPendingBubble &&
-    (isGenerating ||
-      showStreamingFallback ||
-      (messages.length > prevMessageCountRef.current && lastAssistantGroupBelongsToLatestTurn)) &&
-    !!lastPendingUserRef.current &&
-    !cachedPendingUserInDb;
 
   // Only show the loading state on the very first load (no cached/placeholder data).
   // When switching sessions with keepPreviousData, messages.length > 0 so we
@@ -476,11 +294,24 @@ export function MessageList({
           {/* Show optimistic user bubble during loading so it doesn't flash
               away between navigation and message fetch completion */}
           {pendingUserText && (
-            <PendingUserBubble
-              text={pendingUserText}
-              attachments={pendingAttachments}
-              className="px-4 py-3"
-            />
+            <div className="px-4 py-3">
+              <div className="mx-auto max-w-3xl xl:max-w-4xl">
+                <div className="flex justify-end">
+                  <div className="max-w-[85%] sm:max-w-[70%] rounded-2xl bg-[var(--user-bubble-bg)] px-4 py-2.5 shadow-[var(--shadow-sm)] border border-[var(--border-default)]">
+                    <div className="text-[13px] text-[var(--text-primary)] whitespace-pre-wrap break-words leading-relaxed">
+                      {pendingUserText}
+                    </div>
+                    {pendingAttachments && pendingAttachments.length > 0 && (
+                      <div className="flex flex-wrap gap-1.5 mt-2">
+                        {pendingAttachments.map((att) => (
+                          <FileChip key={att.file_id} file={att} />
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
           )}
           <div className="px-4 py-5">
             <div className="mx-auto max-w-3xl xl:max-w-4xl">
@@ -540,8 +371,6 @@ export function MessageList({
   if (
     (hasActiveStream || showStreamingFallback) &&
     !showPendingBubble &&
-    messages.length > prevMessageCountRef.current &&
-    lastAssistantGroupBelongsToLatestTurn &&
     lastGroupForCover?.kind === "assistant"
   ) {
     for (const m of lastGroupForCover.messages) {
@@ -561,18 +390,6 @@ export function MessageList({
       break;
     }
   }
-
-  // The bottom StreamingMessage and the persisted DB group must be strictly
-  // dual: exactly one of them covers the current turn at any time. Without
-  // this, the post-finish fallback window can show BOTH at once — the DB group
-  // re-appears (its ActivitySummary) the instant the streaming buffers empty,
-  // while StreamingMessage keeps rendering and degrades into a bare
-  // StreamingStage placeholder — two "in progress" indicators stacked.
-  const streamingStillVisible =
-    hasVisibleStreamingReplacement || !!lastVisibleStreamingRef.current;
-  const dbProducedThisTurn =
-    messages.length > prevMessageCountRef.current &&
-    lastAssistantGroupBelongsToLatestTurn;
 
   return (
     <div className="relative flex-1 overflow-hidden">
@@ -645,42 +462,19 @@ export function MessageList({
 
               if (
                 (hasActiveStream || showStreamingFallback) &&
-                (hasVisibleStreamingReplacement || lastVisibleStreamingRef.current) &&
-                messages.length > prevMessageCountRef.current &&
-                lastAssistantGroupBelongsToLatestTurn &&
+                hasVisibleStreamingReplacement &&
                 isLastOverall &&
                 !showPendingBubble
               ) {
-                return showCachedPendingBubble && lastPendingUserRef.current ? (
-                  <PendingUserBubble
-                    key="cached-pending-user"
-                    text={lastPendingUserRef.current.text}
-                    attachments={lastPendingUserRef.current.attachments}
-                    className="px-4 py-3"
-                  />
-                ) : null;
+                return null;
               }
 
-              const cachedPendingBeforeCurrentAssistant =
-                showCachedPendingBubble &&
-                lastPendingUserRef.current &&
-                lastAssistantGroupBelongsToLatestTurn &&
-                isLastOverall;
-
               return (
-                <div key={group.messages[0].id}>
-                  {cachedPendingBeforeCurrentAssistant && (
-                    <PendingUserBubble
-                      text={lastPendingUserRef.current.text}
-                      attachments={lastPendingUserRef.current.attachments}
-                      className="px-4 py-3"
-                    />
-                  )}
-                  <AssistantMessageGroup
-                    messages={group.messages}
-                    isNew={groupIsNew}
-                  />
-                </div>
+                <AssistantMessageGroup
+                  key={group.messages[0].id}
+                  messages={group.messages}
+                  isNew={groupIsNew}
+                />
               );
             })}
 
@@ -688,46 +482,46 @@ export function MessageList({
                 Hidden once the DB-fetched messages include the same text to
                 avoid duplicates after page navigation. */}
             {showPendingBubble && (
-              <PendingUserBubble
-                text={pendingUserText ?? ""}
-                attachments={pendingAttachments}
-                animated
-                className="px-4 py-3"
-              />
-            )}
-
-            {showCachedPendingBubble &&
-              !lastAssistantGroupBelongsToLatestTurn &&
-              lastPendingUserRef.current && (
-              <PendingUserBubble
-                text={lastPendingUserRef.current.text}
-                attachments={lastPendingUserRef.current.attachments}
-                className="px-4 py-3"
-              />
+              <div className="px-4 py-5">
+                <div className="mx-auto max-w-3xl xl:max-w-4xl">
+                  <motion.div
+                    className="flex justify-end"
+                    initial={{ opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{
+                      type: "spring",
+                      stiffness: 300,
+                      damping: 30,
+                      opacity: { duration: 0.2 },
+                    }}
+                  >
+                    <div className="max-w-[85%] sm:max-w-[70%] rounded-2xl bg-[var(--user-bubble-bg)] px-4 py-2.5 shadow-[var(--shadow-sm)] border border-[var(--border-default)]">
+                      <div className="text-[13px] text-[var(--text-primary)] whitespace-pre-wrap break-words leading-relaxed">
+                        {pendingUserText}
+                      </div>
+                      {pendingAttachments && pendingAttachments.length > 0 && (
+                        <div className="flex flex-wrap gap-1.5 mt-2">
+                          {pendingAttachments.map((att) => (
+                            <FileChip key={att.file_id} file={att} />
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </motion.div>
+                </div>
+              </div>
             )}
 
             {/* Currently streaming message — kept visible briefly after
-                generation finishes so DB messages can mount first. Only render
-                while the stream still has visible content to show, OR before the
-                DB has produced anything for this turn (the initial "Thinking"
-                placeholder). Once the DB group has taken over and the buffers
-                are empty, suppressing this prevents the degraded StreamingStage
-                from stacking a second indicator next to the DB group. */}
-            {(isGenerating || !!streamId || showStreamingFallback) &&
-              (streamingStillVisible || !dbProducedThisTurn) && (
+                generation finishes so DB messages can mount first. */}
+            {(isGenerating || !!streamId || showStreamingFallback) && (
               <div className="px-4 py-5">
                 <div className="mx-auto max-w-3xl xl:max-w-4xl">
                   <StreamingMessage
                     sessionId={sessionId ?? null}
-                    parts={lastVisibleStreamingRef.current && !hasVisibleStreamingReplacement
-                      ? lastVisibleStreamingRef.current.parts
-                      : streamingParts}
-                    streamingText={lastVisibleStreamingRef.current && !hasVisibleStreamingReplacement
-                      ? lastVisibleStreamingRef.current.streamingText
-                      : streamingText}
-                    streamingReasoning={lastVisibleStreamingRef.current && !hasVisibleStreamingReplacement
-                      ? lastVisibleStreamingRef.current.streamingReasoning
-                      : streamingReasoning}
+                    parts={streamingParts}
+                    streamingText={streamingText}
+                    streamingReasoning={streamingReasoning}
                   />
                 </div>
               </div>
