@@ -1,6 +1,7 @@
 "use client";
 
-import { X, ChevronLeft, ChevronRight, Code, FileText, FileSpreadsheet, Globe, Image, LayoutDashboard, GitBranch, Presentation } from "lucide-react";
+import { X, ChevronLeft, ChevronRight, Code, FileText, FileSpreadsheet, Globe, Image, LayoutDashboard, GitBranch, Presentation, Maximize2, Minimize2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { useArtifactStore } from "@/stores/artifact-store";
 import type { ArtifactType } from "@/types/artifact";
@@ -9,6 +10,7 @@ const TYPE_CONFIG: Record<ArtifactType, { icon: React.ComponentType<{ className?
   react: { icon: LayoutDashboard, label: "React" },
   html: { icon: Globe, label: "HTML" },
   svg: { icon: Image, label: "SVG" },
+  image: { icon: Image, label: "Image" },
   code: { icon: Code, label: "Code" },
   markdown: { icon: FileText, label: "Markdown" },
   mermaid: { icon: GitBranch, label: "Diagram" },
@@ -21,10 +23,13 @@ const TYPE_CONFIG: Record<ArtifactType, { icon: React.ComponentType<{ className?
 };
 
 export function ArtifactPanelHeader() {
+  const { t } = useTranslation("common");
   const activeArtifact = useArtifactStore((s) => s.activeArtifact);
   const artifacts = useArtifactStore((s) => s.artifacts);
   const activeIndex = useArtifactStore((s) => s.activeIndex);
   const close = useArtifactStore((s) => s.close);
+  const isMaximized = useArtifactStore((s) => s.isMaximized);
+  const toggleMaximized = useArtifactStore((s) => s.toggleMaximized);
   const goNext = useArtifactStore((s) => s.goNext);
   const goPrev = useArtifactStore((s) => s.goPrev);
   const versionHistory = useArtifactStore((s) => s.versionHistory);
@@ -65,6 +70,7 @@ export function ArtifactPanelHeader() {
               className="h-6 w-6"
               onClick={() => goToVersion(activeVersionIndex - 1)}
               disabled={activeVersionIndex <= 0}
+              aria-label={t("previousVersion")}
             >
               <ChevronLeft className="h-3 w-3" />
             </Button>
@@ -77,6 +83,7 @@ export function ArtifactPanelHeader() {
               className="h-6 w-6"
               onClick={() => goToVersion(activeVersionIndex + 1)}
               disabled={activeVersionIndex >= versions.length - 1}
+              aria-label={t("nextVersion")}
             >
               <ChevronRight className="h-3 w-3" />
             </Button>
@@ -94,6 +101,7 @@ export function ArtifactPanelHeader() {
               className="h-7 w-7"
               onClick={goPrev}
               disabled={!hasPrev}
+              aria-label={t("previousArtifact")}
             >
               <ChevronLeft className="h-4 w-4" />
             </Button>
@@ -106,13 +114,28 @@ export function ArtifactPanelHeader() {
               className="h-7 w-7"
               onClick={goNext}
               disabled={!hasNext}
+              aria-label={t("nextArtifact")}
             >
               <ChevronRight className="h-4 w-4" />
             </Button>
           </>
         )}
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-7 w-7"
+          onClick={toggleMaximized}
+          title={t(isMaximized ? "restorePreview" : "expandPreview")}
+          aria-label={t(isMaximized ? "restorePreview" : "expandPreview")}
+        >
+          {isMaximized ? (
+            <Minimize2 className="h-4 w-4" />
+          ) : (
+            <Maximize2 className="h-4 w-4" />
+          )}
+        </Button>
         {/* Close */}
-        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={close}>
+        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={close} aria-label={t("closePanel")}>
           <X className="h-4 w-4" />
         </Button>
       </div>

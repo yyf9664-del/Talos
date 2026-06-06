@@ -3,6 +3,7 @@
 export type ArtifactType =
   | "react"
   | "html"
+  | "image"
   | "svg"
   | "code"
   | "markdown"

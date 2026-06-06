@@ -91,5 +91,12 @@
   "modelsUnavailableHint": "请检查服务商连接、防火墙或 VPN 设置。",
   "setupProvider": "配置服务商",
   "setUpProvider": "配置服务商",
-  "apiKey": "API 密钥"
+  "apiKey": "API 密钥",
+  "expandPreview": "放大预览",
+  "restorePreview": "还原预览",
+  "previousVersion": "上一个版本",
+  "nextVersion": "下一个版本",
+  "previousArtifact": "上一个工件",
+  "nextArtifact": "下一个工件",
+  "closePanel": "关闭面板"
 }

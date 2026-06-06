@@ -15,6 +15,8 @@ interface ArtifactStore {
   activeIndex: number;
   /** Current panel width in pixels (user-resizable). */
   panelWidth: number;
+  /** Whether the preview panel is expanded over the workspace. */
+  isMaximized: boolean;
   /** Version history per identifier. Key = identifier, Value = Artifact[] (chronological). */
   versionHistory: Map<string, Artifact[]>;
   /** Active version index within the current artifact's version history. -1 if N/A. */
@@ -24,6 +26,8 @@ interface ArtifactStore {
   openArtifact: (artifact: Artifact) => void;
   /** Close the panel. */
   close: () => void;
+  /** Toggle expanded preview mode. */
+  toggleMaximized: () => void;
   /** Navigate to the next artifact. */
   goNext: () => void;
   /** Navigate to the previous artifact. */
@@ -48,6 +52,7 @@ export const useArtifactStore = create<ArtifactStore>((set, get) => ({
   artifacts: [],
   activeIndex: -1,
   panelWidth: typeof window !== "undefined" ? Math.round(window.innerWidth / 2) : ARTIFACT_PANEL_WIDTH,
+  isMaximized: false,
   versionHistory: new Map(),
   activeVersionIndex: -1,
   fixRequest: null,
@@ -142,7 +147,8 @@ export const useArtifactStore = create<ArtifactStore>((set, get) => ({
     }
   },
 
-  close: () => set({ isOpen: false }),
+  close: () => set({ isOpen: false, isMaximized: false }),
+  toggleMaximized: () => set((s) => ({ isMaximized: !s.isMaximized })),
 
   goNext: () => {
     const { artifacts, activeIndex, versionHistory } = get();
@@ -192,6 +198,7 @@ export const useArtifactStore = create<ArtifactStore>((set, get) => ({
   clearAll: () =>
     set({
       isOpen: false,
+      isMaximized: false,
       activeArtifact: null,
       artifacts: [],
       activeIndex: -1,

@@ -43,6 +43,8 @@ export function CodeRenderer({ content, language }: CodeRendererProps) {
             size="icon"
             className="h-7 w-7"
             onClick={handleCopy}
+            title={copied ? "Copied" : "Copy"}
+            aria-label={copied ? "Copied" : "Copy"}
           >
             {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
           </Button>

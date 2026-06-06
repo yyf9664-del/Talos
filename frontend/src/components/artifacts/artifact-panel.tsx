@@ -83,6 +83,7 @@ function ResizeHandle() {
 export function ArtifactPanel() {
   const isOpen = useArtifactStore((s) => s.isOpen);
   const panelWidth = useArtifactStore((s) => s.panelWidth);
+  const isMaximized = useArtifactStore((s) => s.isMaximized);
   const close = useArtifactStore((s) => s.close);
   const isDesktop = useIsDesktop();
   const isMac = useIsMacOS();
@@ -92,14 +93,20 @@ export function ArtifactPanel() {
   if (isDesktop) {
     return (
       <motion.aside
-        className="fixed inset-y-0 right-0 z-[35] flex flex-col bg-[var(--surface-primary)] border-l border-[var(--border-default)] overflow-hidden"
-        style={{ width: panelWidth, top: topOffset }}
+        className={`fixed bottom-0 right-0 flex flex-col overflow-hidden border-l border-[var(--border-default)] bg-[var(--surface-primary)] ${
+          isMaximized ? "z-[45]" : "z-[35]"
+        }`}
+        style={
+          isMaximized
+            ? { left: 0, top: topOffset, width: "auto" }
+            : { width: panelWidth, top: topOffset }
+        }
         initial={{ x: "100%" }}
         animate={{ x: 0 }}
         exit={{ x: "100%" }}
         transition={{ type: "spring", damping: 30, stiffness: 300 }}
       >
-        <ResizeHandle />
+        {!isMaximized && <ResizeHandle />}
         <ArtifactPanelHeader />
         <div className="flex-1 overflow-hidden">
           <ArtifactPanelContent />

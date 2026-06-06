@@ -12,6 +12,9 @@ interface PptxRendererProps {
   filePath?: string;
 }
 
+const CJK_FONT_FALLBACK =
+  '"PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", "Source Han Sans SC", "Noto Sans SC", Arial, sans-serif';
+
 function base64ToArrayBuffer(base64: string): ArrayBuffer {
   const binary = atob(base64);
   const bytes = new Uint8Array(binary.length);
@@ -19,6 +22,85 @@ function base64ToArrayBuffer(base64: string): ArrayBuffer {
     bytes[i] = binary.charCodeAt(i);
   }
   return bytes.buffer;
+}
+
+function withCjkFallback(fontFamily?: string): string {
+  const clean = fontFamily?.trim();
+  if (!clean) return CJK_FONT_FALLBACK;
+  if (
+    clean.includes("PingFang") ||
+    clean.includes("Microsoft YaHei") ||
+    clean.includes("Noto Sans CJK") ||
+    clean.includes("Source Han")
+  ) {
+    return clean;
+  }
+  return `${clean}, ${CJK_FONT_FALLBACK}`;
+}
+
+function repairUtf8Mojibake(text: string): string {
+  // Common symptom when UTF-8 Chinese text is decoded as Latin-1, e.g. "ä¸­æ–‡".
+  // Only attempt repair for strings with mojibake markers and no existing CJK.
+  if (/[\u4E00-\u9FFF]/.test(text)) return text;
+  if (!/[ÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝÞßàáâãäåæçèéêëìíîï]/.test(text)) {
+    return text;
+  }
+
+  try {
+    const bytes = Uint8Array.from([...text].map((char) => char.charCodeAt(0) & 0xff));
+    const repaired = new TextDecoder("utf-8", { fatal: true }).decode(bytes);
+    return /[\u4E00-\u9FFF]/.test(repaired) ? repaired : text;
+  } catch {
+    return text;
+  }
+}
+
+function normalizePptxForCanvas(data: PPTXData): PPTXData {
+  const normalizeTextRun = (run: { text?: string; fontFamily?: string }) => {
+    if (typeof run.text === "string") run.text = repairUtf8Mojibake(run.text);
+    run.fontFamily = withCjkFallback(run.fontFamily);
+  };
+
+  const normalizeShape = (shape: PPTXData["slides"][number]["shapes"][number]) => {
+    if (typeof shape.text === "string") shape.text = repairUtf8Mojibake(shape.text);
+    if (shape.textStyle) {
+      shape.textStyle.fontFamily = withCjkFallback(shape.textStyle.fontFamily);
+      if (shape.textStyle.bullet?.font) {
+        shape.textStyle.bullet.font = withCjkFallback(shape.textStyle.bullet.font);
+      }
+    }
+    shape.paragraphs?.forEach((paragraph) => {
+      if (paragraph.bullet?.font) {
+        paragraph.bullet.font = withCjkFallback(paragraph.bullet.font);
+      }
+      paragraph.runs.forEach(normalizeTextRun);
+    });
+    shape.table?.rows.forEach((row) => {
+      row.cells.forEach((cell) => {
+        if (typeof cell.text === "string") cell.text = repairUtf8Mojibake(cell.text);
+        if (cell.textStyle) {
+          cell.textStyle.fontFamily = withCjkFallback(cell.textStyle.fontFamily);
+        }
+        cell.paragraphs?.forEach((paragraph) => {
+          if (paragraph.bullet?.font) {
+            paragraph.bullet.font = withCjkFallback(paragraph.bullet.font);
+          }
+          paragraph.runs.forEach(normalizeTextRun);
+        });
+      });
+    });
+    shape.children?.forEach(normalizeShape);
+  };
+
+  data.slides.forEach((slide) => {
+    if (slide.notes) slide.notes = repairUtf8Mojibake(slide.notes);
+    slide.shapes.forEach(normalizeShape);
+    slide.masterShapes?.forEach(normalizeShape);
+    slide.layoutShapes?.forEach(normalizeShape);
+    slide.slideShapes?.forEach(normalizeShape);
+  });
+
+  return data;
 }
 
 export function PptxRenderer({ filePath }: PptxRendererProps) {
@@ -82,7 +164,7 @@ export function PptxRenderer({ filePath }: PptxRendererProps) {
 
         // Dynamically import parser + viewer (SSR-safe)
         const pptxModule = await import("@kandiforge/pptx-renderer");
-        const parsed = await pptxModule.parsePPTX(buffer);
+        const parsed = normalizePptxForCanvas(await pptxModule.parsePPTX(buffer));
 
         if (cancelled) return;
 
@@ -248,22 +330,6 @@ export function PptxRenderer({ filePath }: PptxRendererProps) {
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex items-center justify-between px-3 py-2 border-b border-[var(--border-default)] bg-[var(--surface-tertiary)] shrink-0">
-        <span className="text-[11px] font-medium text-[var(--text-secondary)] uppercase tracking-wide truncate">
-          {fileName || "presentation.pptx"}
-        </span>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-7 w-7"
-          onClick={handleDownload}
-          disabled={!blobRef.current}
-          title="Download"
-        >
-          <Download className="h-3.5 w-3.5" />
-        </Button>
-      </div>
-
       <div ref={viewportRef} className="flex-1 min-h-0 overflow-hidden bg-[var(--surface-secondary)] relative">
         {loading && (
           <div className="absolute inset-0 flex items-center justify-center bg-[var(--surface-primary)]">
@@ -273,10 +339,10 @@ export function PptxRenderer({ filePath }: PptxRendererProps) {
         {pptxData && (
           <div className="flex h-full flex-col">
             <div className="flex items-center justify-between border-b border-[var(--border-default)] px-3 py-2 shrink-0">
-              <div className="text-[11px] font-medium uppercase tracking-wide text-[var(--text-secondary)]">
+              <div className="min-w-0 truncate text-[11px] font-medium uppercase tracking-wide text-[var(--text-secondary)]">
                 {fileName || "presentation.pptx"}
               </div>
-              <div className="flex items-center gap-1.5">
+              <div className="ml-3 flex shrink-0 items-center gap-1.5">
                 <button
                   type="button"
                   className="inline-flex h-7 w-7 items-center justify-center rounded-full text-[var(--text-tertiary)] transition-colors hover:bg-[var(--surface-primary)] hover:text-[var(--text-primary)] disabled:opacity-40"
@@ -298,6 +364,16 @@ export function PptxRenderer({ filePath }: PptxRendererProps) {
                 >
                   <ChevronRight className="h-4 w-4" />
                 </button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-7 w-7 rounded-full text-[var(--text-tertiary)] hover:bg-[var(--surface-primary)] hover:text-[var(--text-primary)]"
+                  onClick={handleDownload}
+                  disabled={!blobRef.current}
+                  title="Download"
+                >
+                  <Download className="h-3.5 w-3.5" />
+                </Button>
               </div>
             </div>
 
@@ -312,6 +388,8 @@ export function PptxRenderer({ filePath }: PptxRendererProps) {
                 >
                   <canvas
                     ref={mainCanvasRef}
+                    role="img"
+                    aria-label={`Slide ${currentSlide + 1}`}
                     className="block"
                     style={{
                       width: slideMetrics.width || undefined,
@@ -350,6 +428,7 @@ export function PptxRenderer({ filePath }: PptxRendererProps) {
                         ref={(node) => {
                           thumbCanvasRefs.current[index] = node;
                         }}
+                        aria-hidden="true"
                         className="block"
                         style={{
                           width: slideMetrics.thumbWidth || undefined,

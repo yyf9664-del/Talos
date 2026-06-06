@@ -9,6 +9,7 @@ import { MermaidRenderer } from "./renderers/mermaid-renderer";
 import { HtmlRenderer } from "./renderers/html-renderer";
 import { FilePreviewRenderer } from "./renderers/file-preview-renderer";
 import { CsvRenderer } from "./renderers/csv-renderer";
+import { ImageRenderer } from "./renderers/image-renderer";
 // Heavy renderers - lazy loaded to reduce bundle size
 import {
   PdfRenderer,
@@ -42,7 +43,12 @@ export function ArtifactPanelContent() {
       }
       return <MarkdownRenderer content={artifact.content} title={artifact.title} />;
     case "svg":
+      if (!artifact.content && artifact.filePath) {
+        return <FilePreviewRenderer filePath={artifact.filePath} content={artifact.content} language={artifact.language} />;
+      }
       return <SvgRenderer content={artifact.content} />;
+    case "image":
+      return <ImageRenderer filePath={artifact.filePath} title={artifact.title} />;
     case "mermaid":
       return <MermaidRenderer content={artifact.content} />;
     case "html":
@@ -61,6 +67,9 @@ export function ArtifactPanelContent() {
     case "pptx":
       return <PptxRenderer filePath={artifact.filePath} />;
     case "csv":
+      if (!artifact.content && artifact.filePath) {
+        return <FilePreviewRenderer filePath={artifact.filePath} content={artifact.content} language={artifact.language} />;
+      }
       return <CsvRenderer content={artifact.content} title={artifact.title} />;
     case "file-preview":
       return (

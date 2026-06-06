@@ -17,6 +17,7 @@ import { XlsxRenderer } from "./xlsx-renderer";
 import { PdfRenderer } from "./pdf-renderer";
 import { PptxRenderer } from "./pptx-renderer";
 import { CsvRenderer } from "./csv-renderer";
+import { ImageRenderer } from "./image-renderer";
 
 interface FilePreviewRendererProps {
   /** Disk path of the file. */
@@ -34,13 +35,14 @@ function BinaryFilePreview({ filePath }: { filePath?: string }) {
   if (type === "xlsx") return <XlsxRenderer filePath={filePath} />;
   if (type === "pdf") return <PdfRenderer filePath={filePath} />;
   if (type === "pptx") return <PptxRenderer filePath={filePath} />;
+  if (type === "image") return <ImageRenderer filePath={filePath} />;
   return null;
 }
 
 export function FilePreviewRenderer({ filePath, content: initialContent, language }: FilePreviewRendererProps) {
   // Check if this is a binary format that handles its own fetching
   const artifactType = filePath ? artifactTypeFromExtension(filePath) : null;
-  const isBinary = artifactType === "docx" || artifactType === "xlsx" || artifactType === "pdf" || artifactType === "pptx";
+  const isBinary = artifactType === "docx" || artifactType === "xlsx" || artifactType === "pdf" || artifactType === "pptx" || artifactType === "image";
   const workspace = useWorkspaceStore((s) => s.activeWorkspacePath);
 
   const [content, setContent] = useState<string | null>(initialContent ?? null);

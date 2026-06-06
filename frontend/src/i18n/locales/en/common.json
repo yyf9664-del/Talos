@@ -91,5 +91,12 @@
   "modelsUnavailableHint": "Check your provider connection, firewall, or VPN settings.",
   "setupProvider": "Set up provider",
   "setUpProvider": "Set up provider",
-  "apiKey": "API Key"
+  "apiKey": "API Key",
+  "expandPreview": "Expand preview",
+  "restorePreview": "Restore preview",
+  "previousVersion": "Previous version",
+  "nextVersion": "Next version",
+  "previousArtifact": "Previous artifact",
+  "nextArtifact": "Next artifact",
+  "closePanel": "Close panel"
 }

@@ -6,6 +6,12 @@ import type { ArtifactType } from "@/types/artifact";
 const EXT_MAP: Record<string, ArtifactType> = {
   ".html": "html",
   ".htm": "html",
+  ".png": "image",
+  ".jpg": "image",
+  ".jpeg": "image",
+  ".gif": "image",
+  ".webp": "image",
+  ".avif": "image",
   ".svg": "svg",
   ".md": "markdown",
   ".mdx": "markdown",

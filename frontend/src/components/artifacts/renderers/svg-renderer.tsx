@@ -30,6 +30,8 @@ export function SvgRenderer({ content }: SvgRendererProps) {
             size="icon"
             className="h-7 w-7"
             onClick={() => setZoom(Math.max(25, zoom - 25))}
+            title="Zoom out"
+            aria-label="Zoom out"
           >
             <ZoomOut className="h-3.5 w-3.5" />
           </Button>
@@ -38,6 +40,8 @@ export function SvgRenderer({ content }: SvgRendererProps) {
             size="icon"
             className="h-7 w-7"
             onClick={() => setZoom(100)}
+            title="Reset zoom"
+            aria-label="Reset zoom"
           >
             <Maximize className="h-3.5 w-3.5" />
           </Button>
@@ -46,6 +50,8 @@ export function SvgRenderer({ content }: SvgRendererProps) {
             size="icon"
             className="h-7 w-7"
             onClick={() => setZoom(Math.min(400, zoom + 25))}
+            title="Zoom in"
+            aria-label="Zoom in"
           >
             <ZoomIn className="h-3.5 w-3.5" />
           </Button>

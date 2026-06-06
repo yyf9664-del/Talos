@@ -118,6 +118,7 @@ export function CsvRenderer({ content, title }: CsvRendererProps) {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search..."
+              aria-label="Search"
               className="flex-1 text-xs bg-transparent outline-none text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)]"
             />
           </div>
