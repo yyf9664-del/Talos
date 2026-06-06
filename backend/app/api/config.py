@@ -108,6 +108,22 @@ def _build_custom_endpoint_info(
     )
 
 
+async def _validate_custom_endpoint_provider(provider: Any, models_payload: list[dict[str, Any]]) -> list[Any]:
+    """Validate a custom endpoint and return its visible models.
+
+    When models are manually configured, ``list_models`` returns the local
+    override and does not touch the network. In that case, also make a tiny
+    chat-completions request against the first configured model so bad keys do
+    not appear as connected.
+    """
+    models = await provider.list_models()
+    if models_payload:
+        validate_connection = getattr(provider, "validate_connection", None)
+        if validate_connection is not None:
+            await validate_connection(models_payload[0]["id"])
+    return models
+
+
 def _update_env_file(key: str, value: str) -> None:
     """Update or add a key=value pair in the backend .env file.
 
@@ -404,6 +420,7 @@ async def list_providers(settings: SettingsDep, registry: ProviderRegistryDep) -
         pid = ce["id"]
         is_disabled = pid in disabled or not ce.get("enabled", True)
         provider = registry.get_provider(pid)
+        has_credentials = bool(ce.get("api_key") or ce.get("headers"))
 
         # Heal-on-read: if persisted as enabled but the registry has no
         # provider for it (stale unregister, dropped during a partial
@@ -413,7 +430,10 @@ async def list_providers(settings: SettingsDep, registry: ProviderRegistryDep) -
         # lists skip the /v1/models discovery call. We refresh only this
         # provider's models rather than the whole registry so unrelated
         # providers don't get re-polled on every settings page load.
-        if not is_disabled and provider is None:
+        if not is_disabled and not has_credentials:
+            registry.unregister(pid)
+            provider = None
+        elif not is_disabled and provider is None:
             try:
                 healed = create_desktop_provider(
                     pid,
@@ -431,9 +451,11 @@ async def list_providers(settings: SettingsDep, registry: ProviderRegistryDep) -
 
         if is_disabled:
             result.append(_build_custom_endpoint_info(ce, enabled=False, status="disabled"))
-        elif provider:
+        elif provider and has_credentials:
             models = [m for p, m in registry._full_models if m.provider_id == pid]
             result.append(_build_custom_endpoint_info(ce, enabled=True, status="connected", model_count=len(models)))
+        elif not has_credentials:
+            result.append(_build_custom_endpoint_info(ce, enabled=True, status="unconfigured"))
         else:
             result.append(_build_custom_endpoint_info(ce, enabled=True, status="error"))
 
@@ -632,7 +654,7 @@ async def create_custom_endpoint(
             models_override=models_payload or None,
             extra_headers=headers_payload or None,
         )
-        models = await test_provider.list_models()
+        models = await _validate_custom_endpoint_provider(test_provider, models_payload)
     except Exception as e:
         logger.warning("Failed validation for custom endpoint %s: %s", name, e)
         raise HTTPException(400, f"Validation failed: {e}")
@@ -759,9 +781,10 @@ async def update_custom_endpoint(
         or headers_payload != existing_headers
         or (enabled and not prev_enabled)
     )
+    has_credentials = bool(api_key or headers_payload)
 
     # --- Phase 2: validate (outside lock — network I/O) ---
-    if needs_rebuild:
+    if needs_rebuild and has_credentials:
         try:
             test_provider = create_desktop_provider(
                 endpoint_id,
@@ -770,7 +793,7 @@ async def update_custom_endpoint(
                 models_override=models_payload or None,
                 extra_headers=headers_payload or None,
             )
-            models = await test_provider.list_models()
+            models = await _validate_custom_endpoint_provider(test_provider, models_payload)
         except Exception as e:
             logger.warning("Failed validation for custom endpoint %s: %s", name, e)
             raise HTTPException(400, f"Validation failed: {e}")
@@ -810,14 +833,18 @@ async def update_custom_endpoint(
             await registry.refresh_provider(endpoint_id)
         except Exception as e:
             logger.warning("Failed to refresh models after updating custom endpoint %s: %s", endpoint_id, e)
-    elif not enabled:
+    elif not enabled or not has_credentials:
         registry.unregister(endpoint_id)
+
+    status = "connected" if enabled and has_credentials else "unconfigured"
+    if not enabled:
+        status = "disabled"
 
     return _build_custom_endpoint_info(
         updated_config,
         enabled=enabled,
-        status="connected" if enabled else "disabled",
-        model_count=len(models),
+        status=status,
+        model_count=len(models) if status == "connected" else 0,
     )
 
 @router.get("/config/local", response_model=LocalProviderStatus)

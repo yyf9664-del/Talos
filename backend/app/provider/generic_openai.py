@@ -101,6 +101,19 @@ class GenericOpenAIProvider(OpenAICompatProvider):
         self._models_cache = models
         return models
 
+    async def validate_connection(self, model_id: str) -> None:
+        """Validate auth and chat-completions reachability for manual models.
+
+        Manual model overrides intentionally skip /v1/models, so listing models
+        alone cannot prove that the endpoint or credential works.
+        """
+        await self._client.chat.completions.create(
+            model=model_id,
+            messages=[{"role": "user", "content": "ping"}],
+            max_tokens=1,
+            stream=False,
+        )
+
     def clear_cache(self) -> None:
         self._models_cache = None
 
