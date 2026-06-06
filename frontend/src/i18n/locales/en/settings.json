@@ -280,5 +280,11 @@
   "customBaseUrlRequired": "Base URL is required.",
   "editProvider": "Edit provider",
   "cancel": "Cancel",
-  "saveChanges": "Save changes"
+  "saveChanges": "Save changes",
+  "account": "Account",
+  "accountLoggedInAs": "Signed in",
+  "accountDefaultName": "Personal account",
+  "accountLogout": "Log out",
+  "accountLogoutDesc": "End the current session and return to the login page.",
+  "authCheckingAccess": "Checking access..."
 }

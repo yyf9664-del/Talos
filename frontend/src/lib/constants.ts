@@ -210,6 +210,11 @@ export function resolveApiUrl(path: string): string {
 }
 
 export const API = {
+  AUTH: {
+    ME: "/api/auth/me",
+    KEY_LOGIN: "/api/auth/key-login",
+    LOGOUT: "/api/auth/logout",
+  },
   CHAT: {
     PROMPT: "/api/chat/prompt",
     TASK_BATCH: "/api/chat/task-batch",

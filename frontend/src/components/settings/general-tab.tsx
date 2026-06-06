@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { Sun, Moon, Monitor, RefreshCw, Check, Eye, EyeOff } from "lucide-react";
+import { Sun, Moon, Monitor, RefreshCw, Check, Eye, EyeOff, LogOut, UserCircle } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useTranslation } from "react-i18next";
 import { Separator } from "@/components/ui/separator";
@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { IS_DESKTOP } from "@/lib/constants";
 import { TextPart } from "@/components/parts/text-part";
 import { AppearanceCustomize } from "@/components/settings/appearance-customize";
+import { getAuthStatus, logout, type AuthUser } from "@/lib/auth";
 
 export function GeneralTab() {
   const { t, i18n } = useTranslation('settings');
@@ -85,6 +86,34 @@ export function GeneralTab() {
 
   const [showPreview, setShowPreview] = useState(false);
   const [proseFont, setProseFont] = useState<"serif" | "sans">("serif");
+  const [authEnabled, setAuthEnabled] = useState(false);
+  const [authUser, setAuthUser] = useState<AuthUser | null>(null);
+  const [loggingOut, setLoggingOut] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    getAuthStatus()
+      .then((status) => {
+        if (cancelled) return;
+        setAuthEnabled(status.auth_enabled);
+        setAuthUser(status.user);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const handleLogout = useCallback(async () => {
+    setLoggingOut(true);
+    try {
+      await logout();
+    } catch {
+      // fall through — navigate to login regardless
+    }
+    window.location.href = "/login";
+  }, []);
+
   const activeAppearance = mounted
     ? resolvedTheme === "light"
       ? t("light")
@@ -258,6 +287,45 @@ export function GeneralTab() {
           </div>
         )}
       </section>
+
+      {authEnabled && (
+        <>
+          <Separator />
+          <section>
+            <h2 className="text-ui-title-sm font-semibold text-[var(--text-primary)] mb-3">
+              {t("account")}
+            </h2>
+            <div className="flex items-center justify-between gap-3 rounded-xl border border-[var(--border-default)] bg-[var(--surface-secondary)] px-3.5 py-3">
+              <div className="flex min-w-0 items-center gap-2.5">
+                <UserCircle className="h-5 w-5 shrink-0 text-[var(--text-secondary)]" />
+                <div className="min-w-0 leading-tight">
+                  <p className="truncate text-ui-body font-medium text-[var(--text-primary)]">
+                    {authUser?.name || authUser?.username || authUser?.email || t("accountLoggedInAs")}
+                  </p>
+                  {authUser?.studio_display && (
+                    <p className="truncate text-ui-caption text-[var(--text-tertiary)]">
+                      {authUser.studio_display}
+                    </p>
+                  )}
+                </div>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-8 shrink-0 gap-1.5 border-[var(--color-destructive)]/30 text-ui-caption text-[var(--color-destructive)] hover:bg-[var(--color-destructive)]/5"
+                onClick={handleLogout}
+                disabled={loggingOut}
+              >
+                <LogOut className="h-3.5 w-3.5" />
+                {t("accountLogout")}
+              </Button>
+            </div>
+            <p className="mt-2 text-ui-caption text-[var(--text-tertiary)]">
+              {t("accountLogoutDesc")}
+            </p>
+          </section>
+        </>
+      )}
     </div>
   );
 }

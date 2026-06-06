@@ -185,6 +185,13 @@ class Settings(BaseSettings):
     # to match what Tauri dev mode reads).
     session_token_path: str = "session_token.json"
 
+    # --- Employee login gate (optional) ---
+    auth_enabled: bool = False
+    auth_userinfo_url: str = ""
+    auth_api_key_header: str = "X-API-KEY"
+    auth_session_secret: str = ""
+    auth_session_ttl_hours: int = 168
+
 
 @lru_cache
 def get_settings() -> Settings:

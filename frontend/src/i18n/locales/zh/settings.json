@@ -280,5 +280,11 @@
   "customBaseUrlRequired": "Base URL 不能为空。",
   "editProvider": "编辑 Provider",
   "cancel": "取消",
-  "saveChanges": "保存修改"
+  "saveChanges": "保存修改",
+  "account": "账户",
+  "accountLoggedInAs": "已登录",
+  "accountDefaultName": "个人账户",
+  "accountLogout": "退出登录",
+  "accountLogoutDesc": "退出当前会话并返回登录页。",
+  "authCheckingAccess": "正在检查访问权限..."
 }

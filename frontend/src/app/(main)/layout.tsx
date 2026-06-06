@@ -38,6 +38,7 @@ import {
 import { desktopAPI } from "@/lib/tauri-api";
 import { useTranslation } from "react-i18next";
 import { ErrorBoundary } from "@/components/ui/error-boundary";
+import { AuthGate } from "@/components/auth/auth-gate";
 
 function useIsDesktop() {
   const [isDesktop, setIsDesktop] = useState(false);
@@ -172,7 +173,8 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
   const titleBarPadding = IS_DESKTOP && !isMac ? TITLE_BAR_HEIGHT : 0;
 
   return (
-    <div className="h-full overflow-hidden isolate">
+    <AuthGate>
+      <div className="h-full overflow-hidden isolate">
       {/* Opaque backdrop behind everything right of the sidebar.
           Only the sidebar area stays transparent to preserve macOS vibrancy;
           all other regions sit on solid surface-chat, eliminating any flash of
@@ -294,6 +296,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
         </AnimatePresence>
       </ErrorBoundary>
 
-    </div>
+      </div>
+    </AuthGate>
   );
 }

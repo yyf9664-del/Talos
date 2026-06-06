@@ -6,6 +6,7 @@ from fastapi import APIRouter
 
 from app.api import agents as agents_api
 from app.api import artifacts as artifacts_api
+from app.api import auth as auth_api
 from app.api import automations as automations_api
 from app.api import workspace_memory as workspace_memory_api
 from app.api import channels as channels_api
@@ -31,6 +32,7 @@ from app.api import usage as usage_api
 api_router = APIRouter()
 
 api_router.include_router(models_api.router, tags=["models"])
+api_router.include_router(auth_api.router, tags=["auth"])
 api_router.include_router(chat_api.router, tags=["chat"])
 api_router.include_router(agents_api.router, tags=["agents"])
 api_router.include_router(tools_api.router, tags=["tools"])

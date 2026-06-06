@@ -73,6 +73,7 @@ from pathlib import Path
 from urllib.parse import parse_qs
 
 from app.auth.token import load_token, validate_token
+from app.auth.user_session import COOKIE_NAME, verify_user_session
 
 logger = logging.getLogger(__name__)
 
@@ -98,6 +99,10 @@ _PUBLIC_PREFIXES: tuple[str, ...] = (
 )
 
 _RATE_WINDOW = 60  # seconds — not user-tunable
+
+_EMPLOYEE_AUTH_PUBLIC_PREFIXES: tuple[str, ...] = (
+    "/api/auth/",
+)
 
 
 class _RateBucket:
@@ -145,6 +150,28 @@ def _extract_token(scope: dict, headers: dict[bytes, bytes]) -> str:
     qs = scope.get("query_string", b"").decode("latin-1", errors="replace")
     token_list = parse_qs(qs).get("token", [])
     return token_list[0] if token_list else ""
+
+
+def _extract_cookie(headers: dict[bytes, bytes], name: str) -> str | None:
+    raw = headers.get(b"cookie", b"").decode("latin-1", errors="replace")
+    if not raw:
+        return None
+    for part in raw.split(";"):
+        if "=" not in part:
+            continue
+        key, value = part.split("=", 1)
+        if key.strip() == name:
+            return value.strip()
+    return None
+
+
+def _requires_employee_auth(path: str, settings) -> bool:
+    if not getattr(settings, "auth_enabled", False):
+        return False
+    for prefix in _EMPLOYEE_AUTH_PUBLIC_PREFIXES:
+        if path.startswith(prefix):
+            return False
+    return path.startswith("/api/") or path.startswith("/v1/") or path == "/shutdown"
 
 
 class AuthMiddleware:
@@ -228,6 +255,14 @@ class AuthMiddleware:
                 self._failed_auth_buckets[client_ip].hit(now, _RATE_WINDOW)
             await self._reject(send, 401, "Invalid token")
             return
+
+        if _requires_employee_auth(path, settings):
+            employee_token = _extract_cookie(headers, COOKIE_NAME)
+            employee_user = verify_user_session(employee_token, settings)
+            if employee_user is None:
+                await self._reject(send, 401, "Employee login required")
+                return
+            scope.setdefault("state", {})["employee_user"] = employee_user
 
         # Authenticated — annotate the scope so downstream handlers can
         # distinguish local from remote if they want to apply extra policy
