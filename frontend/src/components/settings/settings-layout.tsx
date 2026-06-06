@@ -14,6 +14,8 @@ import { UsageSkeleton } from "@/components/settings/usage-tab";
 import { MemoryTab } from "@/components/settings/memory-tab";
 import { PermissionsTab } from "@/components/settings/permissions-tab";
 import { AutomationsTabContent } from "@/app/(main)/automations/content";
+import { ConnectorsContent } from "@/app/(main)/connectors/content";
+import { SkillsContent } from "@/app/(main)/skills/content";
 import { PluginsTabContent } from "@/app/(main)/plugins/content";
 import { RemoteTabContent } from "@/app/(main)/remote/content";
 import { SETTINGS_TABS, type SettingsTabId } from "./settings-tabs";
@@ -96,6 +98,8 @@ export default function SettingsPageClient({ initialTab }: SettingsPageClientPro
           {activeTab === "providers" && <ProvidersTab />}
           {activeTab === "permissions" && <PermissionsTab />}
           {activeTab === "automations" && <AutomationsTabContent />}
+          {activeTab === "connectors" && <ConnectorsContent />}
+          {activeTab === "skills" && <SkillsContent />}
           {activeTab === "plugins" && <PluginsTabContent />}
           {activeTab === "remote" && <RemoteTabContent />}
           {activeTab === "usage" && <UsageTab />}
