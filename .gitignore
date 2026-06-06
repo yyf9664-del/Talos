@@ -23,7 +23,7 @@ session_token.json
 
 # === Database & runtime data ===
 *.db
-data/
+/data/
 backend/data/
 .openyakdb/
 backend/.openyak/
