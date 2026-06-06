@@ -88,6 +88,7 @@ export async function apiFetch(
     const res = await fetch(resolvedUrl, {
       ...fetchOptions,
       headers,
+      credentials: "include",
       signal: controller.signal,
     });
     return res;
@@ -156,6 +157,7 @@ async function request<T>(
           ...authHeaders,
           ...fetchOptions.headers,
         },
+        credentials: "include",
         ...fetchOptions,
         signal: controller.signal,
       });
@@ -167,6 +169,12 @@ async function request<T>(
           body = JSON.parse(raw);
         } catch {
           body = raw;
+        }
+        if ((res.status === 401 || res.status === 403) && typeof window !== "undefined") {
+          const path = window.location.pathname;
+          if (!path.startsWith("/login")) {
+            window.location.href = `/login?next=${encodeURIComponent(path)}`;
+          }
         }
         throw new ApiError(res.status, res.statusText, body);
       }
