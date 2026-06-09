@@ -361,6 +361,12 @@ export const API = {
     FROM_TEMPLATE: "/api/automations/from-template",
     LOOP_PRESETS: "/api/automations/loop-presets",
   },
+  DAILY_REVIEWS: {
+    LIST: "/api/daily-reviews",
+    GENERATE: "/api/daily-reviews/generate",
+    DETAIL: (id: string) => `/api/daily-reviews/${id}` as const,
+    DELETE: (id: string) => `/api/daily-reviews/${id}` as const,
+  },
   CHANNELS: {
     LIST: "/api/channels",
     STATUS: "/api/channels/status",
@@ -422,6 +428,10 @@ export const queryKeys = {
     detail: (id: string) => ["automations", id] as const,
     runs: (id: string) => ["automations", id, "runs"] as const,
     templates: ["automations", "templates"] as const,
+  },
+  dailyReviews: {
+    all: ["dailyReviews"] as const,
+    detail: (id: string) => ["dailyReviews", id] as const,
   },
   workspaceMemory: (workspace: string) =>
     ["workspaceMemory", workspace] as const,

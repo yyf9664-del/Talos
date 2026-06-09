@@ -190,6 +190,35 @@ async function installTauriDragDropMock(page: Page) {
 }
 
 test.describe("OpenYak UI preflight", () => {
+  test("daily review page: selects a folder, generates a diary timeline, and shows history", async ({
+    page,
+  }) => {
+    await page.goto("/daily-review");
+
+    await expect(
+      page.getByRole("heading", { name: /Daily Review/i }),
+    ).toBeVisible();
+    await expect(page.getByRole("link", { name: /Daily Review/i })).toBeVisible();
+    await expect(page.getByRole("heading", { name: /A quiet page for today/i })).toBeVisible();
+
+    const generateResponse = page.waitForResponse(
+      (res) =>
+        res.url().includes("/api/daily-reviews/generate") &&
+        res.status() === 200,
+    );
+    await page.getByRole("button", { name: /Change/i }).click();
+    await generateResponse;
+
+    expect(mockState.dailyReviewGenerates[0]).toMatchObject({
+      folder_path: "/Users/alex/openyak-demo",
+    });
+    await expect(page.getByText("Source: /Users/alex/openyak-demo")).toBeVisible();
+    await expect(page.getByText("我写下了早上的散步")).toBeVisible();
+    await page.getByRole("button", { name: /Today's traces/i }).click();
+    await expect(page.getByText("morning.md")).toBeVisible();
+    await expect(page.getByRole("button", { name: /2026-06-06 每日回顾/i })).toBeVisible();
+  });
+
   test("desktop chat path: landing, mode switch, attachments, mentions, send, workspace panel", async ({
     page,
   }) => {

@@ -51,6 +51,8 @@ export interface OpenYakMockState {
   automationUpdates: unknown[];
   automationDeletes: string[];
   automationRuns: string[];
+  dailyReviewGenerates: unknown[];
+  dailyReviewDeletes: string[];
   connectorCreates: unknown[];
   providerSaves: unknown[];
   memoryUpdates: unknown[];
@@ -68,6 +70,8 @@ export interface OpenYakMockState {
 }
 
 type AutomationMock = ReturnType<typeof createdAutomation>;
+
+type DailyReviewMock = ReturnType<typeof createdDailyReview>;
 
 interface PromptErrorMock {
   match: string;
@@ -277,6 +281,31 @@ const models = [
     metadata: {},
   },
 ];
+
+function createdDailyReview(overrides: Partial<Record<string, unknown>> = {}) {
+  return {
+    id: "daily-review-1",
+    review_date: "2026-06-06",
+    folder_path: "/Users/alex/journal",
+    title: "2026-06-06 每日回顾",
+    content_markdown:
+      "# 2026-06-06 每日回顾\n\n## 时间线\n- **09:15** — 我写下了早上的散步和一点新想法。\n\n## 今日碎片\n今天留下的记录不多，但能看见一点安静的节奏。",
+    source_files: [
+      {
+        path: "/Users/alex/journal/morning.md",
+        relative_path: "morning.md",
+        modified_at: "2026-06-06 09:15",
+        size: 42,
+        truncated: false,
+      },
+    ],
+    model: "openrouter/anthropic/claude-sonnet-4.5",
+    provider_id: "openrouter",
+    time_created: "2026-06-06T12:00:00.000Z",
+    time_updated: "2026-06-06T12:00:00.000Z",
+    ...overrides,
+  };
+}
 
 const messagePage = (sessionId: string): MockMessagePage => {
   const isBeta = sessionId === "session-beta";
@@ -1607,6 +1636,8 @@ export async function mockOpenYakApi(
     automationUpdates: [],
     automationDeletes: [],
     automationRuns: [],
+    dailyReviewGenerates: [],
+    dailyReviewDeletes: [],
     connectorCreates: [],
     providerSaves: [],
     memoryUpdates: [],
@@ -1642,6 +1673,7 @@ export async function mockOpenYakApi(
       run_count: 2,
     }),
   ];
+  const dailyReviewList: DailyReviewMock[] = [];
   let remoteProviderInfoCalls = 0;
 
   const findAutomation = (id: string) =>
@@ -2248,6 +2280,39 @@ export async function mockOpenYakApi(
           },
         ],
       });
+    }
+
+    if (path === "/api/daily-reviews" && method === "GET") {
+      return fulfillJson(route, dailyReviewList);
+    }
+    if (path === "/api/daily-reviews/generate" && method === "POST") {
+      const body = requestJson(request) as Record<string, unknown>;
+      state.dailyReviewGenerates.push(body);
+      const review = createdDailyReview({
+        id: `daily-review-${dailyReviewList.length + 1}`,
+        review_date: body.review_date ?? "2026-06-06",
+        folder_path: body.folder_path ?? "/Users/alex/journal",
+      });
+      dailyReviewList.unshift(review);
+      return fulfillJson(route, review);
+    }
+    const dailyReviewDetailMatch = path.match(/^\/api\/daily-reviews\/([^/]+)$/);
+    if (dailyReviewDetailMatch && method === "GET") {
+      const reviewId = decodeURIComponent(dailyReviewDetailMatch[1]);
+      const review = dailyReviewList.find((item) => item.id === reviewId);
+      if (review) return fulfillJson(route, review);
+      return route.fulfill({
+        status: 404,
+        contentType: "application/json",
+        body: JSON.stringify({ detail: "Daily review not found" }),
+      });
+    }
+    if (dailyReviewDetailMatch && method === "DELETE") {
+      const reviewId = decodeURIComponent(dailyReviewDetailMatch[1]);
+      state.dailyReviewDeletes.push(reviewId);
+      const index = dailyReviewList.findIndex((item) => item.id === reviewId);
+      if (index >= 0) dailyReviewList.splice(index, 1);
+      return fulfillJson(route, { success: true });
     }
 
     if (path === "/api/automations" && method === "GET") {

@@ -7,6 +7,7 @@ import enSettings from "./locales/en/settings.json";
 import enUsage from "./locales/en/usage.json";
 import enPlugins from "./locales/en/plugins.json";
 import enAutomations from "./locales/en/automations.json";
+import enDailyReview from "./locales/en/daily-review.json";
 
 import zhCommon from "./locales/zh/common.json";
 import zhChat from "./locales/zh/chat.json";
@@ -14,6 +15,7 @@ import zhSettings from "./locales/zh/settings.json";
 import zhUsage from "./locales/zh/usage.json";
 import zhPlugins from "./locales/zh/plugins.json";
 import zhAutomations from "./locales/zh/automations.json";
+import zhDailyReview from "./locales/zh/daily-review.json";
 
 function detectInitialLanguage(): "en" | "zh" {
   if (typeof window === "undefined") return "en";
@@ -37,6 +39,7 @@ i18n.use(initReactI18next).init({
       usage: enUsage,
       plugins: enPlugins,
       automations: enAutomations,
+      "daily-review": enDailyReview,
     },
     zh: {
       common: zhCommon,
@@ -45,12 +48,13 @@ i18n.use(initReactI18next).init({
       usage: zhUsage,
       plugins: zhPlugins,
       automations: zhAutomations,
+      "daily-review": zhDailyReview,
     },
   },
   fallbackLng: "en",
   lng: detectInitialLanguage(),
   defaultNS: "common",
-  ns: ["common", "chat", "settings", "usage", "plugins", "automations"],
+  ns: ["common", "chat", "settings", "usage", "plugins", "automations", "daily-review"],
   interpolation: {
     escapeValue: false,
   },

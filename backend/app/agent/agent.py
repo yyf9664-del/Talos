@@ -125,6 +125,17 @@ BUILTIN_AGENTS: dict[str, AgentInfo] = {
         ]),
         system_prompt=_load_prompt("summary"),
     ),
+    "daily_review": AgentInfo(
+        name="daily_review",
+        description="Diary-style daily review generator (no tools)",
+        mode="hidden",
+        tools=[],
+        permissions=Ruleset(rules=[
+            PermissionRule(action="deny", permission="*"),
+        ]),
+        system_prompt=_load_prompt("daily_review"),
+        temperature=0.7,
+    ),
 }
 
 

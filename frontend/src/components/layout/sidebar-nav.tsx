@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
-import { Bot, Plug, SquarePen } from "lucide-react";
+import { BookOpenText, Bot, Plug, SquarePen } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useActiveSessionId } from "@/hooks/use-active-session-id";
 import { useSessions } from "@/hooks/use-sessions";
@@ -21,6 +21,12 @@ const NAV_ITEMS = [
     labelKey: "plugins",
     icon: Plug,
     isActive: (pathname: string) => pathname.startsWith("/plugins"),
+  },
+  {
+    href: "/daily-review",
+    labelKey: "dailyReview",
+    icon: BookOpenText,
+    isActive: (pathname: string) => pathname.startsWith("/daily-review"),
   },
   {
     href: "/automations",
