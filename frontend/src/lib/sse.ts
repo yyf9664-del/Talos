@@ -217,7 +217,6 @@ export class SSEClient {
     fetch(url, {
       method: "POST",
       headers: { "Accept": "text/event-stream" },
-      credentials: "include",
       signal: controller.signal,
     })
       .then(async (res) => {
@@ -285,14 +284,7 @@ export class SSEClient {
 
   /** Connect via native EventSource (GET). Used for local/desktop connections. */
   private doConnectEventSource(url: string): void {
-    // Send cookies with the SSE request. In browser dev the stream connects
-    // cross-origin (page on :3000 → backend on :8000), and when the employee
-    // login gate (OPENYAK_AUTH_ENABLED) is on, the backend additionally
-    // requires the session cookie on /api/* requests. Without withCredentials
-    // the cross-origin EventSource omits cookies and the stream is rejected
-    // with 401 "Employee login required". The backend CORS layer already
-    // allows credentials for localhost origins, so this is safe.
-    const es = new EventSource(url, { withCredentials: true });
+    const es = new EventSource(url);
 
     for (const eventType of this.handlers.keys()) {
       es.addEventListener(eventType, (e: Event) => {

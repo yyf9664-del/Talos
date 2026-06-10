@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useEffect, useState } from "react";
+import { useMemo, useRef, useEffect, useLayoutEffect, useState } from "react";
 import { ArrowDown, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useScrollAnchor } from "@/hooks/use-scroll-anchor";
@@ -12,6 +12,14 @@ import { Skeleton } from "@/components/ui/skeleton";
 import type { FileAttachment } from "@/types/chat";
 import { extractTextFromPartResponses } from "@/lib/utils";
 import type { MessageResponse, PartData } from "@/types/message";
+
+// Run before paint on the client so the post-generation streaming fallback is
+// armed in the same commit that flips isGenerating off — otherwise a passive
+// effect leaves one painted frame where the live bubble is gone but the DB
+// bubble hasn't taken over yet, which reads as the reply blinking out. Falls
+// back to useEffect during SSR where layout effects are a no-op.
+const useIsoLayoutEffect =
+  typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
 /** A user message or a group of consecutive assistant messages. */
 type MessageGroup =
@@ -119,32 +127,85 @@ export function MessageList({
   const [canFetchOlderMessages, setCanFetchOlderMessages] = useState(false);
   const anchoredSessionRef = useRef<string | undefined>(undefined);
 
-  // Keep StreamingMessage visible briefly after generation finishes so the
-  // DB-fetched AssistantMessageGroup has time to render. Without this,
-  // there's a 1-frame blank flash between StreamingMessage unmounting and
-  // the DB messages mounting.
+  // Keep the just-streamed reply visible after generation finishes until the
+  // DB-fetched AssistantMessageGroup actually CONTAINS it, then hand off.
+  //
+  // The authoritative "DB is ready" signal is NOT the message count growing:
+  // the backend creates the user/assistant shell rows early but persists the
+  // reply body afterwards, so a count bump can fire while the assistant row is
+  // still empty — handing off then drops the reply into a blank frame until the
+  // body lands. Instead we mirror the backend's own finalize check
+  // (canFinalizeFromCache): the latest assistant message must carry a terminal
+  // step-finish (reason ≠ "tool_use"). The timer is only a safety cap for slow
+  // environments (dev cross-origin proxy + remote model) where the refetch lags
+  // several seconds behind DONE.
+  const STREAMING_FALLBACK_MAX_MS = 15_000;
   const wasGeneratingRef = useRef(false);
-  const prevMessageCountRef = useRef(messages?.length ?? 0);
+  // The previous turn's last assistant message id, captured when a new
+  // generation begins. The new turn's live stream must never hide it, or the
+  // earlier reply gets "swallowed" until the refetch lands (the follow-up
+  // race the pendingUserText guard alone can't cover, since pendingUserText
+  // may be cleared before the new user message persists). It also lets the
+  // readiness check below distinguish THIS turn's freshly-finalized reply from
+  // the previous turn's reply (which already has a terminal step-finish).
+  const preGenLastAssistantIdRef = useRef<string | null>(null);
   const [showStreamingFallback, setShowStreamingFallback] = useState(false);
 
-  useEffect(() => {
+  // True once the DB cache holds this turn's finalized reply: the latest
+  // message is an assistant message that (a) is not the one already present
+  // when generation began and (b) carries a terminal step-finish part.
+  const dbHasFinalizedNewReply = useMemo(() => {
+    const last = messages[messages.length - 1];
+    if (!last || (last.data as { role?: string }).role !== "assistant") return false;
+    if (last.id === preGenLastAssistantIdRef.current) return false;
+    return last.parts.some((part) => {
+      const d = (part as { data?: { type?: string; reason?: string } }).data;
+      return d?.type === "step-finish" && d.reason !== "tool_use";
+    });
+  }, [messages]);
+
+  useIsoLayoutEffect(() => {
     if (isGenerating) {
+      // Capture the previous turn's last assistant id ONCE, when generation
+      // begins — not on every msgs change during the turn.
+      if (!wasGeneratingRef.current) {
+        let prevAssistantId: string | null = null;
+        for (let i = messages.length - 1; i >= 0; i--) {
+          if ((messages[i].data as { role?: string }).role === "assistant") {
+            prevAssistantId = messages[i].id;
+            break;
+          }
+        }
+        preGenLastAssistantIdRef.current = prevAssistantId;
+      }
       wasGeneratingRef.current = true;
-      prevMessageCountRef.current = messages?.length ?? 0;
       setShowStreamingFallback(false);
     } else if (wasGeneratingRef.current) {
       wasGeneratingRef.current = false;
-      setShowStreamingFallback(true);
-      const timer = setTimeout(() => setShowStreamingFallback(false), 2000);
-      return () => clearTimeout(timer);
+      // If the DB already holds this turn's finalized reply, the persisted
+      // bubble has real content and can take over seamlessly — enabling the
+      // fallback here would just toggle on then immediately off (flashing the
+      // streaming bubble over the DB bubble for a frame). Only bridge when the
+      // reply hasn't landed yet, which prevents the blank frame.
+      if (!dbHasFinalizedNewReply) {
+        setShowStreamingFallback(true);
+        const timer = setTimeout(
+          () => setShowStreamingFallback(false),
+          STREAMING_FALLBACK_MAX_MS,
+        );
+        return () => clearTimeout(timer);
+      }
     }
   }, [isGenerating, messages.length]);
 
+  // Hand off the instant the DB holds this turn's finalized reply — not a frame
+  // earlier (blank) or later (flash). Driven by the content-based check above,
+  // so it fires as soon as the reply body persists, whatever the refetch lag.
   useEffect(() => {
-    if (showStreamingFallback && (messages?.length ?? 0) > prevMessageCountRef.current) {
+    if (showStreamingFallback && dbHasFinalizedNewReply) {
       setShowStreamingFallback(false);
     }
-  }, [messages.length, showStreamingFallback]);
+  }, [dbHasFinalizedNewReply, showStreamingFallback]);
 
   useEffect(() => {
     if (anchoredSessionRef.current === sessionId) return;
@@ -460,11 +521,22 @@ export function MessageList({
                 group.messages.some((m) => newMessageIds.has(m.id)) &&
                 !group.messages.some((m) => streamedHandoffIdsRef.current.has(m.id));
 
+              // Never hide the previous turn's reply: if this group's last
+              // message is the assistant message that was already the latest
+              // when the current generation began, the live stream belongs to
+              // a NEW turn whose reply hasn't persisted yet. Hiding it here is
+              // the "swallow then recover" bug. This is independent of
+              // pendingUserText, so it survives the clear-before-persist race.
+              const isPreviousTurnReply =
+                preGenLastAssistantIdRef.current != null &&
+                lastMsg.id === preGenLastAssistantIdRef.current;
+
               if (
                 (hasActiveStream || showStreamingFallback) &&
                 hasVisibleStreamingReplacement &&
                 isLastOverall &&
-                !showPendingBubble
+                !showPendingBubble &&
+                !isPreviousTurnReply
               ) {
                 return null;
               }

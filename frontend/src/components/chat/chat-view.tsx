@@ -194,29 +194,27 @@ export function ChatView({ sessionId }: ChatViewProps) {
         />
       )}
 
-      <div className="relative z-20 shrink-0 bg-[var(--surface-chat)]">
-        {pendingQuestion && (
-          <QuestionPrompt
-            question={pendingQuestion}
-            onRespond={respondToQuestion}
-          />
-        )}
+      {pendingQuestion && (
+        <QuestionPrompt
+          question={pendingQuestion}
+          onRespond={respondToQuestion}
+        />
+      )}
 
-        {/* Input — replaced by plan accept prompt when a plan review is pending */}
-        {pendingPlanReview ? (
-          <PlanAcceptPrompt onRespond={respondToPlanReview} />
-        ) : (
-          <ChatForm
-            isGenerating={isGenerating}
-            isCompacting={isCompacting || !!session?.time_compacting}
-            onSend={sendMessage}
-            onSendTaskBatch={sendTaskBatch}
-            onStop={stopGeneration}
-            sessionId={sessionId}
-            directory={session?.directory}
-          />
-        )}
-      </div>
+      {/* Input — replaced by plan accept prompt when a plan review is pending */}
+      {pendingPlanReview ? (
+        <PlanAcceptPrompt onRespond={respondToPlanReview} />
+      ) : (
+        <ChatForm
+          isGenerating={isGenerating}
+          isCompacting={isCompacting || !!session?.time_compacting}
+          onSend={sendMessage}
+          onSendTaskBatch={sendTaskBatch}
+          onStop={stopGeneration}
+          sessionId={sessionId}
+          directory={session?.directory}
+        />
+      )}
     </div>
   );
 }

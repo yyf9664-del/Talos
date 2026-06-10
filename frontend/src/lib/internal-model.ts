@@ -1,4 +1,4 @@
-export const INTERNAL_MODEL_ONLY = true;
+export const INTERNAL_MODEL_ONLY = false;
 
 export const INTERNAL_PROVIDER_ID = "custom_taishi";
 export const INTERNAL_MODEL_ID = "kimi-k2.6";
