@@ -3,8 +3,6 @@
 import { Suspense, useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { usePathname, useRouter } from "next/navigation";
-import Link from "next/link";
-import { SquarePen } from "lucide-react";
 import { Sidebar } from "@/components/layout/sidebar";
 import { SettingsSidebar } from "@/components/settings/settings-sidebar";
 import { MobileNav } from "@/components/layout/mobile-nav";
@@ -14,13 +12,11 @@ import { PlanReviewPanel } from "@/components/plan-review/plan-review-panel";
 import { WorkspacePanel } from "@/components/workspace/workspace-panel";
 import { usePlanReviewStore } from "@/stores/plan-review-store";
 import { SplashScreen } from "@/components/layout/splash-screen";
+import { ComingSoon } from "@/components/layout/coming-soon";
 import { TitleBar } from "@/components/desktop/title-bar";
 import { WindowTopIcons } from "@/components/layout/window-top-icons";
 import { UpdateBanner } from "@/components/desktop/update-banner";
 import { OnboardingScreen } from "@/components/onboarding/onboarding-screen";
-import { Button } from "@/components/ui/button";
-import { OpenYakLogo } from "@/components/ui/openyak-logo";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useSidebarStore } from "@/stores/sidebar-store";
 import { useSettingsStore, useSettingsHasHydrated } from "@/stores/settings-store";
 import { useAutoDetectProvider } from "@/hooks/use-auto-detect-provider";
@@ -34,6 +30,7 @@ import {
   WORKSPACE_PANEL_WIDTH,
   IS_DESKTOP,
   TITLE_BAR_HEIGHT,
+  SIDEBAR_COLLAPSED_WIDTH,
 } from "@/lib/constants";
 import { desktopAPI } from "@/lib/tauri-api";
 import { useTranslation } from "react-i18next";
@@ -57,8 +54,8 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
   const router = useRouter();
   const pathname = usePathname();
   const isCollapsed = useSidebarStore((s) => s.isCollapsed);
-  const toggleSidebar = useSidebarStore((s) => s.toggle);
   const sidebarWidth = useSidebarStore((s) => s.width);
+  const activeTab = useSidebarStore((s) => s.activeTab);
   const activityIsOpen = useActivityStore((s) => s.isOpen);
   const artifactIsOpen = useArtifactStore((s) => s.isOpen);
   const artifactIsMaximized = useArtifactStore((s) => s.isMaximized);
@@ -153,10 +150,19 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
 
   const isChatPage = pathname?.startsWith("/c/") ?? false;
   const isSettingsPage = pathname?.startsWith("/settings") ?? false;
+  // Workflow is a reserved section under development — replace the whole
+  // main area with a placeholder when it's selected.
+  const showWorkflowComingSoon = activeTab === "workflow" && !isSettingsPage;
   const isActiveChat = isChatPage && pathname !== "/c/new";
   // Settings replaces the sidebar with its own; always keep the gutter.
-  const marginLeft =
-    isDesktop && (isSettingsPage || !isCollapsed) ? sidebarWidth : 0;
+  // When collapsed, the sidebar becomes a narrow icon rail (not fully hidden).
+  const marginLeft = !isDesktop
+    ? 0
+    : isSettingsPage
+      ? sidebarWidth
+      : isCollapsed
+        ? SIDEBAR_COLLAPSED_WIDTH
+        : sidebarWidth;
   const showWorkspace = isDesktop && isActiveChat && workspaceIsOpen;
   const overlayWidth = artifactIsOpen
     ? artifactIsMaximized
@@ -225,50 +231,6 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
       {/* Mobile nav drawer */}
       <MobileNav />
 
-      {/* Collapsed quick actions for non-chat pages */}
-      {isDesktop && isCollapsed && !isChatPage && !isSettingsPage && (
-        <TooltipProvider delayDuration={200}>
-          <div
-            className="fixed z-40 flex items-center gap-1 rounded-xl bg-[var(--surface-primary)]/80 backdrop-blur-sm px-1 py-0.5"
-            style={{
-              top: isMac ? 16 : titleBarPadding + 8,
-              left: isMac ? 91 : 12,
-            }}
-          >
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-9 w-9"
-                  onClick={toggleSidebar}
-                  aria-label={t("openSidebar")}
-                >
-                  <OpenYakLogo size={18} />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent side="bottom">{t("openSidebar")}</TooltipContent>
-            </Tooltip>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-9 w-9"
-                  asChild
-                  aria-label={t("newChat")}
-                >
-                  <Link href="/c/new">
-                    <SquarePen className="h-[18px] w-[18px]" />
-                  </Link>
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent side="bottom">{t("newChat")}</TooltipContent>
-            </Tooltip>
-          </div>
-        </TooltipProvider>
-      )}
-
       {/* Main content area */}
       <motion.main
         id="main-content"
@@ -284,7 +246,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
         transition={{ type: "spring", damping: 30, stiffness: 300 }}
       >
         <UpdateBanner />
-        {children}
+        {showWorkflowComingSoon ? <ComingSoon /> : children}
       </motion.main>
 
       {/* Workspace panel — only on active chat sessions */}

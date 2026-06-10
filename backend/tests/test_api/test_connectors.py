@@ -28,7 +28,7 @@ def _mock_cr(app_client):
     conn = MagicMock()
     conn.to_dict.return_value = {"id": "c1", "name": "Custom"}
     cr.register_custom.return_value = conn
-    cr.remove_custom.return_value = True
+    cr.remove_custom = AsyncMock(return_value=True)
 
     app_client.app.state.connector_registry = cr
     return cr

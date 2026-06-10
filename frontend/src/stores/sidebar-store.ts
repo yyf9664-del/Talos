@@ -6,12 +6,15 @@ import { SIDEBAR_WIDTH, SIDEBAR_MIN_WIDTH, SIDEBAR_MAX_WIDTH } from "@/lib/const
 
 export type OrganizeMode = "by-project" | "chronological" | "chats-first";
 export type SortBy = "created" | "updated";
+export type SidebarTab = "chat" | "workflow";
 
 interface SidebarStore {
   /** Mobile drawer open state */
   isOpen: boolean;
   /** Desktop sidebar collapsed state */
   isCollapsed: boolean;
+  /** Top-level section tab (chat vs workflow) */
+  activeTab: SidebarTab;
   /** Whether the search input is visible */
   isSearchOpen: boolean;
   searchQuery: string;
@@ -26,6 +29,7 @@ interface SidebarStore {
   /** Current sidebar width (drag-resizable) */
   width: number;
   setOpen: (open: boolean) => void;
+  setActiveTab: (tab: SidebarTab) => void;
   /** Toggle desktop sidebar collapse */
   toggle: () => void;
   toggleSearch: () => void;
@@ -48,6 +52,7 @@ export const useSidebarStore = create<SidebarStore>()(
     (set) => ({
       isOpen: false,
       isCollapsed: false,
+      activeTab: "chat",
       isSearchOpen: false,
       searchQuery: "",
       collapsedProjects: {},
@@ -56,6 +61,7 @@ export const useSidebarStore = create<SidebarStore>()(
       sortBy: "updated",
       width: SIDEBAR_WIDTH,
       setOpen: (open) => set({ isOpen: open }),
+      setActiveTab: (tab) => set({ activeTab: tab }),
       toggle: () => set((s) => ({ isCollapsed: !s.isCollapsed })),
       toggleSearch: () =>
         set((s) => ({

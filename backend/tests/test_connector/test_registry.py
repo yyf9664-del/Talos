@@ -94,20 +94,20 @@ class TestRemoveCustom:
         with patch.object(ConnectorRegistry, "_load_catalog", return_value={}):
             return ConnectorRegistry(project_dir=str(tmp_path))
 
-    def test_removes_custom(self, tmp_path: Path):
+    async def test_removes_custom(self, tmp_path: Path):
         reg = self._make_registry(tmp_path)
         reg.register_custom("my-tool", "My Tool", "https://my.tool/sse")
-        assert reg.remove_custom("my-tool") is True
+        assert await reg.remove_custom("my-tool") is True
         assert reg.get("my-tool") is None
 
-    def test_returns_false_for_builtin(self, tmp_path: Path):
+    async def test_returns_false_for_builtin(self, tmp_path: Path):
         reg = self._make_registry(tmp_path)
         reg.register_from_plugin("p", {"slack": {"url": "https://s.io", "type": "remote"}})
-        assert reg.remove_custom("slack") is False
+        assert await reg.remove_custom("slack") is False
 
-    def test_returns_false_for_nonexistent(self, tmp_path: Path):
+    async def test_returns_false_for_nonexistent(self, tmp_path: Path):
         reg = self._make_registry(tmp_path)
-        assert reg.remove_custom("nope") is False
+        assert await reg.remove_custom("nope") is False
 
 
 class TestListAndGet:

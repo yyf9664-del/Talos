@@ -4,13 +4,19 @@ import { useMemo, useState } from "react";
 import {
   ExternalLink,
   Loader2,
-  Plug,
   Plus,
   RotateCw,
   Search,
+  Trash2,
   Unplug,
 } from "lucide-react";
+import {
+  connectorLogoUrl,
+  connectorFallbackColor,
+  connectorInitial,
+} from "@/lib/connector-logo";
 import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -25,6 +31,7 @@ import {
   useConnectorReconnect,
   useAddCustomConnector,
   useSetConnectorToken,
+  useRemoveConnector,
 } from "@/hooks/use-connectors";
 import type { ConnectorInfo } from "@/types/connectors";
 
@@ -196,6 +203,45 @@ export function ConnectorsContent() {
   );
 }
 
+function ConnectorIcon({
+  id,
+  name,
+  url,
+}: {
+  id: string;
+  name: string;
+  url: string;
+}) {
+  const logoUrl = connectorLogoUrl(id, url);
+  const [failed, setFailed] = useState(false);
+
+  if (logoUrl && !failed) {
+    return (
+      <div className="grid h-9 w-9 shrink-0 place-items-center overflow-hidden rounded-lg bg-[var(--surface-secondary)]">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={logoUrl}
+          alt={name}
+          width={36}
+          height={36}
+          loading="lazy"
+          className="h-full w-full object-contain"
+          onError={() => setFailed(true)}
+        />
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className="grid h-9 w-9 shrink-0 place-items-center rounded-lg text-sm font-semibold text-white"
+      style={{ backgroundColor: connectorFallbackColor(id) }}
+    >
+      {connectorInitial(name, id)}
+    </div>
+  );
+}
+
 function ConnectorCard({
   id,
   connector,
@@ -209,6 +255,7 @@ function ConnectorCard({
   const disconnect = useConnectorDisconnect();
   const reconnect = useConnectorReconnect();
   const setToken = useSetConnectorToken();
+  const removeConnector = useRemoveConnector();
   const [tokenInput, setTokenInput] = useState("");
 
   const isPending =
@@ -267,9 +314,7 @@ function ConnectorCard({
     <div className="flex flex-col rounded-xl border border-[var(--border-default)] bg-[var(--surface-primary)] p-4 transition-colors hover:border-[var(--border-heavy)]">
       {/* Header */}
       <div className="flex items-start gap-3">
-        <div className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-[var(--surface-secondary)]">
-          <Plug className="h-4 w-4 text-[var(--text-secondary)]" />
-        </div>
+        <ConnectorIcon id={id} name={connector.name} url={connector.url} />
 
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
@@ -370,6 +415,27 @@ function ConnectorCard({
               <span className="ml-1">{t("retry")}</span>
             </Button>
           )}
+
+          {connector.source === "custom" && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-6 text-ui-3xs px-1.5 text-[var(--text-tertiary)] hover:text-red-500"
+              onClick={() => {
+                if (window.confirm(t("removeConnectorConfirm", { name: connector.name }))) {
+                  removeConnector.mutate(id);
+                }
+              }}
+              disabled={isPending || removeConnector.isPending}
+              title={t("remove")}
+            >
+              {removeConnector.isPending ? (
+                <Loader2 className="h-3 w-3 animate-spin" />
+              ) : (
+                <Trash2 className="h-3 w-3" />
+              )}
+            </Button>
+          )}
         </div>
       </div>
 
@@ -417,8 +483,20 @@ function AddConnectorForm({ onClose }: { onClose: () => void }) {
     e.preventDefault();
     if (!name || !url) return;
     const id = name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
-    await addConnector.mutateAsync({ id, name, url });
-    onClose();
+    if (!id) {
+      toast.error(t("addConnectorError"));
+      return;
+    }
+    try {
+      const result = await addConnector.mutateAsync({ id, name, url });
+      if (!result.success) {
+        toast.error(result.error || t("addConnectorError"));
+        return;
+      }
+      onClose();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : t("addConnectorError"));
+    }
   };
 
   return (

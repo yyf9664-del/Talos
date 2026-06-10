@@ -98,9 +98,12 @@ export function useAddCustomConnector() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (body: { id: string; name: string; url: string; description?: string; category?: string }) =>
-      api.post<{ success: boolean }>(API.CONNECTORS.ADD, body),
+      api.post<{ success: boolean; error?: string }>(API.CONNECTORS.ADD, body),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.connectors });
+    },
+    onError: (error) => {
+      toast.error(errorDetail(error, "Failed to add connector"));
     },
   });
 }
@@ -112,6 +115,9 @@ export function useRemoveConnector() {
       api.delete<{ success: boolean }>(API.CONNECTORS.REMOVE(id)),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.connectors });
+    },
+    onError: (error) => {
+      toast.error(errorDetail(error, "Failed to remove connector"));
     },
   });
 }

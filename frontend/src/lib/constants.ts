@@ -443,6 +443,8 @@ export const queryKeys = {
 export const SIDEBAR_WIDTH = 300;
 export const SIDEBAR_MIN_WIDTH = 240;
 export const SIDEBAR_MAX_WIDTH = 480;
+/** Width of the collapsed icon rail (keeps brand + nav + account visible). */
+export const SIDEBAR_COLLAPSED_WIDTH = 56;
 export const ACTIVITY_PANEL_WIDTH = 380;
 export const ARTIFACT_PANEL_WIDTH = 520;
 export const WORKSPACE_PANEL_WIDTH = 320;

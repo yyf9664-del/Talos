@@ -156,6 +156,26 @@ class McpManager:
         return client.status == "connected"
 
     # ------------------------------------------------------------------
+    # Dynamic server registration (runtime add/remove)
+    # ------------------------------------------------------------------
+
+    def add_server(self, name: str, config: dict[str, Any]) -> None:
+        """Register a server config at runtime so it can be connected without
+        a restart. Does not connect — call reconnect(name) afterwards."""
+        self._config[name] = config
+
+    async def remove_server(self, name: str) -> None:
+        """Disconnect and forget a server added at runtime."""
+        client = self._clients.pop(name, None)
+        if client:
+            try:
+                await client.close()
+            except Exception:
+                logger.warning("Error closing MCP server '%s' on removal", name)
+        self._config.pop(name, None)
+        self._token_store.delete(name)
+
+    # ------------------------------------------------------------------
     # OAuth flow
     # ------------------------------------------------------------------
 

@@ -39,6 +39,8 @@ BUILTIN_AGENTS: dict[str, AgentInfo] = {
             PermissionRule(action="ask", permission="write"),
             PermissionRule(action="ask", permission="edit"),
             PermissionRule(action="allow", permission="plan"),  # Can switch modes
+            # 投放写操作需人工审批：改预算前先弹框确认
+            PermissionRule(action="ask", permission="jrtt-ad_project_budget_update_v3"),
         ]),
         system_prompt=_load_prompt("build"),
     ),

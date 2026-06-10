@@ -142,6 +142,15 @@ class ConnectorRegistry:
         )
         self._connectors[id] = connector
 
+        # Register with the live McpManager so it can connect without a
+        # backend restart (enable() → reconnect() needs the config present).
+        if self._mcp_manager:
+            self._mcp_manager.add_server(id, {
+                "type": "remote",
+                "url": url,
+                "enabled": False,
+            })
+
         # Persist custom connector
         customs = self._persisted_state.setdefault("custom", [])
         customs.append({
@@ -155,7 +164,7 @@ class ConnectorRegistry:
 
         return connector
 
-    def remove_custom(self, id: str) -> bool:
+    async def remove_custom(self, id: str) -> bool:
         """Remove a custom connector. Returns False if not found or not custom."""
         connector = self._connectors.get(id)
         if not connector or connector.source != "custom":
@@ -163,12 +172,17 @@ class ConnectorRegistry:
 
         del self._connectors[id]
 
-        # Remove from persisted custom list
+        # Disconnect and forget on the live McpManager, then refresh tools.
+        if self._mcp_manager:
+            await self._mcp_manager.remove_server(id)
+            self.sync_tools()
+
+        # Remove from persisted custom list + enabled set
         customs = self._persisted_state.get("custom", [])
         self._persisted_state["custom"] = [c for c in customs if c.get("id") != id]
-        self._persisted_state.get("enabled", [])
-        if id in self._persisted_state.get("enabled", []):
-            self._persisted_state["enabled"].remove(id)
+        enabled = self._persisted_state.get("enabled", [])
+        if id in enabled:
+            enabled.remove(id)
         self._persist_state()
 
         return True

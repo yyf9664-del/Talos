@@ -112,7 +112,7 @@ async def remove_custom_connector(connector_id: str, request: Request) -> dict[s
     registry = _get_registry(request)
     if registry is None:
         return {"success": False, "error": "Connector system not available"}
-    success = registry.remove_custom(connector_id)
+    success = await registry.remove_custom(connector_id)
     if not success:
         return {"success": False, "error": "Not found or not a custom connector"}
     return {"success": True}
