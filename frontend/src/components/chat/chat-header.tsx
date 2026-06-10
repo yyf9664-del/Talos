@@ -4,7 +4,6 @@ import { useState, useCallback } from "react";
 import { useTranslation } from 'react-i18next';
 import { useRouter } from "next/navigation";
 import { Share2, Loader2, List, PanelRightClose, PanelRightOpen } from "lucide-react";
-import { HeaderModelDropdown } from "@/components/selectors/header-model-dropdown";
 import { ContextIndicator } from "@/components/chat/context-indicator";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
@@ -161,11 +160,8 @@ export function ChatHeader({ sessionId }: ChatHeaderProps) {
 
         {/* Sidebar toggle + new chat live in the global WindowTopIcons bar
             (desktop non-remote) so they stay at the window's left edge across
-            sidebar states. */}
-
-        <div className="flex items-center gap-2 min-w-0 shrink-0">
-          <HeaderModelDropdown />
-        </div>
+            sidebar states. The model switcher now lives in the composer's
+            action bar, to the left of the send button. */}
 
         <div
           {...macDragProps}

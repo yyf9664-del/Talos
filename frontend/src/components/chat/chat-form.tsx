@@ -8,6 +8,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { ChatTextarea } from "./chat-textarea";
 import { ChatActions } from "./chat-actions";
 import { WorkspaceToggle } from "./workspace-toggle";
+import { HeaderModelDropdown } from "@/components/selectors/header-model-dropdown";
 import { FileChip } from "./file-chip";
 import { FileMentionPopup } from "./file-mention-popup";
 import { useAutoResize } from "@/hooks/use-auto-resize";
@@ -942,6 +943,9 @@ export function ChatForm({ isGenerating, isCompacting = false, onSend, onSendTas
                 {compactingStatusText}
               </div>
             )}
+
+            {/* Model switcher — sits immediately left of the send button. */}
+            <HeaderModelDropdown compact />
 
             <ChatActions
               isBusy={isGenerating || isCompacting}

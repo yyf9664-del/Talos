@@ -132,7 +132,15 @@ function preserveModelSuffix(name: string, max = 42): string {
   return `${name.slice(0, head).trimEnd()}…${name.slice(-tail).trimStart()}`;
 }
 
-export function HeaderModelDropdown() {
+interface HeaderModelDropdownProps {
+  /**
+   * Compact pill styling (h-7, no border) to match the composer action bar's
+   * other controls. Default is the bordered h-8 style used elsewhere.
+   */
+  compact?: boolean;
+}
+
+export function HeaderModelDropdown({ compact = false }: HeaderModelDropdownProps = {}) {
   const { t } = useTranslation("common");
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -250,15 +258,25 @@ export function HeaderModelDropdown() {
       : t("noModelFound"));
   const shortModel = preserveModelSuffix(selectedLabel);
 
+  // Compact pill styling (matches the composer's AgentToggle): h-7, rounded,
+  // no border, secondary surface. Applied to every trigger state so loading /
+  // error / empty look consistent with the active state.
+  const compactPill =
+    "inline-flex h-7 max-w-[220px] cursor-pointer items-center gap-1.5 rounded-full bg-[var(--surface-secondary)] px-2.5 text-[12px] font-medium text-[var(--text-primary)] transition-colors hover:bg-[var(--surface-tertiary)] focus:outline-none";
+
   // Models still loading with an active provider — show loading indicator
   if (isLoading && activeProvider) {
     return (
       <button
         type="button"
         disabled
-        className="inline-flex h-8 max-w-[240px] cursor-default items-center gap-2 rounded-lg border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 text-[13px] font-medium text-[var(--text-tertiary)] focus:outline-none"
+        className={cn(
+          compact
+            ? "inline-flex h-7 max-w-[220px] cursor-default items-center gap-1.5 rounded-full bg-[var(--surface-secondary)] px-2.5 text-[12px] font-medium text-[var(--text-tertiary)] focus:outline-none"
+            : "inline-flex h-8 max-w-[240px] cursor-default items-center gap-2 rounded-lg border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 text-[13px] font-medium text-[var(--text-tertiary)] focus:outline-none",
+        )}
       >
-        <Loader2 className="h-4 w-4 animate-spin shrink-0" />
+        <Loader2 className={cn("animate-spin shrink-0", compact ? "h-3.5 w-3.5" : "h-4 w-4")} />
         <span className="truncate">
           {t("loadingModels", "Loading models...")}
         </span>
@@ -274,9 +292,13 @@ export function HeaderModelDropdown() {
             <button
               type="button"
               onClick={() => router.push("/settings?tab=providers")}
-              className="inline-flex h-8 max-w-[240px] cursor-pointer items-center gap-2 rounded-lg border border-[var(--color-destructive)]/20 bg-[var(--surface-primary)] px-3 text-[13px] font-medium text-[var(--text-secondary)] transition-colors hover:bg-[var(--surface-secondary)] focus:outline-none"
+              className={cn(
+                compact
+                  ? "inline-flex h-7 max-w-[220px] cursor-pointer items-center gap-1.5 rounded-full bg-[var(--surface-secondary)] px-2.5 text-[12px] font-medium text-[var(--text-secondary)] transition-colors hover:bg-[var(--surface-tertiary)] focus:outline-none"
+                  : "inline-flex h-8 max-w-[240px] cursor-pointer items-center gap-2 rounded-lg border border-[var(--color-destructive)]/20 bg-[var(--surface-primary)] px-3 text-[13px] font-medium text-[var(--text-secondary)] transition-colors hover:bg-[var(--surface-secondary)] focus:outline-none",
+              )}
             >
-              <AlertCircle className="h-4 w-4 shrink-0 text-[var(--color-destructive)]" />
+              <AlertCircle className={cn("shrink-0 text-[var(--color-destructive)]", compact ? "h-3.5 w-3.5" : "h-4 w-4")} />
               <span className="truncate">
                 {t("modelsUnavailable", "Models unavailable")}
               </span>
@@ -301,10 +323,14 @@ export function HeaderModelDropdown() {
       <button
         type="button"
         onClick={() => router.push("/settings?tab=providers")}
-        className="inline-flex h-8 max-w-[240px] cursor-pointer items-center gap-2 rounded-lg border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 text-[13px] font-medium text-[var(--text-secondary)] transition-colors hover:bg-[var(--surface-secondary)] focus:outline-none"
+        className={cn(
+          compact
+            ? compactPill
+            : "inline-flex h-8 max-w-[240px] cursor-pointer items-center gap-2 rounded-lg border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 text-[13px] font-medium text-[var(--text-secondary)] transition-colors hover:bg-[var(--surface-secondary)] focus:outline-none",
+        )}
       >
         <span className="truncate">{t("setupProvider")}</span>
-        <ChevronDown className="h-4 w-4 opacity-50 shrink-0" />
+        <ChevronDown className={cn("opacity-50 shrink-0", compact ? "h-3 w-3" : "h-4 w-4")} />
       </button>
     );
   }
@@ -324,15 +350,19 @@ export function HeaderModelDropdown() {
           }
           title={selectedLabel}
           className={cn(
-            "inline-flex translate-y-[1px] cursor-pointer items-center gap-2 rounded-lg border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 transition-colors hover:bg-[var(--surface-secondary)] focus:outline-none",
-            // Two-line layout when a variant is detected; otherwise keep single
-            // line so the visual matches the existing dropdown trigger height.
-            modelVariant
-              ? "h-10 max-w-[320px] py-1 sm:max-w-[420px]"
-              : "h-8 max-w-[320px] text-[13px] font-medium text-[var(--text-primary)] sm:max-w-[420px]",
+            compact
+              ? compactPill
+              : cn(
+                  "inline-flex cursor-pointer items-center gap-2 rounded-lg border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 transition-colors hover:bg-[var(--surface-secondary)] focus:outline-none",
+                  // Two-line layout when a variant is detected; otherwise keep
+                  // single line to match the existing dropdown trigger height.
+                  modelVariant
+                    ? "h-10 max-w-[320px] py-1 sm:max-w-[420px]"
+                    : "h-8 max-w-[320px] text-[13px] font-medium text-[var(--text-primary)] sm:max-w-[420px]",
+                ),
           )}
         >
-          {modelVariant ? (
+          {modelVariant && !compact ? (
             <span className="flex flex-col items-start min-w-0 leading-tight">
               <span className="truncate max-w-full text-[13px] font-medium text-[var(--text-primary)]">
                 {modelFamily}
@@ -344,7 +374,7 @@ export function HeaderModelDropdown() {
           ) : (
             <span className="truncate">{shortModel}</span>
           )}
-          <ChevronDown className="h-4 w-4 opacity-50 shrink-0" />
+          <ChevronDown className={cn("opacity-50 shrink-0", compact ? "h-3 w-3" : "h-4 w-4")} />
         </button>
       </PopoverTrigger>
       <PopoverContent
