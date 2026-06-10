@@ -1,5 +1,6 @@
 ---
 name: pdf
+category: documents
 description: PDF document processing — reading, creating, table extraction, merging/splitting, form handling, watermarking, encryption.
 ---
 

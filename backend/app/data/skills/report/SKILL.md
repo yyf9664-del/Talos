@@ -1,5 +1,6 @@
 ---
 name: report
+category: writing
 description: Report and proposal writing — work summaries, analysis reports, feasibility studies, project proposals with structured templates.
 ---
 

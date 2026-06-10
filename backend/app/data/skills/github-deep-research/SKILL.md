@@ -1,5 +1,6 @@
 ---
 name: github-deep-research
+category: research
 description: Conduct multi-round deep research on any GitHub repository. Use when users request comprehensive analysis, timeline reconstruction, competitive analysis, or in-depth investigation of a GitHub project. Produces structured markdown reports with executive summaries, chronological timelines, metrics analysis, and Mermaid diagrams. Triggers on GitHub repository URLs or open source project names.
 ---
 

@@ -1,5 +1,6 @@
 ---
 name: email
+category: writing
 description: Business email writing — formal/informal tone, structured format, replies, follow-ups, multilingual support.
 ---
 

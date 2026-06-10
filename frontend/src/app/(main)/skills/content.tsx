@@ -38,10 +38,25 @@ const SOURCE_LABEL_KEY: Record<string, string> = {
   project: "projectSkills",
 };
 
+/** Derive i18n key from category slug: "dev-tools" → "category_dev_tools" */
+const categoryKey = (cat: string) => `category_${cat.replace(/-/g, "_")}`;
+
+/** Canonical ordering for the bundled-skill category chips. */
+const CATEGORY_ORDER = [
+  "documents",
+  "writing",
+  "research",
+  "design",
+  "development",
+  "meta",
+  "other",
+];
+
 export function SkillsContent() {
   const { t } = useTranslation("plugins");
   const [search, setSearch] = useState("");
   const [tab, setTab] = useState<string>("bundled");
+  const [activeCategory, setActiveCategory] = useState<string>("all");
 
   const { data: skills, isLoading } = useSkills();
   const allSkills = useMemo(() => skills ?? [], [skills]);
@@ -60,10 +75,30 @@ export function SkillsContent() {
   // Tab list: each present source group, then the marketplace.
   const tabs = useMemo(() => [...sources, "store"], [sources]);
 
-  // Keep the active tab valid once data loads.
+  // Keep the active tab valid once data loads. Skip while skills are still
+  // loading, otherwise the empty tab list ("store" only) would prematurely
+  // force the default "bundled" tab over to the marketplace.
   useEffect(() => {
+    if (allSkills.length === 0) return;
     if (!tabs.includes(tab)) setTab(tabs[0] ?? "store");
-  }, [tabs, tab]);
+  }, [tabs, tab, allSkills]);
+
+  // Reset the category filter whenever the active tab changes.
+  useEffect(() => {
+    setActiveCategory("all");
+  }, [tab]);
+
+  // Categories present in the bundled skills, sorted by canonical order.
+  const categories = useMemo(() => {
+    const set = new Set<string>();
+    for (const s of allSkills) {
+      if (s.source === "bundled") set.add(s.category || "other");
+    }
+    return Array.from(set).sort(
+      (a, b) =>
+        (CATEGORY_ORDER.indexOf(a) ?? 99) - (CATEGORY_ORDER.indexOf(b) ?? 99),
+    );
+  }, [allSkills]);
 
   const visibleSkills = useMemo(() => {
     if (tab === "store") return [];
@@ -71,11 +106,14 @@ export function SkillsContent() {
     return allSkills.filter(
       (s) =>
         s.source === tab &&
+        (tab !== "bundled" ||
+          activeCategory === "all" ||
+          (s.category || "other") === activeCategory) &&
         (!q ||
           s.name.toLowerCase().includes(q) ||
           s.description.toLowerCase().includes(q)),
     );
-  }, [allSkills, tab, search]);
+  }, [allSkills, tab, search, activeCategory]);
 
   return (
     <div className="space-y-5">
@@ -139,6 +177,28 @@ export function SkillsContent() {
           );
         })}
       </div>
+
+      {/* Category chips (bundled skills only) */}
+      {tab === "bundled" && categories.length > 1 && (
+        <div className="flex flex-wrap items-center gap-1.5">
+          {["all", ...categories].map((cat) => {
+            const active = activeCategory === cat;
+            return (
+              <button
+                key={cat}
+                onClick={() => setActiveCategory(cat)}
+                className={`px-3 py-1 rounded-full text-ui-2xs font-medium transition-colors ${
+                  active
+                    ? "bg-[var(--brand-primary)] text-[var(--brand-primary-text)]"
+                    : "bg-[var(--surface-secondary)] text-[var(--text-secondary)] hover:bg-[var(--surface-tertiary)]"
+                }`}
+              >
+                {cat === "all" ? t("filterAll") : t(categoryKey(cat), cat)}
+              </button>
+            );
+          })}
+        </div>
+      )}
 
       {/* Content */}
       {tab === "store" ? (

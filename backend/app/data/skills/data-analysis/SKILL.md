@@ -1,5 +1,6 @@
 ---
 name: data-analysis
+category: research
 description: Data analysis and interpretation — tabular data, trend identification, statistical summaries, comparisons, chart recommendations, anomaly detection.
 ---
 

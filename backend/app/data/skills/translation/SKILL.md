@@ -1,5 +1,6 @@
 ---
 name: translation
+category: writing
 description: Translation and localization — multilingual translation, terminology handling, context adaptation, format preservation, quality self-review.
 ---
 

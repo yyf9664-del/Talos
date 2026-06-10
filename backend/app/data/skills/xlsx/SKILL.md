@@ -1,5 +1,6 @@
 ---
 name: xlsx
+category: documents
 description: Excel spreadsheet processing — reading, creating with openpyxl, formula-based workflows, charts, formatting, pandas integration, CSV conversion.
 ---
 

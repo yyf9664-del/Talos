@@ -1,5 +1,6 @@
 ---
 name: presentation
+category: writing
 description: Presentation creation — slide outline planning, per-slide content design, speaker notes drafting, visual layout suggestions, storyline building.
 ---
 

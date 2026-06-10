@@ -1,5 +1,6 @@
 ---
 name: docx
+category: documents
 description: Word document processing — reading, creating with python-docx, editing via XML manipulation, styles, tables, images, headers/footers, tracked changes.
 ---
 

@@ -1,5 +1,6 @@
 ---
 name: document-summary
+category: documents
 description: Document summarization and interpretation — long document distillation, multi-level summaries (one-line/paragraph/detailed), key information extraction.
 ---
 

@@ -36,6 +36,9 @@
   "connect": "连接",
   "disconnect": "断开",
   "retry": "重试",
+  "remove": "删除",
+  "removeConnectorConfirm": "确定删除自定义连接器“{{name}}”吗？",
+  "addConnectorError": "添加连接器失败",
   "addCustom": "添加自定义",
   "addConnector": "添加连接器",
   "connectorName": "名称",
@@ -70,6 +73,11 @@
   "category_operations": "运营",
   "category_knowledge": "知识库",
   "category_bio_research": "生物研究",
+  "category_documents": "文档",
+  "category_writing": "写作",
+  "category_research": "研究",
+  "category_development": "开发",
+  "category_meta": "技能管理",
   "category_custom": "自定义",
   "category_other": "其他"
 }

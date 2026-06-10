@@ -1,5 +1,6 @@
 ---
 name: project-planning
+category: research
 description: Parse a PRD, requirements document, or feature description into a structured task list with dependencies and priorities. Trigger when the user wants to plan a project, break down requirements, create a task list from a document, or says things like "plan this project", "break this down into tasks", "create tasks from this PRD".
 ---
 

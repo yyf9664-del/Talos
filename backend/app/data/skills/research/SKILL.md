@@ -1,5 +1,6 @@
 ---
 name: research
+category: research
 description: Deep research and information synthesis — multi-source search, competitor analysis, market research, SWOT framework, industry studies.
 ---
 

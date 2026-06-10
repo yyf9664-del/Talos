@@ -1,5 +1,6 @@
 ---
 name: bootstrap
+category: meta
 description: Generate personalized project instructions through an adaptive onboarding conversation. Trigger when the user wants to set up, initialize, or personalize their AI assistant — e.g., "bootstrap my agent", "set up my assistant", "personalize this AI", "let's do onboarding", "create my instructions", or when project instructions are missing. Also trigger for updates like "update my instructions", "change my AI's personality".
 ---
 

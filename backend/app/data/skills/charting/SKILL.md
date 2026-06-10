@@ -2,7 +2,7 @@
 name: charting
 display_name: "Charting & Diagrams"
 description: "Create Mermaid diagrams: flowcharts, sequence diagrams, class diagrams, ER diagrams, Gantt charts, pie charts, architecture diagrams, and 20+ more types."
-category: technical
+category: development
 version: "1.0.0"
 author: doxmind
 icon: "📊"

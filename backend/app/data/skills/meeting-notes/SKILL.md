@@ -1,5 +1,6 @@
 ---
 name: meeting-notes
+category: writing
 description: Meeting notes organization — extract key points from raw records, identify decisions and action items (Who/What/When), structured output.
 ---
 

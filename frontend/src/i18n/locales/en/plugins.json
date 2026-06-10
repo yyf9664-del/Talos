@@ -36,6 +36,9 @@
   "connect": "Connect",
   "disconnect": "Disconnect",
   "retry": "Retry",
+  "remove": "Remove",
+  "removeConnectorConfirm": "Remove custom connector \"{{name}}\"?",
+  "addConnectorError": "Failed to add connector",
   "addCustom": "Add custom",
   "addConnector": "Add Connector",
   "connectorName": "Name",
@@ -70,6 +73,11 @@
   "category_operations": "Operations",
   "category_knowledge": "Knowledge",
   "category_bio_research": "Bio Research",
+  "category_documents": "Documents",
+  "category_writing": "Writing",
+  "category_research": "Research",
+  "category_development": "Development",
+  "category_meta": "Skill Authoring",
   "category_custom": "Custom",
   "category_other": "Other"
 }

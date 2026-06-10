@@ -19,6 +19,7 @@ class SkillInfo:
     description: str
     location: str  # Absolute path to SKILL.md
     content: str  # Markdown content after frontmatter
+    category: str = "other"  # Optional grouping slug from frontmatter
 
 
 def _split_frontmatter(text: str) -> tuple[str | None, str]:
@@ -76,9 +77,14 @@ def parse_skill_file(path: Path) -> SkillInfo | None:
         logger.debug("Missing or invalid 'description' in %s", path)
         return None
 
+    category = data.get("category")
+    if not category or not isinstance(category, str):
+        category = "other"
+
     return SkillInfo(
         name=name,
         description=description,
         location=str(path.resolve()),
         content=body,
+        category=category,
     )

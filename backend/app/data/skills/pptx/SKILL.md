@@ -1,5 +1,6 @@
 ---
 name: pptx
+category: documents
 description: PowerPoint presentation processing — reading, creating with python-pptx, slide layouts, text/images/charts, editing via XML, design principles.
 ---
 

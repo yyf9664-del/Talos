@@ -75,6 +75,7 @@ def _skill_to_dict(skill, registry: SkillRegistry) -> dict[str, Any]:
         "name": skill.name,
         "description": skill.description,
         "location": skill.location,
+        "category": getattr(skill, "category", "other") or "other",
         "source": _skill_source(skill.name, skill.location),
         "enabled": not registry.is_disabled(skill.name),
     }
