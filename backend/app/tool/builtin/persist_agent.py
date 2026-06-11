@@ -82,12 +82,29 @@ class PersistAgentTool(ToolDefinition):
             logger.exception("persist_agent failed")
             return ToolResult(error=f"Failed to persist agent: {e}")
 
-        field_ids = [f.get("id") for f in form_schema if isinstance(f, dict)]
+        fields = [
+            {
+                "id": f.get("id"),
+                "name": f.get("name") or f.get("id"),
+                "type": f.get("type"),
+                "required": bool(f.get("required")),
+            }
+            for f in form_schema
+            if isinstance(f, dict)
+        ]
+        field_ids = [f["id"] for f in fields if f.get("id")]
         return ToolResult(
             output=(
                 f"Saved Agent '{args['title']}' (id={args['identifier']}, v{version}) registered.\n"
                 f"Form inputs: {', '.join(field_ids) or '(none)'}"
             ),
             title=f"Saved Agent: {args['title']}",
-            metadata={"saved_agent_id": agent_id, "identifier": args["identifier"]},
+            metadata={
+                "saved_agent_id": agent_id,
+                "identifier": args["identifier"],
+                "title": args["title"],
+                "description": args.get("description", ""),
+                "version": version,
+                "fields": fields,
+            },
         )

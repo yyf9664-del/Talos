@@ -11,7 +11,7 @@ export default function AgentsPage() {
 
   return (
     <div className="flex-1 overflow-y-auto">
-      <div className="mx-auto max-w-2xl px-4 py-8">
+      <div className="mx-auto max-w-6xl px-6 py-8">
         {/* Header */}
         <div className="flex items-center gap-3 mb-6">
           <Button variant="ghost" size="icon" className="h-8 w-8 lg:hidden" asChild>

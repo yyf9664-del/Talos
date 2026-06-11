@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Copy, Pencil, Check, Plus, RotateCcw } from "lucide-react";
+import { Copy, Pencil, Check, Plus, RotateCcw, Play } from "lucide-react";
 import { toast } from "sonner";
 import { FileChip } from "@/components/chat/file-chip";
 import { FileMentionPopup } from "@/components/chat/file-mention-popup";
@@ -11,6 +11,50 @@ import type { FileSearchResult } from "@/lib/upload";
 import type { FileAttachment } from "@/types/chat";
 import { extractTextFromPartResponses } from "@/lib/utils";
 import type { MessageResponse, FilePart as FilePartType } from "@/types/message";
+
+// Saved-agent run messages carry a single-line machine-readable marker as the
+// first line (emitted by the backend `build_run_prompt`). When present, the
+// chat renders a compact "agent name + input chips" card instead of the full
+// prompt body (which embeds the entire SKILL).
+const SAVED_AGENT_RUN_MARKER_PREFIX = "<!-- saved-agent-run: ";
+const SAVED_AGENT_RUN_MARKER_SUFFIX = " -->";
+
+interface SavedAgentRunChip {
+  key: string;
+  value: string;
+}
+
+interface SavedAgentRun {
+  title: string;
+  inputs: SavedAgentRunChip[];
+}
+
+function parseSavedAgentRun(text: string): SavedAgentRun | null {
+  const firstLine = text.split("\n", 1)[0];
+  if (
+    !firstLine.startsWith(SAVED_AGENT_RUN_MARKER_PREFIX) ||
+    !firstLine.endsWith(SAVED_AGENT_RUN_MARKER_SUFFIX)
+  ) {
+    return null;
+  }
+  try {
+    const json = firstLine.slice(
+      SAVED_AGENT_RUN_MARKER_PREFIX.length,
+      firstLine.length - SAVED_AGENT_RUN_MARKER_SUFFIX.length,
+    );
+    const parsed = JSON.parse(json) as { title?: unknown; inputs?: unknown };
+    if (typeof parsed.title !== "string" || !Array.isArray(parsed.inputs)) return null;
+    const inputs = (parsed.inputs as unknown[]).filter(
+      (c): c is SavedAgentRunChip =>
+        !!c &&
+        typeof (c as SavedAgentRunChip).key === "string" &&
+        typeof (c as SavedAgentRunChip).value === "string",
+    );
+    return { title: parsed.title, inputs };
+  } catch {
+    return null;
+  }
+}
 
 /**
  * Find the active @mention trigger in the input text relative to the cursor position.
@@ -63,6 +107,8 @@ export function UserMessage({ message, isNew = true, onEditAndResend, isGenerati
     .map((p) => p.data as FilePartType);
 
   const text = extractTextFromPartResponses(message.parts) || (fileParts.length > 0 ? "" : "(empty message)");
+
+  const savedAgentRun = parseSavedAgentRun(text);
 
   const handleStartEdit = useCallback(() => {
     setEditText(text);
@@ -215,6 +261,45 @@ export function UserMessage({ message, isNew = true, onEditAndResend, isGenerati
       });
     }
   }, [editing]);
+
+  // Saved-agent run: render a compact card (agent name + input chips) instead
+  // of the full prompt body. Editing is intentionally not offered here.
+  if (savedAgentRun) {
+    return (
+      <motion.div
+        className="flex justify-end"
+        initial={isNew ? { opacity: 0, y: 6 } : false}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ type: "spring", stiffness: 300, damping: 30, opacity: { duration: 0.2 } }}
+      >
+        <div className="max-w-[85%] sm:max-w-[70%] rounded-2xl bg-[var(--user-bubble-bg)] px-4 py-3 shadow-[var(--shadow-sm)] border border-[var(--border-default)]">
+          <div className="flex items-center gap-3">
+            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[var(--surface-secondary)] text-[var(--text-secondary)]">
+              <Play className="h-3.5 w-3.5" />
+            </span>
+            <div className="min-w-0">
+              <div className="text-[13px] font-medium text-[var(--text-primary)] truncate">
+                {savedAgentRun.title}
+              </div>
+              {savedAgentRun.inputs.length > 0 && (
+                <div className="mt-1.5 flex flex-wrap gap-1.5">
+                  {savedAgentRun.inputs.map((chip, i) => (
+                    <span
+                      key={`${chip.key}-${i}`}
+                      className="inline-flex items-center rounded-md bg-[var(--surface-secondary)] px-2 py-0.5 text-[11px] text-[var(--text-secondary)]"
+                    >
+                      <span className="text-[var(--text-tertiary)]">{chip.key}:</span>
+                      <span className="ml-1 text-[var(--text-primary)]">{chip.value}</span>
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </motion.div>
+    );
+  }
 
   if (editing) {
     return (

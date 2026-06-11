@@ -45,6 +45,7 @@ class SavedAgentResponse(BaseModel):
 class RunRequest(BaseModel):
     inputs: dict[str, Any] = {}
     model: str | None = None
+    provider_id: str | None = None
 
 
 class RunResponse(BaseModel):

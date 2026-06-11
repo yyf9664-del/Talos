@@ -3,16 +3,38 @@
 from __future__ import annotations
 
 import asyncio
+import json
 import logging
 from typing import Any
 
 logger = logging.getLogger(__name__)
 
+# A single-line, machine-readable marker prepended to saved-agent run prompts.
+# The model tolerates the HTML comment; the chat UI parses it to render a
+# compact "agent name + input chips" card instead of the full prompt body.
+SAVED_AGENT_RUN_MARKER_PREFIX = "<!-- saved-agent-run: "
+SAVED_AGENT_RUN_MARKER_SUFFIX = " -->"
+
+
+def _run_marker(*, title: str, form_schema: list[dict[str, Any]], inputs: dict[str, Any]) -> str:
+    by_id = {f["id"]: f for f in form_schema if isinstance(f, dict)}
+    chips = [
+        {"key": by_id.get(fid, {}).get("name") or fid, "value": str(value)}
+        for fid, value in inputs.items()
+    ]
+    payload = json.dumps({"title": title, "inputs": chips}, ensure_ascii=False)
+    return f"{SAVED_AGENT_RUN_MARKER_PREFIX}{payload}{SAVED_AGENT_RUN_MARKER_SUFFIX}"
+
 
 def build_run_prompt(
     *, title: str, skill_content: str, form_schema: list[dict[str, Any]], inputs: dict[str, Any]
 ) -> str:
-    lines = [f"Run the Saved Agent: {title}.", "", "## Inputs"]
+    lines = [
+        _run_marker(title=title, form_schema=form_schema, inputs=inputs),
+        f"Run the Saved Agent: {title}.",
+        "",
+        "## Inputs",
+    ]
     by_id = {f["id"]: f for f in form_schema if isinstance(f, dict)}
     for fid, value in inputs.items():
         label = by_id.get(fid, {}).get("name", fid)
@@ -32,7 +54,7 @@ def build_run_prompt(
 async def launch_run(
     *, saved_agent, inputs: dict[str, Any], model: str | None,
     session_factory, provider_registry, agent_registry, tool_registry, stream_manager,
-    index_manager=None,
+    provider_id: str | None = None, index_manager=None,
 ) -> tuple[str, str]:
     """Create a headless session and run it in the background.
 
@@ -51,7 +73,7 @@ async def launch_run(
     )
     job = stream_manager.create_job(stream_id=stream_id, session_id=session_id)
     request = PromptRequest(
-        session_id=session_id, text=prompt, model=model,
+        session_id=session_id, text=prompt, model=model, provider_id=provider_id,
         agent="build", workspace=saved_agent.workspace_path,
     )
 

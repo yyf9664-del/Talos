@@ -27,11 +27,15 @@ async def get_saved_agent(db: AsyncSession, agent_id: str) -> SavedAgent | None:
     return (await db.execute(select(SavedAgent).where(SavedAgent.id == agent_id))).scalar_one_or_none()
 
 
-async def list_saved_agents(db: AsyncSession, *, workspace_path: str) -> list[SavedAgent]:
-    rows = (await db.execute(
-        select(SavedAgent).where(SavedAgent.workspace_path == workspace_path)
-        .order_by(SavedAgent.time_updated.desc())
-    )).scalars().all()
+async def list_saved_agents(
+    db: AsyncSession, *, workspace_path: str | None = None
+) -> list[SavedAgent]:
+    """List saved agents. When ``workspace_path`` is None, return all agents
+    across every workspace (used by the global Agents page)."""
+    stmt = select(SavedAgent).order_by(SavedAgent.time_updated.desc())
+    if workspace_path is not None:
+        stmt = stmt.where(SavedAgent.workspace_path == workspace_path)
+    rows = (await db.execute(stmt)).scalars().all()
     return list(rows)
 
 

@@ -19,6 +19,7 @@ import { useRunSavedAgent } from "@/hooks/use-saved-agents";
 import { getChatRoute } from "@/lib/routes";
 import { queryKeys } from "@/lib/constants";
 import { useChatStore } from "@/stores/chat-store";
+import { useSettingsStore } from "@/stores/settings-store";
 import { startStream } from "@/lib/session-stream-registry";
 import type { FormField, SavedAgent } from "@/types/saved-agent";
 
@@ -70,6 +71,8 @@ export function SavedAgentRunForm({
   const router = useRouter();
   const queryClient = useQueryClient();
   const runMut = useRunSavedAgent();
+  const selectedModel = useSettingsStore((s) => s.selectedModel);
+  const selectedProviderId = useSettingsStore((s) => s.selectedProviderId);
 
   const fields = useMemo(() => agent.form_schema || [], [agent.form_schema]);
   const [values, setValues] = useState<Record<string, FieldValue>>(() =>
@@ -118,7 +121,12 @@ export function SavedAgentRunForm({
     }
 
     runMut.mutate(
-      { id: agent.id, inputs },
+      {
+        id: agent.id,
+        inputs,
+        model: selectedModel ?? undefined,
+        provider_id: selectedProviderId ?? undefined,
+      },
       {
         onSuccess: (data) => {
           useChatStore.getState().startGeneration(data.session_id, data.stream_id);

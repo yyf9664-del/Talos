@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Boxes, Loader2, Play, Trash2 } from "lucide-react";
+import { Boxes, FolderOpen, Loader2, Play, Trash2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -17,16 +17,17 @@ import type { SavedAgent } from "@/types/saved-agent";
 
 export function SavedAgentCard({
   agent,
-  workspace,
   onRun,
 }: {
   agent: SavedAgent;
-  workspace: string;
   onRun: (agent: SavedAgent) => void;
 }) {
   const { t } = useTranslation("saved-agents");
-  const deleteMut = useDeleteSavedAgent(workspace);
+  const deleteMut = useDeleteSavedAgent();
   const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const workspaceName =
+    agent.workspace_path?.replace(/[/\\]+$/, "").split(/[/\\]/).pop() ||
+    agent.workspace_path;
 
   const handleDelete = () => {
     deleteMut.mutate(agent.id, { onSuccess: () => setConfirmingDelete(false) });
@@ -35,7 +36,7 @@ export function SavedAgentCard({
   return (
     <>
       <div
-        className="group rounded-xl border border-[var(--border-default)] bg-[var(--surface-primary)] p-4 space-y-3 hover:bg-[var(--surface-secondary)]/50 transition-colors cursor-pointer"
+        className="group flex h-full flex-col rounded-xl border border-[var(--border-default)] bg-[var(--surface-primary)] p-4 gap-3 hover:bg-[var(--surface-secondary)]/50 transition-colors cursor-pointer"
         onClick={() => onRun(agent)}
       >
         <div className="flex items-start gap-3">
@@ -58,10 +59,19 @@ export function SavedAgentCard({
                 {agent.description}
               </p>
             )}
+            {workspaceName && (
+              <span
+                className="mt-1.5 inline-flex max-w-full items-center gap-1 text-ui-3xs text-[var(--text-tertiary)]"
+                title={agent.workspace_path}
+              >
+                <FolderOpen className="h-3 w-3 shrink-0" />
+                <span className="truncate">{workspaceName}</span>
+              </span>
+            )}
           </div>
         </div>
 
-        <div className="flex items-center justify-end gap-2">
+        <div className="mt-auto flex items-center justify-end gap-2">
           <Button
             variant="outline"
             size="sm"

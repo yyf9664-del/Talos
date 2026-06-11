@@ -19,5 +19,10 @@
   "selectPlaceholder": "Select…",
   "unsupportedField": "File inputs are not supported yet.",
   "optional": "Optional",
-  "runFailed": "Failed to run agent. Please try again."
+  "runFailed": "Failed to run agent. Please try again.",
+  "createdTitle": "Reusable agent created",
+  "createdFailed": "Failed to create agent",
+  "inputsLabel": "Inputs",
+  "noInputsShort": "No inputs",
+  "openInAgents": "Open in Agents"
 }

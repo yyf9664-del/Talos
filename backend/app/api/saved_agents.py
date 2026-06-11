@@ -25,7 +25,7 @@ router = APIRouter()
 
 
 @router.get("/saved-agents", response_model=list[SavedAgentResponse])
-async def list_agents(workspace: str, db: AsyncSession = Depends(get_db)):
+async def list_agents(workspace: str | None = None, db: AsyncSession = Depends(get_db)):
     return await list_saved_agents(db, workspace_path=workspace)
 
 
@@ -97,7 +97,7 @@ async def run_agent(
         raise HTTPException(422, detail="Invalid inputs: " + "; ".join(errs))
 
     session_id, stream_id = await launch_run(
-        saved_agent=agent, inputs=body.inputs, model=body.model,
+        saved_agent=agent, inputs=body.inputs, model=body.model, provider_id=body.provider_id,
         session_factory=session_factory, provider_registry=provider_registry,
         agent_registry=agent_registry, tool_registry=tool_registry,
         stream_manager=stream_manager, index_manager=index_manager,

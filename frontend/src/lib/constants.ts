@@ -362,8 +362,10 @@ export const API = {
     LOOP_PRESETS: "/api/automations/loop-presets",
   },
   SAVED_AGENTS: {
-    LIST: (workspace: string) =>
-      `/api/saved-agents?workspace=${encodeURIComponent(workspace)}` as const,
+    LIST: (workspace?: string) =>
+      (workspace
+        ? `/api/saved-agents?workspace=${encodeURIComponent(workspace)}`
+        : "/api/saved-agents") as string,
     CREATE: "/api/saved-agents",
     DETAIL: (id: string) => `/api/saved-agents/${id}` as const,
     UPDATE: (id: string) => `/api/saved-agents/${id}` as const,
@@ -439,7 +441,7 @@ export const queryKeys = {
     templates: ["automations", "templates"] as const,
   },
   savedAgents: {
-    all: (workspace: string) => ["savedAgents", workspace] as const,
+    all: () => ["savedAgents"] as const,
     detail: (id: string) => ["savedAgents", id] as const,
   },
   dailyReviews: {

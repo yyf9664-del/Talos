@@ -19,5 +19,10 @@
   "selectPlaceholder": "请选择…",
   "unsupportedField": "暂不支持文件类型输入。",
   "optional": "选填",
-  "runFailed": "运行失败，请重试。"
+  "runFailed": "运行失败，请重试。",
+  "createdTitle": "已创建可复用智能体",
+  "createdFailed": "创建智能体失败",
+  "inputsLabel": "输入项",
+  "noInputsShort": "无需输入",
+  "openInAgents": "在 Agents 中打开"
 }
