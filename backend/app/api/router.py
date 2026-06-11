@@ -25,6 +25,7 @@ from app.api import openai_auth as openai_auth_api
 from app.api import plugins as plugins_api
 from app.api import remote as remote_api
 from app.api import rapid_mlx as rapid_mlx_api
+from app.api import saved_agents as saved_agents_api
 from app.api import sessions as sessions_api
 from app.api import skills as skills_api
 from app.api import tools as tools_api
@@ -57,3 +58,4 @@ api_router.include_router(ollama_api.router, tags=["ollama"])
 api_router.include_router(rapid_mlx_api.router, tags=["rapid-mlx"])
 api_router.include_router(channels_api.router, tags=["channels"])
 api_router.include_router(workspace_memory_api.router, tags=["workspace-memory"])
+api_router.include_router(saved_agents_api.router, tags=["saved-agents"])
