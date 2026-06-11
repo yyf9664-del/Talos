@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import logging
 from pathlib import Path
+from typing import Any
 
 import yaml
 from sqlalchemy import select
@@ -36,8 +37,8 @@ async def list_saved_agents(db: AsyncSession, *, workspace_path: str) -> list[Sa
 
 async def upsert_saved_agent(
     db: AsyncSession, *, workspace_path: str, identifier: str, title: str,
-    description: str, skill_content: str, form_schema: list, memory_schema: dict,
-    source_session_id: str | None = None,
+    description: str, skill_content: str, form_schema: list[dict[str, Any]],
+    memory_schema: dict[str, Any], source_session_id: str | None = None,
 ) -> SavedAgent:
     existing = (await db.execute(
         select(SavedAgent).where(
@@ -75,7 +76,11 @@ def _write_bundle(agent: SavedAgent) -> None:
         bundle = Path(agent.workspace_path) / ".openyak" / "saved-agents" / agent.identifier
         (bundle / "files").mkdir(parents=True, exist_ok=True)
 
-        frontmatter = f"---\nname: {agent.identifier}\ndescription: {agent.description}\n---\n\n"
+        fm_body = yaml.safe_dump(
+            {"name": agent.identifier, "description": agent.description},
+            allow_unicode=True, sort_keys=False,
+        )
+        frontmatter = f"---\n{fm_body}---\n\n"
         (bundle / "SKILL.md").write_text(frontmatter + agent.skill_content, encoding="utf-8")
 
         manifest = {
