@@ -30,18 +30,20 @@ def validate_form_schema(schema: Any) -> list[str]:
                 errors.append(f"field '{fid}': duplicate id")
             seen_ids.add(fid)
 
+        label = f"'{fid}'" if fid and isinstance(fid, str) else f"[{i}]"
+
         ftype = field.get("type")
         if ftype not in VALID_TYPES:
-            errors.append(f"field '{fid}': invalid type '{ftype}'")
+            errors.append(f"field {label}: invalid type '{ftype}'")
 
         if ftype in OPTION_TYPES:
             opts = field.get("options")
             if not isinstance(opts, list) or not opts:
-                errors.append(f"field '{fid}': type '{ftype}' requires non-empty 'options'")
+                errors.append(f"field {label}: type '{ftype}' requires non-empty 'options'")
             else:
                 for opt in opts:
                     if not isinstance(opt, dict) or not opt.get("value"):
-                        errors.append(f"field '{fid}': each option needs a non-empty 'value'")
+                        errors.append(f"field {label}: each option needs a non-empty 'value'")
                         break
     return errors
 
@@ -64,9 +66,9 @@ def validate_inputs(schema: list[dict[str, Any]], inputs: dict[str, Any]) -> lis
             continue
 
         value = inputs[fid]
-        if ftype in ("number",) and not isinstance(value, (int, float)):
+        if ftype == "number" and (isinstance(value, bool) or not isinstance(value, (int, float))):
             errors.append(f"field '{fid}': expected number")
-        elif ftype in ("integer",) and not isinstance(value, int):
+        elif ftype == "integer" and (isinstance(value, bool) or not isinstance(value, int)):
             errors.append(f"field '{fid}': expected integer")
         elif ftype == "boolean" and not isinstance(value, bool):
             errors.append(f"field '{fid}': expected boolean")

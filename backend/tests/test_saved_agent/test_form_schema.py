@@ -1,8 +1,6 @@
 import pytest
 from app.saved_agent.form_schema import validate_form_schema, validate_inputs
 
-FIELD_TYPES = ["string", "textarea", "number", "integer", "boolean", "select", "multiselect"]
-
 
 def test_valid_schema_passes():
     schema = [
@@ -39,10 +37,23 @@ def test_inputs_required_missing():
     assert any("city" in e for e in errs)
 
 
-def test_inputs_type_coercion_and_check():
+def test_inputs_type_check():
     schema = [{"id": "n", "type": "integer", "required": True}]
     assert validate_inputs(schema, {"n": 5}) == []
     assert any("n" in e for e in validate_inputs(schema, {"n": "abc"}))
+
+
+def test_inputs_integer_rejects_bool():
+    schema = [{"id": "n", "type": "integer", "required": True}]
+    assert any("n" in e for e in validate_inputs(schema, {"n": True}))
+
+
+def test_inputs_multiselect_three_states():
+    schema = [{"id": "tags", "type": "multiselect", "required": True,
+               "options": [{"label": "A", "value": "a"}, {"label": "B", "value": "b"}]}]
+    assert validate_inputs(schema, {"tags": ["a", "b"]}) == []
+    assert any("tags" in e for e in validate_inputs(schema, {"tags": ["a", "zzz"]}))
+    assert any("tags" in e for e in validate_inputs(schema, {"tags": "a"}))
 
 
 def test_inputs_select_value_must_be_in_options():
