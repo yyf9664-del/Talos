@@ -7,7 +7,6 @@ from typing import Any
 
 VALID_TYPES = {
     "string", "textarea", "number", "integer", "boolean", "select", "multiselect",
-    "file", "files",
 }
 OPTION_TYPES = {"select", "multiselect"}
 

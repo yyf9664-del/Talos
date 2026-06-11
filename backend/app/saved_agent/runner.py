@@ -31,20 +31,25 @@ def build_run_prompt(
 
 async def launch_run(
     *, saved_agent, inputs: dict[str, Any], model: str | None,
-    session_factory, provider_registry, agent_registry, tool_registry, index_manager=None,
-) -> str:
-    """Create a headless session and run it in the background. Returns session_id."""
+    session_factory, provider_registry, agent_registry, tool_registry, stream_manager,
+    index_manager=None,
+) -> tuple[str, str]:
+    """Create a headless session and run it in the background.
+
+    Registers the job with the StreamManager so it is discoverable via
+    ``/api/chat/active`` and attachable over SSE. Returns ``(session_id, stream_id)``.
+    """
     from app.schemas.chat import PromptRequest
     from app.session.processor import run_generation
-    from app.streaming.manager import GenerationJob
     from app.utils.id import generate_ulid
 
     session_id = generate_ulid()
+    stream_id = generate_ulid()
     prompt = build_run_prompt(
         title=saved_agent.title, skill_content=saved_agent.skill_content,
         form_schema=saved_agent.form_schema, inputs=inputs,
     )
-    job = GenerationJob(stream_id=generate_ulid(), session_id=session_id)
+    job = stream_manager.create_job(stream_id=stream_id, session_id=session_id)
     request = PromptRequest(
         session_id=session_id, text=prompt, model=model,
         agent="build", workspace=saved_agent.workspace_path,
@@ -65,4 +70,4 @@ async def launch_run(
 
     task = asyncio.create_task(_run(), name=f"saved-agent-run-{session_id[:12]}")
     job.task = task
-    return session_id
+    return session_id, stream_id

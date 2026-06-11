@@ -18,6 +18,8 @@ import { Switch } from "@/components/ui/switch";
 import { useRunSavedAgent } from "@/hooks/use-saved-agents";
 import { getChatRoute } from "@/lib/routes";
 import { queryKeys } from "@/lib/constants";
+import { useChatStore } from "@/stores/chat-store";
+import { startStream } from "@/lib/session-stream-registry";
 import type { FormField, SavedAgent } from "@/types/saved-agent";
 
 type FieldValue = string | number | boolean | string[] | undefined;
@@ -119,6 +121,8 @@ export function SavedAgentRunForm({
       { id: agent.id, inputs },
       {
         onSuccess: (data) => {
+          useChatStore.getState().startGeneration(data.session_id, data.stream_id);
+          void startStream(data.session_id, data.stream_id);
           queryClient.invalidateQueries({ queryKey: queryKeys.sessions.all });
           router.push(getChatRoute(data.session_id));
         },

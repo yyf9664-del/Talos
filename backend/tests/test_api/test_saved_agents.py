@@ -64,12 +64,13 @@ async def test_run_validates_inputs(app_client, tmp_path, monkeypatch):
 
     import app.api.saved_agents as mod
     async def _fake_launch(**kwargs):
-        return "fake-session"
+        return "fake-session", "fake-stream"
     monkeypatch.setattr(mod, "launch_run", _fake_launch)
 
     r = await app_client.post(f"/api/saved-agents/{agent_id}/run", json={"inputs": {"city": "Tokyo"}})
     assert r.status_code == 200
     assert r.json()["session_id"] == "fake-session"
+    assert r.json()["stream_id"] == "fake-stream"
 
 
 @pytest.mark.asyncio

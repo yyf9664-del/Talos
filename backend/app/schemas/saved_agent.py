@@ -49,4 +49,5 @@ class RunRequest(BaseModel):
 
 class RunResponse(BaseModel):
     session_id: str
+    stream_id: str
     status: str = "started"

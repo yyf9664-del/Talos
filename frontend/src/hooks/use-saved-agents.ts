@@ -20,7 +20,7 @@ export function useRunSavedAgent() {
       inputs: Record<string, unknown>;
       model?: string;
     }) =>
-      api.post<{ session_id: string; status: string }>(
+      api.post<{ session_id: string; stream_id: string; status: string }>(
         API.SAVED_AGENTS.RUN(vars.id),
         { inputs: vars.inputs, model: vars.model },
       ),
