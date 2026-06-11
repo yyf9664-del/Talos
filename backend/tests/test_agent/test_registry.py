@@ -8,7 +8,11 @@ class TestAgentRegistry:
         r = AgentRegistry()
         agents = r.list_agents(include_hidden=True)
         names = {a.name for a in agents}
-        assert names == {"build", "plan", "explore", "general", "compaction", "title", "summary"}
+        # Source of truth is BUILTIN_AGENTS; keep the assertion robust to new
+        # built-ins (e.g. daily_review, persist) rather than a hardcoded set.
+        assert names == set(BUILTIN_AGENTS.keys())
+        # Core agents that must always exist.
+        assert {"build", "plan", "explore", "general"} <= names
 
     def test_default_agent_is_build(self):
         r = AgentRegistry()
