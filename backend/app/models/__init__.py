@@ -7,8 +7,9 @@ from app.models.session_file import SessionFile
 from app.models.scheduled_task import ScheduledTask
 from app.models.task_run import TaskRun
 from app.models.daily_review import DailyReview
+from app.models.saved_agent import SavedAgent
 
 __all__ = [
     "Base", "TimestampMixin", "Project", "Session", "Message", "Part", "Todo",
-    "SessionFile", "ScheduledTask", "TaskRun", "DailyReview",
+    "SessionFile", "ScheduledTask", "TaskRun", "DailyReview", "SavedAgent",
 ]
