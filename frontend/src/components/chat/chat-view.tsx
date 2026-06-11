@@ -212,13 +212,13 @@ export function ChatView({ sessionId }: ChatViewProps) {
           isCompacting={isCompacting || !!session?.time_compacting}
           onSend={sendMessage}
           onSendTaskBatch={sendTaskBatch}
-          onPersistAgent={() => {
-            void sendMessage(
+          onPersistAgent={async () => {
+            const ok = await sendMessage(
               t("persistAgentPrompt"),
               undefined,
               { agent: "persist" },
             );
-            toast.success(t("persistAgentStarted"));
+            if (ok) toast.success(t("persistAgentStarted"));
           }}
           onStop={stopGeneration}
           sessionId={sessionId}
