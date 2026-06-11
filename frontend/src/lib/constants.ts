@@ -361,6 +361,15 @@ export const API = {
     FROM_TEMPLATE: "/api/automations/from-template",
     LOOP_PRESETS: "/api/automations/loop-presets",
   },
+  SAVED_AGENTS: {
+    LIST: (workspace: string) =>
+      `/api/saved-agents?workspace=${encodeURIComponent(workspace)}` as const,
+    CREATE: "/api/saved-agents",
+    DETAIL: (id: string) => `/api/saved-agents/${id}` as const,
+    UPDATE: (id: string) => `/api/saved-agents/${id}` as const,
+    DELETE: (id: string) => `/api/saved-agents/${id}` as const,
+    RUN: (id: string) => `/api/saved-agents/${id}/run` as const,
+  },
   DAILY_REVIEWS: {
     LIST: "/api/daily-reviews",
     GENERATE: "/api/daily-reviews/generate",
@@ -428,6 +437,10 @@ export const queryKeys = {
     detail: (id: string) => ["automations", id] as const,
     runs: (id: string) => ["automations", id, "runs"] as const,
     templates: ["automations", "templates"] as const,
+  },
+  savedAgents: {
+    all: (workspace: string) => ["savedAgents", workspace] as const,
+    detail: (id: string) => ["savedAgents", id] as const,
   },
   dailyReviews: {
     all: ["dailyReviews"] as const,
