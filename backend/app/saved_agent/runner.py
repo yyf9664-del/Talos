@@ -63,5 +63,6 @@ async def launch_run(
         except Exception as e:
             logger.warning("Saved Agent run %s failed: %s", session_id, e)
 
-    asyncio.create_task(_run(), name=f"saved-agent-run-{session_id[:12]}")
+    task = asyncio.create_task(_run(), name=f"saved-agent-run-{session_id[:12]}")
+    job.task = task
     return session_id

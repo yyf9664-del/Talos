@@ -70,3 +70,9 @@ async def test_run_validates_inputs(app_client, tmp_path, monkeypatch):
     r = await app_client.post(f"/api/saved-agents/{agent_id}/run", json={"inputs": {"city": "Tokyo"}})
     assert r.status_code == 200
     assert r.json()["session_id"] == "fake-session"
+
+
+@pytest.mark.asyncio
+async def test_run_unknown_agent_returns_404(app_client):
+    r = await app_client.post("/api/saved-agents/nonexistent-id/run", json={"inputs": {}})
+    assert r.status_code == 404
