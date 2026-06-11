@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useChat } from "@/hooks/use-chat";
@@ -27,6 +28,7 @@ interface ChatViewProps {
 }
 
 export function ChatView({ sessionId }: ChatViewProps) {
+  const { t } = useTranslation("chat");
   const {
     sendMessage,
     sendTaskBatch,
@@ -210,6 +212,14 @@ export function ChatView({ sessionId }: ChatViewProps) {
           isCompacting={isCompacting || !!session?.time_compacting}
           onSend={sendMessage}
           onSendTaskBatch={sendTaskBatch}
+          onPersistAgent={() => {
+            void sendMessage(
+              t("persistAgentPrompt"),
+              undefined,
+              { agent: "persist" },
+            );
+            toast.success(t("persistAgentStarted"));
+          }}
           onStop={stopGeneration}
           sessionId={sessionId}
           directory={session?.directory}

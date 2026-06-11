@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useRef, useEffect, useMemo } from "react";
 import { useTranslation } from 'react-i18next';
-import { AlertTriangle, Check, ChevronDown, GitBranch, Play, Plus, Trash2 } from "lucide-react";
+import { AlertTriangle, Check, ChevronDown, GitBranch, Play, Plus, Trash2, Wand2 } from "lucide-react";
 import { toast } from "sonner";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { ChatTextarea } from "./chat-textarea";
@@ -31,6 +31,7 @@ interface ChatFormProps {
   isCompacting?: boolean;
   onSend: (text: string, attachments?: FileAttachment[]) => Promise<boolean> | void;
   onSendTaskBatch?: (batch: { mode: TaskBatchMode; tasks: TaskBatchTask[] }) => Promise<boolean> | void;
+  onPersistAgent?: () => void;
   onStop: () => void;
   className?: string;
   sessionId?: string;
@@ -221,7 +222,7 @@ function detectMention(
   return { active: true, query, startIndex: atIndex };
 }
 
-export function ChatForm({ isGenerating, isCompacting = false, onSend, onSendTaskBatch, onStop, className, sessionId, directory }: ChatFormProps) {
+export function ChatForm({ isGenerating, isCompacting = false, onSend, onSendTaskBatch, onPersistAgent, onStop, className, sessionId, directory }: ChatFormProps) {
   const { t } = useTranslation('chat');
   const [input, setInput] = useState("");
   const [attachments, setAttachments] = useState<FileAttachment[]>([]);
@@ -934,6 +935,19 @@ export function ChatForm({ isGenerating, isCompacting = false, onSend, onSendTas
                   </div>
                 </PopoverContent>
               </Popover>
+            )}
+
+            {onPersistAgent && (
+              <button
+                type="button"
+                disabled={isInputDisabled || !sessionId}
+                className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[var(--text-secondary)] transition-colors hover:bg-[var(--surface-secondary)] disabled:opacity-50"
+                aria-label={t("persistAgent")}
+                title={t("persistAgent")}
+                onClick={onPersistAgent}
+              >
+                <Wand2 className="h-3.5 w-3.5" />
+              </button>
             )}
 
             <div className="flex-1" />

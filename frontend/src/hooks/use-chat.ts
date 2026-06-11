@@ -82,7 +82,7 @@ export function useChat(currentSessionId?: string) {
   useRemoteGenerationSync(currentSessionId);
 
   const sendMessage = useCallback(
-    async (text: string, attachments?: FileAttachment[]): Promise<boolean> => {
+    async (text: string, attachments?: FileAttachment[], options?: { agent?: string }): Promise<boolean> => {
       const chatState = useChatStore.getState();
       const settingsState = useSettingsStore.getState();
       const targetSessionId = currentSessionId ?? null;
@@ -142,7 +142,7 @@ export function useChat(currentSessionId?: string) {
           session_id: currentSessionId ?? null,
           model: settingsState.selectedModel,
           provider_id: settingsState.selectedProviderId,
-          agent: settingsState.selectedAgent,
+          agent: options?.agent ?? settingsState.selectedAgent,
           attachments: attachments ?? [],
           permission_presets: hasActivePresets ? permissionPresets : null,
           permission_rules: permissionRules.length > 0 ? permissionRules : null,
