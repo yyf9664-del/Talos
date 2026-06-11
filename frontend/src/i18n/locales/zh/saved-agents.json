@@ -1,0 +1,23 @@
+{
+  "title": "智能体",
+  "subtitle": "在工作区中运行已保存的表单驱动智能体",
+  "noWorkspace": "请先在设置中选择工作区，以查看已保存的智能体。",
+  "empty": "暂无已保存的智能体",
+  "emptyHint": "将一个对话转为可复用的智能体后会显示在这里。",
+  "version": "v{{version}}",
+  "run": "运行",
+  "running": "运行中…",
+  "delete": "删除",
+  "cancel": "取消",
+  "confirmDelete": "删除该智能体？",
+  "confirmDeleteDesc": "「{{title}}」将被永久删除，此操作无法撤销。",
+  "runTitle": "运行 {{title}}",
+  "runDescription": "填写下面的输入项，然后运行。",
+  "noInputs": "该智能体无需输入，点击运行即可开始。",
+  "required": "必填",
+  "requiredError": "此项为必填",
+  "selectPlaceholder": "请选择…",
+  "unsupportedField": "暂不支持文件类型输入。",
+  "optional": "选填",
+  "runFailed": "运行失败，请重试。"
+}

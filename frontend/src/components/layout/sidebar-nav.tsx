@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
-import { BookOpenText, Bot, Plug, SquarePen } from "lucide-react";
+import { BookOpenText, Bot, Boxes, Plug, SquarePen } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useActiveSessionId } from "@/hooks/use-active-session-id";
 import { useSessions } from "@/hooks/use-sessions";
@@ -33,6 +33,12 @@ const NAV_ITEMS = [
     labelKey: "automations",
     icon: Bot,
     isActive: (pathname: string) => pathname.startsWith("/automations"),
+  },
+  {
+    href: "/agents",
+    labelKey: "agents",
+    icon: Boxes,
+    isActive: (pathname: string) => pathname.startsWith("/agents"),
   },
 ];
 

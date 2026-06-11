@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import {
   BookOpenText,
   Bot,
+  Boxes,
   PanelLeft,
   Plug,
   Settings,
@@ -47,6 +48,12 @@ const RAIL_ITEMS = [
     labelKey: "automations",
     icon: Bot,
     isActive: (p: string) => p.startsWith("/automations"),
+  },
+  {
+    href: "/agents",
+    labelKey: "agents",
+    icon: Boxes,
+    isActive: (p: string) => p.startsWith("/agents"),
   },
 ];
 

@@ -1,0 +1,23 @@
+{
+  "title": "Agents",
+  "subtitle": "Run saved, form-driven agents in your workspace",
+  "noWorkspace": "Select a workspace in Settings to see your saved agents.",
+  "empty": "No saved agents yet",
+  "emptyHint": "Turn a chat into a reusable agent to see it here.",
+  "version": "v{{version}}",
+  "run": "Run",
+  "running": "Running…",
+  "delete": "Delete",
+  "cancel": "Cancel",
+  "confirmDelete": "Delete this agent?",
+  "confirmDeleteDesc": "\"{{title}}\" will be permanently removed. This cannot be undone.",
+  "runTitle": "Run {{title}}",
+  "runDescription": "Fill in the inputs below, then run.",
+  "noInputs": "This agent needs no inputs. Click Run to start.",
+  "required": "Required",
+  "requiredError": "This field is required",
+  "selectPlaceholder": "Select…",
+  "unsupportedField": "File inputs are not supported yet.",
+  "optional": "Optional",
+  "runFailed": "Failed to run agent. Please try again."
+}
