@@ -5,13 +5,19 @@ import logging
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.dependencies import get_db
-from app.saved_agent.form_schema import validate_form_schema, validate_identifier
+from app.dependencies import (
+    get_agent_registry, get_db, get_index_manager, get_provider_registry,
+    get_session_factory, get_tool_registry,
+)
+from app.saved_agent.form_schema import (
+    validate_form_schema, validate_identifier, validate_inputs,
+)
+from app.saved_agent.runner import launch_run
 from app.saved_agent.storage import (
     get_saved_agent, list_saved_agents, upsert_saved_agent,
 )
 from app.schemas.saved_agent import (
-    SavedAgentCreate, SavedAgentResponse, SavedAgentUpdate,
+    RunRequest, RunResponse, SavedAgentCreate, SavedAgentResponse, SavedAgentUpdate,
 )
 
 logger = logging.getLogger(__name__)
@@ -68,6 +74,33 @@ async def update_agent(agent_id: str, body: SavedAgentUpdate, db: AsyncSession =
     )
     await db.flush()
     return agent
+
+
+@router.post("/saved-agents/{agent_id}/run", response_model=RunResponse)
+async def run_agent(
+    agent_id: str,
+    body: RunRequest,
+    db: AsyncSession = Depends(get_db),
+    session_factory=Depends(get_session_factory),
+    provider_registry=Depends(get_provider_registry),
+    agent_registry=Depends(get_agent_registry),
+    tool_registry=Depends(get_tool_registry),
+    index_manager=Depends(get_index_manager),
+):
+    agent = await get_saved_agent(db, agent_id)
+    if agent is None:
+        raise HTTPException(404, "Saved Agent not found")
+
+    errs = validate_inputs(agent.form_schema, body.inputs)
+    if errs:
+        raise HTTPException(422, detail="Invalid inputs: " + "; ".join(errs))
+
+    session_id = await launch_run(
+        saved_agent=agent, inputs=body.inputs, model=body.model,
+        session_factory=session_factory, provider_registry=provider_registry,
+        agent_registry=agent_registry, tool_registry=tool_registry, index_manager=index_manager,
+    )
+    return RunResponse(session_id=session_id)
 
 
 @router.delete("/saved-agents/{agent_id}")

@@ -48,3 +48,25 @@ async def test_create_rejects_bad_identifier(app_client, tmp_path):
     }
     r = await app_client.post("/api/saved-agents", json=payload)
     assert r.status_code == 422
+
+
+@pytest.mark.asyncio
+async def test_run_validates_inputs(app_client, tmp_path, monkeypatch):
+    ws = str(tmp_path)
+    r = await app_client.post("/api/saved-agents", json={
+        "workspace_path": ws, "identifier": "rep", "title": "Rep", "skill_content": "#x",
+        "form_schema": [{"id": "city", "type": "string", "required": True}], "memory_schema": {},
+    })
+    agent_id = r.json()["id"]
+
+    r = await app_client.post(f"/api/saved-agents/{agent_id}/run", json={"inputs": {}})
+    assert r.status_code == 422
+
+    import app.api.saved_agents as mod
+    async def _fake_launch(**kwargs):
+        return "fake-session"
+    monkeypatch.setattr(mod, "launch_run", _fake_launch)
+
+    r = await app_client.post(f"/api/saved-agents/{agent_id}/run", json={"inputs": {"city": "Tokyo"}})
+    assert r.status_code == 200
+    assert r.json()["session_id"] == "fake-session"
