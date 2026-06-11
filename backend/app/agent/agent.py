@@ -96,6 +96,17 @@ BUILTIN_AGENTS: dict[str, AgentInfo] = {
         ]),
         system_prompt=_load_prompt("build"),  # Reuses build prompt
     ),
+    "persist": AgentInfo(
+        name="persist",
+        description="Persist a session into a reusable Saved Agent",
+        mode="hidden",
+        tools=["persist_agent"],
+        permissions=Ruleset(rules=[
+            PermissionRule(action="deny", permission="*"),
+            PermissionRule(action="allow", permission="persist_agent"),
+        ]),
+        system_prompt=_load_prompt("persist"),
+    ),
     "compaction": AgentInfo(
         name="compaction",
         description="Context summarization agent (no tools)",
