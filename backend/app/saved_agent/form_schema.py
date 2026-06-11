@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from typing import Any
 
 VALID_TYPES = {
@@ -9,6 +10,17 @@ VALID_TYPES = {
     "file", "files",
 }
 OPTION_TYPES = {"select", "multiselect"}
+
+_IDENTIFIER_RE = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
+
+
+def validate_identifier(identifier: str) -> str | None:
+    """Return error string if invalid, else None."""
+    if not isinstance(identifier, str) or not (1 <= len(identifier) <= 64):
+        return "identifier must be a non-empty string (<=64 chars)"
+    if not _IDENTIFIER_RE.match(identifier):
+        return "identifier must be kebab-case (lowercase letters/digits, hyphen-separated)"
+    return None
 
 
 def validate_form_schema(schema: Any) -> list[str]:

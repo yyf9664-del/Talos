@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.dependencies import get_db
-from app.saved_agent.form_schema import validate_form_schema
+from app.saved_agent.form_schema import validate_form_schema, validate_identifier
 from app.saved_agent.storage import (
     get_saved_agent, list_saved_agents, upsert_saved_agent,
 )
@@ -25,6 +25,9 @@ async def list_agents(workspace: str, db: AsyncSession = Depends(get_db)):
 
 @router.post("/saved-agents", response_model=SavedAgentResponse)
 async def create_agent(body: SavedAgentCreate, db: AsyncSession = Depends(get_db)):
+    id_err = validate_identifier(body.identifier)
+    if id_err:
+        raise HTTPException(422, detail=id_err)
     errs = validate_form_schema(body.form_schema)
     if errs:
         raise HTTPException(422, detail="Invalid form_schema: " + "; ".join(errs))
@@ -74,10 +77,9 @@ async def delete_agent(agent_id: str, db: AsyncSession = Depends(get_db)):
     agent = await get_saved_agent(db, agent_id)
     if agent is None:
         raise HTTPException(404, "Saved Agent not found")
-    bundle = Path(agent.workspace_path) / ".openyak" / "saved-agents" / agent.identifier
+    base = (Path(agent.workspace_path) / ".openyak" / "saved-agents").resolve()
+    bundle = (base / agent.identifier).resolve()
     await db.delete(agent)
-    try:
+    if base in bundle.parents:
         shutil.rmtree(bundle, ignore_errors=True)
-    except OSError:
-        pass
     return {"status": "deleted"}

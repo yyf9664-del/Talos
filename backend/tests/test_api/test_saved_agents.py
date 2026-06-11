@@ -36,3 +36,15 @@ async def test_create_rejects_bad_form_schema(app_client, tmp_path):
     }
     r = await app_client.post("/api/saved-agents", json=payload)
     assert r.status_code == 422
+
+
+@pytest.mark.asyncio
+async def test_create_rejects_bad_identifier(app_client, tmp_path):
+    payload = {
+        "workspace_path": str(tmp_path), "identifier": "../evil", "title": "Evil",
+        "skill_content": "# Evil",
+        "form_schema": [{"id": "city", "type": "string"}],
+        "memory_schema": {},
+    }
+    r = await app_client.post("/api/saved-agents", json=payload)
+    assert r.status_code == 422
