@@ -47,6 +47,18 @@ async def test_persist_agent_rejects_bad_form(tmp_path, session_factory):
 
 
 @pytest.mark.asyncio
+async def test_persist_agent_rejects_bad_identifier(tmp_path, session_factory):
+    tool = PersistAgentTool()
+    ctx = _ctx(tmp_path, session_factory)
+    result = await tool.execute({
+        "identifier": "../evil", "title": "Evil", "skill_content": "#x",
+        "form_schema": [{"id": "city", "type": "string"}],
+    }, ctx)
+    assert not result.success
+    assert "identifier" in result.error
+
+
+@pytest.mark.asyncio
 async def test_persist_agent_missing_app_state(tmp_path):
     tool = PersistAgentTool()
     ctx = ToolContext(

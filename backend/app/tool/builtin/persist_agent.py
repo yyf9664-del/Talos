@@ -41,7 +41,7 @@ class PersistAgentTool(ToolDefinition):
         }
 
     async def execute(self, args: dict[str, Any], ctx: ToolContext) -> ToolResult:
-        from app.saved_agent.form_schema import validate_form_schema
+        from app.saved_agent.form_schema import validate_form_schema, validate_identifier
         from app.saved_agent.storage import upsert_saved_agent
 
         app_state = getattr(ctx, "_app_state", None)
@@ -51,6 +51,11 @@ class PersistAgentTool(ToolDefinition):
 
         workspace = ctx.workspace or "."
         form_schema = args.get("form_schema", [])
+
+        identifier = args.get("identifier", "")
+        id_error = validate_identifier(identifier)
+        if id_error:
+            return ToolResult(error=f"Invalid identifier: {id_error}")
 
         schema_errors = validate_form_schema(form_schema)
         if schema_errors:
