@@ -1,4 +1,4 @@
-//! OpenYak Desktop — Tauri 2.0 application entry point.
+//! Talos Desktop — Tauri 2.0 application entry point.
 //!
 //! Registers plugins, sets up the backend sidecar, tray, menu,
 //! and all IPC command handlers.
@@ -122,9 +122,9 @@ pub fn run() {
                 if is_running_from_dmg_volume(app) {
                     app.dialog()
                         .message(
-                            "OpenYak is running from the DMG volume.\n\nPlease copy OpenYak.app to Applications and launch it from there.",
+                            "Talos is running from the DMG volume.\n\nPlease copy Talos.app to Applications and launch it from there.",
                         )
-                        .title("Install OpenYak to Applications")
+                        .title("Install Talos to Applications")
                         .kind(MessageDialogKind::Warning)
                         .blocking_show();
                 }

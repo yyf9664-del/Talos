@@ -1,18 +1,18 @@
 import { expect, test, type Page } from "@playwright/test";
 import {
-  mockOpenYakApi,
-  seedOpenYakStorage,
-  type OpenYakMockOptions,
-  type OpenYakMockState,
-} from "./fixtures/openyak-api";
+  mockTalosApi,
+  seedTalosStorage,
+  type TalosMockOptions,
+  type TalosMockState,
+} from "./fixtures/talos-api";
 
 async function setupMockedApp(
   page: Page,
-  options?: OpenYakMockOptions,
-  seedOptions?: Parameters<typeof seedOpenYakStorage>[1],
-): Promise<OpenYakMockState> {
-  await seedOpenYakStorage(page, seedOptions);
-  return mockOpenYakApi(page, options);
+  options?: TalosMockOptions,
+  seedOptions?: Parameters<typeof seedTalosStorage>[1],
+): Promise<TalosMockState> {
+  await seedTalosStorage(page, seedOptions);
+  return mockTalosApi(page, options);
 }
 
 async function expectNoAppCrash(page: Page) {
@@ -31,7 +31,7 @@ async function sendPrompt(page: Page, text: string) {
 
 async function seedByokProvider(page: Page) {
   await page.addInitScript(() => {
-    const raw = window.localStorage.getItem("openyak-settings");
+    const raw = window.localStorage.getItem("talos-settings");
     const settings = raw ? JSON.parse(raw) : { state: {}, version: 0 };
     settings.state = {
       ...settings.state,
@@ -40,11 +40,11 @@ async function seedByokProvider(page: Page) {
       selectedModel: "openrouter/anthropic/claude-sonnet-4.5",
       selectedProviderId: "openrouter",
     };
-    window.localStorage.setItem("openyak-settings", JSON.stringify(settings));
+    window.localStorage.setItem("talos-settings", JSON.stringify(settings));
   });
 }
 
-test.describe("OpenYak deep claimed-feature GUI surfaces", () => {
+test.describe("Talos deep claimed-feature GUI surfaces", () => {
   test.describe.configure({ timeout: 90_000 });
   test.skip(({ isMobile }) => isMobile, "Desktop-only surfaces are covered alongside separate mobile GUI workflows.");
 
@@ -243,7 +243,7 @@ test.describe("OpenYak deep claimed-feature GUI surfaces", () => {
       hasCompletedOnboarding: false,
     });
     await onboarding.goto("/c/new");
-    await expect(onboarding.getByRole("heading", { name: "Welcome to OpenYak" })).toBeVisible();
+    await expect(onboarding.getByRole("heading", { name: "Welcome to Talos" })).toBeVisible();
 
     await onboarding.getByRole("button", { name: "Set Up Provider" }).click();
     await expect(onboarding).toHaveURL(/\/settings\?tab=providers$/);

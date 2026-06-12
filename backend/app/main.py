@@ -341,7 +341,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
 
     connector_registry = ConnectorRegistry(project_dir=settings.project_dir)
 
-    # Plugin loader (Claude knowledge-work-plugins → OpenYak registries)
+    # Plugin loader (Claude knowledge-work-plugins → Talos registries)
     from app.plugin import load_plugins_by_source
     from app.plugin.manager import PluginManager
 
@@ -630,14 +630,14 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         settings = Settings()
 
     app = FastAPI(
-        title="OpenYak",
+        title="Talos",
         version="0.0.1",
         lifespan=lifespan,
     )
     app.state.settings = settings
     set_settings(settings)
 
-    # CORS — restricted to the OpenYak frontend origins. Wildcard would let
+    # CORS — restricted to the Talos frontend origins. Wildcard would let
     # any webpage read responses from this local server cross-origin, which
     # is a PII-leak vector on top of the CSRF risk handled below.
     #   - Tauri desktop shell: tauri://localhost (macOS/Linux) and

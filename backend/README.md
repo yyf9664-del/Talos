@@ -1,6 +1,6 @@
 [中文](README.zh-CN.md)
 
-# OpenYak Backend
+# Talos Backend
 
 Python FastAPI backend that replicates OpenCode's complete agent architecture, bringing Claude Code-level agentic capabilities to open-source models via OpenRouter.
 

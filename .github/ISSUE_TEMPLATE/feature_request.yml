@@ -1,5 +1,5 @@
 name: Feature Request
-description: Suggest a new feature or enhancement for OpenYak
+description: Suggest a new feature or enhancement for Talos
 labels: ["enhancement", "triage"]
 body:
   - type: markdown
@@ -58,5 +58,5 @@ body:
     attributes:
       label: Community Guidelines
       options:
-        - label: I agree to follow the OpenYak Code of Conduct and keep this issue constructive, respectful, and relevant.
+        - label: I agree to follow the Talos Code of Conduct and keep this issue constructive, respectful, and relevant.
           required: true

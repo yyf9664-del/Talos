@@ -23,7 +23,7 @@ function detectInitialLanguage(): "en" | "zh" {
   if (typeof window === "undefined") return "en";
 
   try {
-    const stored = window.localStorage.getItem("openyak-language");
+    const stored = window.localStorage.getItem("talos-language");
     if (stored === "en" || stored === "zh") return stored;
   } catch {
     // localStorage can be unavailable in restricted browser contexts.

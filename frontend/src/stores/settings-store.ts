@@ -197,14 +197,14 @@ export const useSettingsStore = create<SettingsStore>()(
       setHasSeenHints: (seen) => set({ hasSeenHints: seen }),
       setLanguage: (lang) => {
         set({ language: lang });
-        localStorage.setItem("openyak-language", lang);
+        localStorage.setItem("talos-language", lang);
         // Dynamic import to avoid circular dependency
         import("@/i18n/config").then((mod) => mod.default.changeLanguage(lang));
       },
       setActiveProvider: (provider) => set({ activeProvider: provider }),
     }),
     {
-      name: "openyak-settings",
+      name: "talos-settings",
       version: 3,
       migrate: (persistedState) => {
         if (

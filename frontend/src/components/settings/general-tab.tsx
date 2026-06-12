@@ -213,7 +213,7 @@ export function GeneralTab() {
               key={value}
               onClick={() => {
                 i18n.changeLanguage(value);
-                localStorage.setItem("openyak-language", value);
+                localStorage.setItem("talos-language", value);
               }}
               className={`flex flex-col items-center gap-2 rounded-xl border p-4 transition-colors ${
                 mounted && i18n.language.startsWith(value)
@@ -376,7 +376,7 @@ def hello(name: str) -> str:
     return f"Hello, {name}!"
 
 # Usage
-result = hello("OpenYak")
+result = hello("Talos")
 print(result)
 \`\`\`
 
@@ -395,7 +395,7 @@ The code block above should feel like a distinct zone with premium quality.
 
 ## 弱结构文本测试
 
-项目名称：OpenYak
+项目名称：Talos
 类型：AI 桌面助手
 技术栈：Tauri + Next.js + FastAPI
 开源协议：MIT

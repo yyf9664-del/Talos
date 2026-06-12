@@ -1,11 +1,11 @@
 name: Question
-description: Ask a focused question about using or contributing to OpenYak
+description: Ask a focused question about using or contributing to Talos
 labels: ["question", "triage"]
 body:
   - type: markdown
     attributes:
       value: |
-        Use this template for focused questions about OpenYak. For open-ended discussion, ideas, or troubleshooting with many unknowns, please use Discussions instead.
+        Use this template for focused questions about Talos. For open-ended discussion, ideas, or troubleshooting with many unknowns, please use Discussions instead.
         Please keep the discussion specific, respectful, and actionable. Spam, harassment, abuse, or automated low-quality questions may be closed, hidden, locked, or reported.
 
   - type: textarea
@@ -50,5 +50,5 @@ body:
     attributes:
       label: Community Guidelines
       options:
-        - label: I agree to follow the OpenYak Code of Conduct and keep this issue constructive, respectful, and relevant.
+        - label: I agree to follow the Talos Code of Conduct and keep this issue constructive, respectful, and relevant.
           required: true

@@ -1,10 +1,10 @@
-# Linux Support for OpenYak Desktop
+# Linux Support for Talos Desktop
 
-OpenYak desktop app now includes full Linux support with native packages for major distributions.
+Talos desktop app now includes full Linux support with native packages for major distributions.
 
 ## Supported Distributions
 
-OpenYak has been tested and is officially supported on:
+Talos has been tested and is officially supported on:
 
 - **Ubuntu** 22.04 LTS and later
 - **Fedora** 38 and later
@@ -62,7 +62,7 @@ sudo dnf install webkit2gtk4.1 libayatana-appindicator-gtk3 zenity
 
 ## Running from Source
 
-To build and run OpenYak from source on Linux:
+To build and run Talos from source on Linux:
 
 ### 1. Install Build Dependencies
 
@@ -186,7 +186,7 @@ All features available on Windows and macOS are supported on Linux:
 - If zenity is not available, file operations may not work correctly
 
 ### Wayland vs X11
-- OpenYak supports both Wayland and X11
+- Talos supports both Wayland and X11
 - Some features (like window positioning) may behave differently under Wayland due to compositor restrictions
 - If you experience stability issues on Wayland, you can force X11 mode (see "Environment Overrides" below)
 

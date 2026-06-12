@@ -205,7 +205,7 @@ export function Landing({ directoryParam = null }: LandingProps) {
           <div className="mb-6 text-center pb-2">
             <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-[var(--border-default)] bg-[var(--surface-secondary)] px-3 py-1.5 text-[11px] font-medium text-[var(--text-secondary)]">
               <Sparkles className="h-3.5 w-3.5 text-[var(--brand-primary)]" />
-              AdMind AI Workspace
+              Talos AI Workspace
             </div>
             <h1 className="text-3xl font-medium tracking-tight text-[var(--text-primary)] sm:text-[2.5rem]">
               {workspaceName

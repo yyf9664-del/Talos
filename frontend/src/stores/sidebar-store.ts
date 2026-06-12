@@ -89,7 +89,7 @@ export const useSidebarStore = create<SidebarStore>()(
       setWidth: (width) => set({ width: clampWidth(width) }),
     }),
     {
-      name: "openyak-sidebar",
+      name: "talos-sidebar",
       partialize: (s) => ({
         collapsedProjects: s.collapsedProjects,
         organizeMode: s.organizeMode,

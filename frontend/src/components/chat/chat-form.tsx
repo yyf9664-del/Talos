@@ -54,7 +54,7 @@ type TaskDraft = {
   provider_id: string;
 };
 
-const DRAFT_STORAGE_KEY = "openyak-drafts";
+const DRAFT_STORAGE_KEY = "talos-drafts";
 const DRAFT_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
 
 /** In-memory mirror of localStorage drafts — avoids repeated JSON parsing. */

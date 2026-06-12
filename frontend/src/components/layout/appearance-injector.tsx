@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { useAppearanceStore } from "@/stores/appearance-store";
 
-const STYLE_ID = "openyak-appearance-overrides";
+const STYLE_ID = "talos-appearance-overrides";
 
 /**
  * Writes appearance overrides into a single <style> element in <head>.

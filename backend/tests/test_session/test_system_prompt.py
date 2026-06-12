@@ -87,7 +87,7 @@ class TestSystemPrompt:
         build = ar.get("build")
         parts = assemble(build, **_resolve_io(), **_PINNED)
         # Agent base prompt is in cached section
-        assert "Yakyak" in parts.cached or "tool" in parts.cached.lower()
+        assert "Talos" in parts.cached or "tool" in parts.cached.lower()
         # Environment info is in dynamic section
         assert "Working directory" in parts.dynamic
 

@@ -8,7 +8,7 @@
   "generate": "重新整理",
   "generating": "正在阅读今天的文件...",
   "emptyStateTitle": "给今天留一页安静的位置",
-  "emptyStateDescription": "选择文件夹后，OpenYak 会把所选日期的记录收拢成一条日记感时间线。它应该像回头看一天，而不是交工作总结。",
+  "emptyStateDescription": "选择文件夹后，Talos 会把所选日期的记录收拢成一条日记感时间线。它应该像回头看一天，而不是交工作总结。",
   "history": "日期档案",
   "noHistory": "还没有保存过的日子",
   "sourceFiles": "{{count}} 个来源文件",

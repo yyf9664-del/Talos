@@ -1,7 +1,7 @@
-"""Channel configuration schema for OpenYak.
+"""Channel configuration schema for Talos.
 
 Replaces the nanobot Config dependency with a lightweight schema
-that reads from OpenYak's data/channels.json.
+that reads from Talos's data/channels.json.
 """
 
 from __future__ import annotations

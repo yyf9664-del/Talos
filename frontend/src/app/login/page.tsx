@@ -6,7 +6,7 @@ import { motion } from "framer-motion";
 import { CheckCircle2, Eye, EyeOff, KeyRound } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { OpenYakLogo } from "@/components/ui/openyak-logo";
+import { TalosLogo } from "@/components/ui/talos-logo";
 import { getAuthStatus, keyLogin } from "@/lib/auth";
 import { apiErrorMessage } from "@/lib/api";
 
@@ -62,7 +62,7 @@ export default function LoginPage() {
               你的智能投放工作台
             </h1>
             <p className="max-w-lg text-[15px] leading-7 text-[#6B6258]">
-              AdMind 连接 TradeDesk 系统，用 AI 帮你完成广告投放、素材管理、数据分析与日常办公。
+              Talos 连接 TradeDesk 系统，用 AI 帮你完成广告投放、素材管理、数据分析与日常办公。
             </p>
           </div>
 
@@ -90,11 +90,11 @@ export default function LoginPage() {
           <div className="mb-7 space-y-5">
             <div className="flex items-center gap-3">
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-[#E6DECF] bg-white shadow-sm">
-                <OpenYakLogo size={30} />
+                <TalosLogo size={30} />
               </div>
               <div className="leading-tight">
                 <p className="text-sm font-semibold tracking-[-0.02em] text-[#2B2620]">
-                  AdMind
+                  Talos
                 </p>
                 <p className="text-[11px] text-[#978C7C]">
                   智能投放工作台
@@ -103,7 +103,7 @@ export default function LoginPage() {
             </div>
             <div className="space-y-2">
               <h2 className="text-[24px] font-semibold tracking-[-0.035em] text-[#2B2620]">
-                欢迎使用 AdMind
+                欢迎使用 Talos
               </h2>
               <p className="text-sm leading-6 text-[#6B6258]">
                 输入 TradeDesk 系统 API Key，连接后即可开始工作。
@@ -202,7 +202,7 @@ export default function LoginPage() {
               transition={{ type: "spring", stiffness: 260, damping: 18 }}
               className="mb-6 flex h-20 w-20 items-center justify-center rounded-[28px] border border-white/80 bg-white/80 shadow-[0_30px_80px_-40px_rgba(15,23,42,0.65)] backdrop-blur"
             >
-              <OpenYakLogo size={46} />
+              <TalosLogo size={46} />
             </motion.div>
 
             <motion.div
@@ -216,7 +216,7 @@ export default function LoginPage() {
                 验证通过
               </div>
               <h2 className="text-[42px] font-semibold tracking-[-0.055em] text-[#2B2620]">
-                正在进入 AdMind
+                正在进入 Talos
               </h2>
               <p className="text-sm text-[#6B6258]">
                 正在连接你的工作台

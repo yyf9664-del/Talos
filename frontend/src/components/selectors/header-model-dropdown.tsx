@@ -95,7 +95,7 @@ const ARENA_PROVIDERS = new Set<string | null>([]);
  */
 const VARIANT_KEYWORDS = ["Heavy Reasoning", "Fast Reasoning", "Heavy", "Fast"];
 
-/** Providers whose model names use the OpenYak Fast/Heavy variant scheme. */
+/** Providers whose model names use the Talos Fast/Heavy variant scheme. */
 const VARIANT_AWARE_PROVIDERS = new Set<string | null>([]);
 
 /**

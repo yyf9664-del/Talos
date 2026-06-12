@@ -1,16 +1,16 @@
-interface OpenYakLogoProps {
+interface TalosLogoProps {
   size?: number;
   className?: string;
 }
 
-export function OpenYakLogo({ size = 20, className }: OpenYakLogoProps) {
+export function TalosLogo({ size = 20, className }: TalosLogoProps) {
   return (
     // eslint-disable-next-line @next/next/no-img-element
     <img
       src="/favicon.svg"
       width={size}
       height={size}
-      alt="AdMind"
+      alt="Talos"
       className={className}
       style={{ width: size, height: size }}
     />

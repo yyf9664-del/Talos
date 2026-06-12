@@ -71,7 +71,7 @@
   "minutesAgo": "{{count}}m ago",
   "hoursAgo": "{{count}}h ago",
   "daysAgo": "{{count}}d ago",
-  "poweredBy": "Powered by OpenRouter · OpenYak v0.1",
+  "poweredBy": "Powered by OpenRouter · Talos v0.1",
   "sortBy": "Sort",
   "name": "Name",
   "price": "Price",

@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { AnimatedOpenYakLogo } from "@/components/layout/splash-screen";
+import { AnimatedTalosLogo } from "@/components/layout/splash-screen";
 import { useSettingsStore } from "@/stores/settings-store";
 
 export function OnboardingScreen() {
@@ -29,10 +29,10 @@ export function OnboardingScreen() {
         transition={{ duration: 0.4, ease: "easeOut" }}
       >
         <div className="flex flex-col items-center text-center">
-          <AnimatedOpenYakLogo size={80} />
+          <AnimatedTalosLogo size={80} />
 
           <h1 className="mt-8 text-2xl font-semibold text-[var(--text-primary)] tracking-tight">
-            Welcome to OpenYak
+            Welcome to Talos
           </h1>
           <p className="mt-2 max-w-xs text-sm text-[var(--text-secondary)]">
             Your local-first agent workbench. Start with a local endpoint,

@@ -1,4 +1,4 @@
-"""Standalone entry point for OpenYak backend in desktop mode.
+"""Standalone entry point for Talos backend in desktop mode.
 
 Usage:
     python run.py --port 8100 --data-dir /path/to/app/data
@@ -51,7 +51,7 @@ def _install_crash_reporter() -> None:
 def main() -> None:
     _install_crash_reporter()
 
-    parser = argparse.ArgumentParser(description="OpenYak backend server")
+    parser = argparse.ArgumentParser(description="Talos backend server")
     parser.add_argument("--port", type=int, default=8000, help="Port to listen on")
     parser.add_argument("--data-dir", type=str, default=None, help="Data directory (for desktop mode)")
     parser.add_argument("--resource-dir", type=str, default=None, help="Resource directory (bundled assets from Tauri)")

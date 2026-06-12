@@ -1,6 +1,6 @@
 [English](README.md)
 
-# OpenYak 后端
+# Talos 后端
 
 Python FastAPI 后端，复刻 OpenCode 完整 agent 架构，让开源模型（通过 OpenRouter）拥有 Claude Code 级别的 agentic 能力。
 

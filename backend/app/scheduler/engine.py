@@ -1,4 +1,4 @@
-"""Lightweight async task scheduler for OpenYak.
+"""Lightweight async task scheduler for Talos.
 
 Runs a single background asyncio task that polls the database every 30 seconds
 for tasks whose next_run_at has passed. Uses croniter for cron expression parsing.

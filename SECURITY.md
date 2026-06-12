@@ -2,7 +2,7 @@
 
 ## Reporting a Vulnerability
 
-If you discover a security vulnerability in OpenYak, please report it responsibly.
+If you discover a security vulnerability in Talos, please report it responsibly.
 
 **Email:** [support@waxis.org](mailto:support@waxis.org)
 
@@ -20,15 +20,15 @@ Please include:
 - **Initial assessment:** within 7 days
 - **Fix or mitigation:** depends on severity, typically within 30 days
 
-## How OpenYak Handles Your Data
+## How Talos Handles Your Data
 
-OpenYak is designed as a local-first desktop agent:
+Talos is designed as a local-first desktop agent:
 
-- **No OpenYak account is required.** The app does not depend on an OpenYak login, billing profile, recharge flow, or hosted workspace backend.
+- **No Talos account is required.** The app does not depend on an Talos login, billing profile, recharge flow, or hosted workspace backend.
 - **Files, conversations, memory, generated artifacts, and workflow state** are stored on your device.
 - **Local model usage** through Ollama, Rapid-MLX, or another local endpoint keeps model requests on your machine.
-- **Cloud model usage** is optional and sends prompt context directly from your desktop to the model provider you configured. OpenYak does not proxy, log, or store these requests.
-- **No telemetry, no analytics, no tracking.** OpenYak does not collect usage data.
+- **Cloud model usage** is optional and sends prompt context directly from your desktop to the model provider you configured. Talos does not proxy, log, or store these requests.
+- **No telemetry, no analytics, no tracking.** Talos does not collect usage data.
 
 ## Supported Versions
 

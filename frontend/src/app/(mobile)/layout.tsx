@@ -34,7 +34,7 @@ function MobileLoadingScreen() {
         <div className="absolute inset-0 rounded-full border-2 border-transparent border-t-[var(--text-primary)] animate-spin" />
       </div>
       <p className="text-sm text-[var(--text-secondary)] animate-pulse">
-        Connecting to OpenYak...
+        Connecting to Talos...
       </p>
     </div>
   );
@@ -46,7 +46,7 @@ function MobileLoadingScreen() {
  *
  * Provider source of truth: desktop computer's configuration,
  * fetched via GET /api/remote/provider-info.
- * Cached in localStorage as openyak_remote_provider after first fetch.
+ * Cached in localStorage as talos_remote_provider after first fetch.
  */
 async function syncProviderAndModel(): Promise<void> {
   if (!isRemoteMode()) return;

@@ -1,18 +1,18 @@
 import { expect, test, type Page } from "@playwright/test";
 import {
-  mockOpenYakApi,
-  seedOpenYakStorage,
-  type OpenYakMockOptions,
-  type OpenYakMockState,
-} from "./fixtures/openyak-api";
+  mockTalosApi,
+  seedTalosStorage,
+  type TalosMockOptions,
+  type TalosMockState,
+} from "./fixtures/talos-api";
 
 async function setupMockedApp(
   page: Page,
-  options?: OpenYakMockOptions,
-  seedOptions?: Parameters<typeof seedOpenYakStorage>[1],
-): Promise<OpenYakMockState> {
-  await seedOpenYakStorage(page, seedOptions);
-  return mockOpenYakApi(page, options);
+  options?: TalosMockOptions,
+  seedOptions?: Parameters<typeof seedTalosStorage>[1],
+): Promise<TalosMockState> {
+  await seedTalosStorage(page, seedOptions);
+  return mockTalosApi(page, options);
 }
 
 async function expectNoAppCrash(page: Page) {
@@ -20,7 +20,7 @@ async function expectNoAppCrash(page: Page) {
   await expect(page.getByText("API 401", { exact: false })).toHaveCount(0);
 }
 
-test.describe("OpenYak edge-state GUI regressions", () => {
+test.describe("Talos edge-state GUI regressions", () => {
   test.describe.configure({ timeout: 75_000 });
 
   test("auth expiry workflow: backend 401 while sending is recoverable and keeps the composer usable", async ({ page }) => {
@@ -47,7 +47,7 @@ test.describe("OpenYak edge-state GUI regressions", () => {
     });
 
     await page.goto("/m?token=remote-token");
-    await expect(page.getByRole("heading", { name: "OpenYak" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Talos" })).toBeVisible();
     await expect(page.getByText("Needs input")).toBeVisible();
     await page.getByText("Quarterly planning notes").click();
 
@@ -67,7 +67,7 @@ test.describe("OpenYak edge-state GUI regressions", () => {
     await setupMockedApp(page, { remoteProviderInfoStatus: 503 });
 
     await page.goto("/m?token=remote-token");
-    await expect(page.getByRole("heading", { name: "OpenYak" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Talos" })).toBeVisible();
     await expect(page.getByText("Quarterly planning notes")).toBeVisible();
     await expect(page.locator('span[title="disconnected"]')).toBeVisible({ timeout: 20_000 });
     await expectNoAppCrash(page);

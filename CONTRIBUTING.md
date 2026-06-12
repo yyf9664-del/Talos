@@ -1,4 +1,4 @@
-# Contributing to OpenYak
+# Contributing to Talos
 
 Thanks for your interest in contributing! This guide covers the workflow and conventions for the project.
 
@@ -102,7 +102,7 @@ Fixes #42
 
 ## Community Guidelines
 
-OpenYak uses issue templates and moderation tools to keep project discussions useful for contributors and users.
+Talos uses issue templates and moderation tools to keep project discussions useful for contributors and users.
 
 - Follow the [Code of Conduct](CODE_OF_CONDUCT.md)
 - Keep issues specific, respectful, and actionable

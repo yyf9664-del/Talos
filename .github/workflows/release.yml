@@ -161,7 +161,7 @@ jobs:
         env:
           SIGNING_IDENTITY: "Developer ID Application: wangzhang wu (46KF5Z549N)"
         run: |
-          BUNDLE_BACKEND="desktop-tauri/src-tauri/target/${{ matrix.target }}/release/bundle/macos/OpenYak.app/Contents/Resources/backend"
+          BUNDLE_BACKEND="desktop-tauri/src-tauri/target/${{ matrix.target }}/release/bundle/macos/Talos.app/Contents/Resources/backend"
 
           # Sign all .dylib and .so files
           find "$BUNDLE_BACKEND" -type f \( -name "*.dylib" -o -name "*.so" \) \
@@ -205,7 +205,7 @@ jobs:
         env:
           SIGNING_IDENTITY: "Developer ID Application: wangzhang wu (46KF5Z549N)"
         run: |
-          APP_PATH="desktop-tauri/src-tauri/target/${{ matrix.target }}/release/bundle/macos/OpenYak.app"
+          APP_PATH="desktop-tauri/src-tauri/target/${{ matrix.target }}/release/bundle/macos/Talos.app"
           codesign --force --options runtime --timestamp \
             --sign "$SIGNING_IDENTITY" "$APP_PATH/Contents/MacOS/openyak-desktop"
           codesign --force --options runtime --timestamp \
@@ -219,9 +219,9 @@ jobs:
           APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
         run: |
-          APP_PATH="desktop-tauri/src-tauri/target/${{ matrix.target }}/release/bundle/macos/OpenYak.app"
-          ditto -c -k --keepParent "$APP_PATH" /tmp/OpenYak-notarize.zip
-          xcrun notarytool submit /tmp/OpenYak-notarize.zip \
+          APP_PATH="desktop-tauri/src-tauri/target/${{ matrix.target }}/release/bundle/macos/Talos.app"
+          ditto -c -k --keepParent "$APP_PATH" /tmp/Talos-notarize.zip
+          xcrun notarytool submit /tmp/Talos-notarize.zip \
             --apple-id "$APPLE_ID" \
             --password "$APPLE_PASSWORD" \
             --team-id "$APPLE_TEAM_ID" \
@@ -235,7 +235,7 @@ jobs:
           # full smoke test against the unsigned copy.
           VERIFY_BUNDLE_SKIP_SMOKE: "1"
         run: |
-          APP_BACKEND="desktop-tauri/src-tauri/target/${{ matrix.target }}/release/bundle/macos/OpenYak.app/Contents/Resources/backend"
+          APP_BACKEND="desktop-tauri/src-tauri/target/${{ matrix.target }}/release/bundle/macos/Talos.app/Contents/Resources/backend"
           node scripts/verify-bundle.mjs "$APP_BACKEND"
 
       # Regenerate updater archive and DMG from notarized app
@@ -246,16 +246,16 @@ jobs:
           BUNDLE_DIR="desktop-tauri/src-tauri/target/${{ matrix.target }}/release/bundle"
           VERSION=$(python3 -c "import json; print(json.load(open('package.json'))['version'])")
           ARCH="${{ matrix.arch }}"
-          TAR_NAME="OpenYak_${VERSION}_${ARCH}.app.tar.gz"
+          TAR_NAME="Talos_${VERSION}_${ARCH}.app.tar.gz"
 
           # Regenerate updater tar.gz with a versioned filename so each
           # release has its own artifact on the CDN. Previously we shipped
-          # "OpenYak.app.tar.gz" for every version, which meant a new
+          # "Talos.app.tar.gz" for every version, which meant a new
           # upload silently broke the in-place signature in latest.json.
           cd "$BUNDLE_DIR/macos"
-          rm -f OpenYak.app.tar.gz OpenYak.app.tar.gz.sig \
-                OpenYak_*.app.tar.gz OpenYak_*.app.tar.gz.sig
-          tar -czf "$TAR_NAME" OpenYak.app
+          rm -f Talos.app.tar.gz Talos.app.tar.gz.sig \
+                Talos_*.app.tar.gz Talos_*.app.tar.gz.sig
+          tar -czf "$TAR_NAME" Talos.app
           cd $GITHUB_WORKSPACE
 
           # Sign tar.gz with Tauri updater key — signature binds to THIS file
@@ -264,12 +264,12 @@ jobs:
           # Regenerate DMG with Applications shortcut
           rm -f "$BUNDLE_DIR/dmg/"*.dmg
           DMG_STAGING=$(mktemp -d)
-          cp -R "$BUNDLE_DIR/macos/OpenYak.app" "$DMG_STAGING/"
+          cp -R "$BUNDLE_DIR/macos/Talos.app" "$DMG_STAGING/"
           ln -s /Applications "$DMG_STAGING/Applications"
-          hdiutil create -volname "OpenYak" \
+          hdiutil create -volname "Talos" \
             -srcfolder "$DMG_STAGING" \
             -ov -format UDZO \
-            "$BUNDLE_DIR/dmg/OpenYak_${VERSION}_${ARCH}.dmg"
+            "$BUNDLE_DIR/dmg/Talos_${VERSION}_${ARCH}.dmg"
           rm -rf "$DMG_STAGING"
           codesign --force --timestamp \
             --sign "$SIGNING_IDENTITY" "$BUNDLE_DIR/dmg/"*.dmg
@@ -280,8 +280,8 @@ jobs:
           name: macos-${{ matrix.arch }}-bundle
           path: |
             desktop-tauri/src-tauri/target/${{ matrix.target }}/release/bundle/dmg/*.dmg
-            desktop-tauri/src-tauri/target/${{ matrix.target }}/release/bundle/macos/OpenYak_*.app.tar.gz
-            desktop-tauri/src-tauri/target/${{ matrix.target }}/release/bundle/macos/OpenYak_*.app.tar.gz.sig
+            desktop-tauri/src-tauri/target/${{ matrix.target }}/release/bundle/macos/Talos_*.app.tar.gz
+            desktop-tauri/src-tauri/target/${{ matrix.target }}/release/bundle/macos/Talos_*.app.tar.gz.sig
 
   build-linux:
     runs-on: ubuntu-22.04
@@ -411,8 +411,8 @@ jobs:
           # Find artifact filenames (versioned since 1.0.8 — so each release
           # has its own file on the CDN and the signature stays valid forever)
           WIN_EXE=$(find artifacts/windows-bundle -name '*.exe' ! -name '*.sig' -exec basename {} \; | head -1)
-          AARCH64_TAR=$(find artifacts/macos-aarch64-bundle -name 'OpenYak_*.app.tar.gz' ! -name '*.sig' -exec basename {} \; | head -1)
-          X64_TAR=$(find artifacts/macos-x64-bundle -name 'OpenYak_*.app.tar.gz' ! -name '*.sig' -exec basename {} \; | head -1)
+          AARCH64_TAR=$(find artifacts/macos-aarch64-bundle -name 'Talos_*.app.tar.gz' ! -name '*.sig' -exec basename {} \; | head -1)
+          X64_TAR=$(find artifacts/macos-x64-bundle -name 'Talos_*.app.tar.gz' ! -name '*.sig' -exec basename {} \; | head -1)
 
           # Fail loud if anything is missing — a broken manifest silently
           # blocks every client's auto-update, which is exactly how 1.0.7

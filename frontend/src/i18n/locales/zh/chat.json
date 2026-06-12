@@ -1,5 +1,5 @@
 {
-  "greeting": "今天想让 AdMind 帮你做什么？",
+  "greeting": "今天想让 Talos 帮你做什么？",
   "greetingInWorkspace": "在 {{workspace}} 里想做什么？",
   "subtitle": "先描述你想要的结果，只有在需要时再添加文件或扩大访问范围。",
   "placeholder": "描述你想要的结果",
@@ -90,7 +90,7 @@
   "contextFull": "已使用 {{percent}}%",
   "contextPercent": "已使用 {{percent}}% 的上下文窗口",
   "contextTokensUsed": "已使用 {{used}} / {{total}} tokens",
-  "contextAutoCompact": "OpenYak 会自动压缩上下文",
+  "contextAutoCompact": "Talos 会自动压缩上下文",
   "contextCompactNow": "点击立即压缩",
   "contextCompactingNow": "正在压缩上下文…",
   "contextCompactingPrune": "正在裁剪旧上下文…",

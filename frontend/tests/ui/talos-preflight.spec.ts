@@ -1,26 +1,26 @@
 import { expect, test, type Page } from "@playwright/test";
 import {
-  mockOpenYakApi,
-  seedOpenYakStorage,
-  type OpenYakMockState,
-} from "./fixtures/openyak-api";
+  mockTalosApi,
+  seedTalosStorage,
+  type TalosMockState,
+} from "./fixtures/talos-api";
 
-let mockState: OpenYakMockState;
+let mockState: TalosMockState;
 
 test.beforeEach(async ({ page }) => {
-  await seedOpenYakStorage(page);
-  mockState = await mockOpenYakApi(page);
+  await seedTalosStorage(page);
+  mockState = await mockTalosApi(page);
 });
 
 async function openNewChat(page: Page, workspace = false) {
   const path = workspace
-    ? `/c/new?directory=${encodeURIComponent("/Users/alex/openyak-demo")}`
+    ? `/c/new?directory=${encodeURIComponent("/Users/alex/talos-demo")}`
     : "/c/new";
   await page.goto(path);
   await expect(
     page
       .getByRole("heading", {
-        name: /What should (OpenYak help you do|we do in)/i,
+        name: /What should (Talos help you do|we do in)/i,
       })
       .first(),
   ).toBeVisible();
@@ -189,7 +189,7 @@ async function installTauriDragDropMock(page: Page) {
   });
 }
 
-test.describe("OpenYak UI preflight", () => {
+test.describe("Talos UI preflight", () => {
   test("daily review page: selects a folder, generates a diary timeline, and shows history", async ({
     page,
   }) => {
@@ -210,9 +210,9 @@ test.describe("OpenYak UI preflight", () => {
     await generateResponse;
 
     expect(mockState.dailyReviewGenerates[0]).toMatchObject({
-      folder_path: "/Users/alex/openyak-demo",
+      folder_path: "/Users/alex/talos-demo",
     });
-    await expect(page.getByText("Source: /Users/alex/openyak-demo")).toBeVisible();
+    await expect(page.getByText("Source: /Users/alex/talos-demo")).toBeVisible();
     await expect(page.getByText("我写下了早上的散步")).toBeVisible();
     await page.getByRole("button", { name: /Today's traces/i }).click();
     await expect(page.getByText("morning.md")).toBeVisible();
@@ -356,7 +356,7 @@ test.describe("OpenYak UI preflight", () => {
     page,
   }) => {
     await installTauriDragDropMock(page);
-    await seedOpenYakStorage(page, { force: true });
+    await seedTalosStorage(page, { force: true });
     await openNewChat(page);
     await expect
       .poll(() =>
@@ -473,7 +473,7 @@ test.describe("OpenYak UI preflight", () => {
 
     await page.getByRole("button", { name: /Demo Page/i }).click();
     await expect(
-      page.frameLocator("iframe").getByText("OpenYak GUI Preflight"),
+      page.frameLocator("iframe").getByText("Talos GUI Preflight"),
     ).toBeVisible();
 
     await page.getByRole("button", { name: /Coverage Matrix/i }).click();
@@ -483,7 +483,7 @@ test.describe("OpenYak UI preflight", () => {
     await page.getByRole("button", { name: /GUI Preflight Plan/i }).click();
     await expect(page.getByText("Plan Review")).toBeVisible();
     await expect(
-      page.getByText("frontend/tests/ui/openyak-preflight.spec.ts"),
+      page.getByText("frontend/tests/ui/talos-preflight.spec.ts"),
     ).toBeVisible();
   });
 
@@ -504,7 +504,7 @@ test.describe("OpenYak UI preflight", () => {
       page.locator("pre", { hasText: "npm run preflight:ui" }),
     ).toBeVisible();
     await expect(
-      page.getByText("/Users/alex/openyak-demo/frontend"),
+      page.getByText("/Users/alex/talos-demo/frontend"),
     ).toBeVisible();
 
     const respond = page.waitForResponse(
@@ -689,7 +689,7 @@ test.describe("OpenYak UI preflight", () => {
     await expect(page.getByText("Accept this plan?")).toBeVisible();
     await expect(page.getByText("Preflight implementation plan")).toBeVisible();
     await expect(
-      page.getByText("frontend/tests/ui/openyak-preflight.spec.ts"),
+      page.getByText("frontend/tests/ui/talos-preflight.spec.ts"),
     ).toBeVisible();
 
     const respond = page.waitForResponse(
@@ -749,7 +749,7 @@ test.describe("OpenYak UI preflight", () => {
 
     await page.getByRole("button", { name: "Memory" }).click();
     await expect(page.getByRole("heading", { name: "Memory" })).toBeVisible();
-    await page.getByRole("button", { name: /alex\/openyak-demo/i }).click();
+    await page.getByRole("button", { name: /alex\/talos-demo/i }).click();
     await expect(page.getByText("Prefer concise release notes.")).toBeVisible();
     await page.getByTitle("Edit").click();
     await page
@@ -766,7 +766,7 @@ test.describe("OpenYak UI preflight", () => {
   test("settings permissions path: remembered choices can be reviewed and cleared", async ({
     page,
   }) => {
-    await seedOpenYakStorage(page, {
+    await seedTalosStorage(page, {
       force: true,
       savedPermissions: [
         {
@@ -814,7 +814,7 @@ test.describe("OpenYak UI preflight", () => {
     await expect(page.getByText("sk-or-...mock")).toBeVisible();
 
     await page.getByRole("button", { name: /ChatGPT Subscription/i }).click();
-    await expect(page.getByText("chatgpt@openyak.test")).toBeVisible();
+    await expect(page.getByText("chatgpt@talos.test")).toBeVisible();
     await expect(
       page.getByRole("button", { name: /Disconnect/i }),
     ).toBeVisible();
@@ -950,14 +950,14 @@ test.describe("OpenYak UI preflight", () => {
     await page.getByRole("switch").click();
     await expect(page.getByText("Remote Access Active")).toBeVisible();
     await expect(
-      page.getByText("https://remote.openyak.test", { exact: true }).first(),
+      page.getByText("https://remote.talos.test", { exact: true }).first(),
     ).toBeVisible();
     await page.getByRole("button", { name: /Copy/i }).click();
     await page.getByRole("button", { name: /Rotate Token/i }).click();
   });
 });
 
-test.describe("OpenYak mobile remote preflight", () => {
+test.describe("Talos mobile remote preflight", () => {
   test.use({ viewport: { width: 393, height: 852 }, isMobile: true });
 
   test("mobile settings path: connection and provider selection", async ({
@@ -980,7 +980,7 @@ test.describe("OpenYak mobile remote preflight", () => {
 
   test("mobile task path: task list, new task, submit", async ({ page }) => {
     await page.goto("/m?token=remote-token");
-    await expect(page.getByRole("heading", { name: "OpenYak" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Talos" })).toBeVisible();
     await expect(page.getByText("Quarterly planning notes")).toBeVisible();
 
     await page.getByRole("button", { name: "New task" }).click({ force: true });
@@ -988,12 +988,12 @@ test.describe("OpenYak mobile remote preflight", () => {
     await expect(page.locator("select")).toContainText("Claude Sonnet 4.5");
 
     await page
-      .getByPlaceholder("What should OpenYak do?")
+      .getByPlaceholder("What should Talos do?")
       .fill("Check the release notes from my phone");
     const promptResponse = page.waitForResponse(
       (res) => res.url().includes("/api/chat/prompt") && res.status() === 200,
     );
-    await page.getByPlaceholder("What should OpenYak do?").press("Enter");
+    await page.getByPlaceholder("What should Talos do?").press("Enter");
     await promptResponse;
   });
 });

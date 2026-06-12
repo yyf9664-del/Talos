@@ -12,10 +12,10 @@ const description = rootPkg.description;
 
 const tauriConf = JSON.parse(fs.readFileSync(tauriConfPath, "utf8"));
 tauriConf.version = version;
-tauriConf.productName = "OpenYak";
+tauriConf.productName = "Talos";
 tauriConf.app.windows = tauriConf.app.windows.map((window) => ({
   ...window,
-  title: "OpenYak",
+  title: "Talos",
 }));
 fs.writeFileSync(tauriConfPath, `${JSON.stringify(tauriConf, null, 2)}\n`);
 

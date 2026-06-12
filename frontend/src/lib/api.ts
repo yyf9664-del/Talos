@@ -1,4 +1,4 @@
-/** Lightweight fetch wrapper for the OpenYak backend API. */
+/** Lightweight fetch wrapper for the Talos backend API. */
 
 import {
   getBackendToken,

@@ -1,5 +1,5 @@
 name: Bug Report
-description: Report a bug to help us improve OpenYak
+description: Report a bug to help us improve Talos
 labels: ["bug", "triage"]
 body:
   - type: markdown
@@ -98,5 +98,5 @@ body:
     attributes:
       label: Community Guidelines
       options:
-        - label: I agree to follow the OpenYak Code of Conduct and keep this issue constructive, respectful, and relevant.
+        - label: I agree to follow the Talos Code of Conduct and keep this issue constructive, respectful, and relevant.
           required: true

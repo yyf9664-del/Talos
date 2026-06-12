@@ -2,10 +2,10 @@
  * Remote connection state manager.
  *
  * Stores {url, token} in localStorage for persistent remote connections.
- * Used by mobile PWA to connect to a desktop OpenYak instance over the internet.
+ * Used by mobile PWA to connect to a desktop Talos instance over the internet.
  */
 
-const STORAGE_KEY = "openyak_remote_connection";
+const STORAGE_KEY = "talos_remote_connection";
 
 export interface RemoteConfig {
   url: string; // Tunnel URL (e.g., https://xxx.trycloudflare.com)
@@ -55,7 +55,7 @@ export function getRemoteUrl(): string | null {
 
 export type RemoteProvider = "chatgpt" | "openrouter";
 
-const PROVIDER_KEY = "openyak_remote_provider";
+const PROVIDER_KEY = "talos_remote_provider";
 
 /** Get saved provider preference, or null for auto-detect. */
 export function getRemoteProvider(): RemoteProvider | null {

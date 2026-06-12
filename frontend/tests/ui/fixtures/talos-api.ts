@@ -42,7 +42,7 @@ interface SessionRecord {
   time_archived: null;
 }
 
-export interface OpenYakMockState {
+export interface TalosMockState {
   promptBodies: unknown[];
   editBodies: unknown[];
   chatResponses: unknown[];
@@ -91,7 +91,7 @@ interface ActiveJobMock {
   needs_input?: boolean;
 }
 
-export interface OpenYakMockOptions {
+export interface TalosMockOptions {
   failUploads?: string[];
   promptErrors?: PromptErrorMock[];
   binaryFailures?: string[];
@@ -105,7 +105,7 @@ export interface OpenYakMockOptions {
   activeJobs?: ActiveJobMock[];
 }
 
-export interface OpenYakSeedOptions {
+export interface TalosSeedOptions {
   hasCompletedOnboarding?: boolean;
   savedPermissions?: Array<{ tool: string; allow: boolean; timestamp: number }>;
   force?: boolean;
@@ -126,7 +126,7 @@ const sessionAlpha: SessionRecord = {
   project_id: null,
   parent_id: null,
   slug: null,
-  directory: "/Users/alex/openyak-demo",
+  directory: "/Users/alex/talos-demo",
   title: "Quarterly planning notes",
   version: 0,
   summary_additions: 4,
@@ -157,7 +157,7 @@ const sessionBeta = {
 const sessionArtifacts = {
   ...sessionAlpha,
   id: "session-artifacts",
-  directory: "/Users/alex/openyak-demo",
+  directory: "/Users/alex/talos-demo",
   title: "Artifact showcase",
   is_pinned: false,
   summary_additions: 24,
@@ -170,7 +170,7 @@ const sessionArtifacts = {
 const sessionLong = {
   ...sessionAlpha,
   id: "session-long",
-  directory: "/Users/alex/openyak-demo",
+  directory: "/Users/alex/talos-demo",
   title: "Long conversation load test",
   is_pinned: false,
   summary_additions: 12,
@@ -183,7 +183,7 @@ const sessionLong = {
 const sessionCompact = {
   ...sessionAlpha,
   id: "session-compact",
-  directory: "/Users/alex/openyak-demo",
+  directory: "/Users/alex/talos-demo",
   title: "Context compression checkpoint",
   is_pinned: false,
   summary_additions: 48,
@@ -408,7 +408,7 @@ const createdMessagePage: MockMessagePage = {
             type: "file",
             file_id: "file-1",
             name: "sample-preflight.csv",
-            path: "/tmp/openyak-ui/sample-preflight.csv",
+            path: "/tmp/talos-ui/sample-preflight.csv",
             size: 128,
             mime_type: "text/csv",
             source: "uploaded",
@@ -424,7 +424,7 @@ const createdMessagePage: MockMessagePage = {
             type: "file",
             file_id: "attached-0",
             name: "release-notes.md",
-            path: "/Users/alex/openyak-demo/docs/release-notes.md",
+            path: "/Users/alex/talos-demo/docs/release-notes.md",
             size: 256,
             mime_type: "text/markdown",
             source: "referenced",
@@ -504,7 +504,7 @@ const naturalOfficeResponses: Record<NaturalOfficeKind, string> = {
     "Launch team follow-up\n\nRACI: Product is responsible for onboarding scope, CS is accountable for customer communication, Finance is consulted on budget variance, and Legal/Security are consulted on vendor terms.\n\n30-day agenda: Week 1 owner alignment, Week 2 evidence cleanup, Week 3 renewal decision, Week 4 board follow-up and metric review.",
 };
 
-function latestPromptText(state: OpenYakMockState) {
+function latestPromptText(state: TalosMockState) {
   const latest = state.promptBodies[state.promptBodies.length - 1] as
     | Record<string, unknown>
     | undefined;
@@ -571,7 +571,7 @@ function uploadedFilePart(name: string, index: number) {
       type: "file",
       file_id: `file-${index + 1}`,
       name,
-      path: `/tmp/openyak-ui/${name}`,
+      path: `/tmp/talos-ui/${name}`,
       size: 128,
       mime_type: mimeType,
       source: "uploaded",
@@ -581,7 +581,7 @@ function uploadedFilePart(name: string, index: number) {
 }
 
 function applyNaturalOfficeMessagePage(
-  state: OpenYakMockState,
+  state: TalosMockState,
   kind: NaturalOfficeKind,
 ) {
   const page = cloneJson(createdMessagePage);
@@ -654,7 +654,7 @@ function applyNaturalOfficeMessagePage(
   return page;
 }
 
-function createdMessagePageForState(state: OpenYakMockState) {
+function createdMessagePageForState(state: TalosMockState) {
   const page = cloneJson(createdMessagePage);
   const naturalKind = naturalOfficeKindFromText(latestPromptText(state));
   if (naturalKind) return applyNaturalOfficeMessagePage(state, naturalKind);
@@ -667,7 +667,7 @@ function createdMessagePageForState(state: OpenYakMockState) {
   const assistant = page.messages[1];
   assistant.parts[0].data = {
     type: "text",
-    text: "Auto compacted answer persisted after compression.\n\nContext checkpoint\n\nOpenYak preserved the launch-review thread, compressed older turns, and kept the active decision context available for the next reply.\n\n| Area | Preserved detail | Next action |\n| --- | --- | --- |\n| Owners | Product, CS, Finance, Legal, Security | Confirm one accountable owner per risk |\n| Deadlines | Board packet, renewal window, automation savings date | Keep the critical dates in the active summary |\n| Risks | Budget variance, onboarding readiness, vendor renewal | Use the compressed summary for follow-up planning |\n\nNext decision: approve the launch only after Finance confirms the contractor exit date and Legal locks the vendor renewal window.",
+    text: "Auto compacted answer persisted after compression.\n\nContext checkpoint\n\nTalos preserved the launch-review thread, compressed older turns, and kept the active decision context available for the next reply.\n\n| Area | Preserved detail | Next action |\n| --- | --- | --- |\n| Owners | Product, CS, Finance, Legal, Security | Confirm one accountable owner per risk |\n| Deadlines | Board packet, renewal window, automation savings date | Keep the critical dates in the active summary |\n| Risks | Budget variance, onboarding readiness, vendor renewal | Use the compressed summary for follow-up planning |\n\nNext decision: approve the launch only after Finance confirms the contractor exit date and Legal locks the vendor renewal window.",
   };
   assistant.parts.splice(1, 0, {
     id: "session-new-auto-compaction",
@@ -693,7 +693,7 @@ function createdMessagePageForState(state: OpenYakMockState) {
 
 function sessionMessagePageForState(
   sessionId: string,
-  state: OpenYakMockState,
+  state: TalosMockState,
 ) {
   const page = cloneJson(messagePage(sessionId));
   const edit = [...state.editBodies].reverse().find((body) => {
@@ -973,7 +973,7 @@ const artifactMessagePage = {
           time_created: "2026-04-23T11:02:00.000Z",
           data: {
             type: "text",
-            text: "I prepared the release pack and plan review artifacts.\n\nOffice files for review: `/Users/alex/openyak-demo/docs/office-brief.docx`, `/Users/alex/openyak-demo/data/office-matrix.xlsx`, `/Users/alex/openyak-demo/docs/office-report.pdf`, `/Users/alex/openyak-demo/slides/office-deck.pptx`, and `/Users/alex/openyak-demo/data/missing-report.xlsx`.",
+            text: "I prepared the release pack and plan review artifacts.\n\nOffice files for review: `/Users/alex/talos-demo/docs/office-brief.docx`, `/Users/alex/talos-demo/data/office-matrix.xlsx`, `/Users/alex/talos-demo/docs/office-report.pdf`, `/Users/alex/talos-demo/slides/office-deck.pptx`, and `/Users/alex/talos-demo/data/missing-report.xlsx`.",
           },
         },
         artifactToolPart(
@@ -999,7 +999,7 @@ const artifactMessagePage = {
             title: "Demo Page",
             identifier: "demo-page",
             content:
-              "<main><h1>OpenYak GUI Preflight</h1><p>End-to-end browser coverage.</p></main>",
+              "<main><h1>Talos GUI Preflight</h1><p>End-to-end browser coverage.</p></main>",
           },
         ),
         artifactToolPart(
@@ -1038,7 +1038,7 @@ const artifactMessagePage = {
             title: "Logo Sketch",
             identifier: "logo-sketch",
             content:
-              '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 80"><rect width="120" height="80" rx="10" fill="#0f172a"/><text x="18" y="46" fill="white" font-size="20">OpenYak</text></svg>',
+              '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 80"><rect width="120" height="80" rx="10" fill="#0f172a"/><text x="18" y="46" fill="white" font-size="20">Talos</text></svg>',
           },
         ),
         {
@@ -1056,7 +1056,7 @@ const artifactMessagePage = {
                 title: "GUI Preflight Plan",
                 plan: "## Plan\n\n1. Run desktop workflows.\n2. Run settings workflows.\n3. Run mobile handoff workflows.",
                 files_to_modify: [
-                  "frontend/tests/ui/openyak-preflight.spec.ts",
+                  "frontend/tests/ui/talos-preflight.spec.ts",
                 ],
               },
               output: null,
@@ -1064,9 +1064,9 @@ const artifactMessagePage = {
                 title: "GUI Preflight Plan",
                 plan: "## Plan\n\n1. Run desktop workflows.\n2. Run settings workflows.\n3. Run mobile handoff workflows.",
                 plan_path:
-                  "/Users/alex/openyak-demo/.openyak/plans/gui-preflight.md",
+                  "/Users/alex/talos-demo/.talos/plans/gui-preflight.md",
                 files_to_modify: [
-                  "frontend/tests/ui/openyak-preflight.spec.ts",
+                  "frontend/tests/ui/talos-preflight.spec.ts",
                 ],
               },
               title: "GUI Preflight Plan",
@@ -1099,7 +1099,7 @@ const artifactMessagePage = {
   ],
 };
 
-function seededSettings(options: OpenYakSeedOptions = {}) {
+function seededSettings(options: TalosSeedOptions = {}) {
   return {
     state: {
       hasCompletedOnboarding: options.hasCompletedOnboarding ?? true,
@@ -1120,9 +1120,9 @@ function seededSettings(options: OpenYakSeedOptions = {}) {
   };
 }
 
-export async function seedOpenYakStorage(
+export async function seedTalosStorage(
   page: Page,
-  options: OpenYakSeedOptions = {},
+  options: TalosSeedOptions = {},
 ) {
   const overwrite =
     options.force === true ||
@@ -1136,13 +1136,13 @@ export async function seedOpenYakStorage(
         }
       };
 
-      setValue("openyak-settings", JSON.stringify(settings));
-      setValue("openyak-language", "en");
+      setValue("talos-settings", JSON.stringify(settings));
+      setValue("talos-language", "en");
       setValue(
-        "openyak_remote_config",
+        "talos_remote_config",
         JSON.stringify({ url: window.location.origin, token: "remote-token" }),
       );
-      setValue("openyak_remote_provider", "openrouter");
+      setValue("talos_remote_provider", "openrouter");
     },
     { settings: seededSettings(options), overwrite },
   );
@@ -1173,7 +1173,7 @@ function makePdfBase64() {
     "<< /Type /Catalog /Pages 2 0 R >>",
     "<< /Type /Pages /Kids [3 0 R] /Count 1 >>",
     "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 420 240] /Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >>",
-    "<< /Length 70 >>\nstream\nBT /F1 18 Tf 48 150 Td (OpenYak PDF workflow) Tj 0 -28 Td (Page 1) Tj ET\nendstream",
+    "<< /Length 70 >>\nstream\nBT /F1 18 Tf 48 150 Td (Talos PDF workflow) Tj 0 -28 Td (Page 1) Tj ET\nendstream",
     "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>",
   ];
   let body = "%PDF-1.4\n";
@@ -1217,7 +1217,7 @@ async function makeDocxBase64() {
     xml(
       '<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">' +
         "<w:body>" +
-        "<w:p><w:r><w:t>OpenYak DOCX workflow</w:t></w:r></w:p>" +
+        "<w:p><w:r><w:t>Talos DOCX workflow</w:t></w:r></w:p>" +
         "<w:p><w:r><w:t>Real Office preview path exercised by GUI preflight.</w:t></w:r></w:p>" +
         '<w:sectPr><w:pgSz w:w="12240" w:h="15840"/><w:pgMar w:top="1440" w:right="1440" w:bottom="1440" w:left="1440"/></w:sectPr>' +
         "</w:body>" +
@@ -1296,7 +1296,7 @@ async function makePptxBase64() {
     xml(
       '<p:sld xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main">' +
         '<p:cSld><p:spTree><p:nvGrpSpPr><p:cNvPr id="1" name=""/><p:cNvGrpSpPr/><p:nvPr/></p:nvGrpSpPr><p:grpSpPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="0" cy="0"/><a:chOff x="0" y="0"/><a:chExt cx="0" cy="0"/></a:xfrm></p:grpSpPr>' +
-        '<p:sp><p:nvSpPr><p:cNvPr id="2" name="Title 1"/><p:cNvSpPr txBox="1"/><p:nvPr/></p:nvSpPr><p:spPr><a:xfrm><a:off x="914400" y="914400"/><a:ext cx="7315200" cy="914400"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></p:spPr><p:txBody><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr lang="en-US" sz="3600"/><a:t>OpenYak PPTX workflow</a:t></a:r></a:p></p:txBody></p:sp>' +
+        '<p:sp><p:nvSpPr><p:cNvPr id="2" name="Title 1"/><p:cNvSpPr txBox="1"/><p:nvPr/></p:nvSpPr><p:spPr><a:xfrm><a:off x="914400" y="914400"/><a:ext cx="7315200" cy="914400"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></p:spPr><p:txBody><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr lang="en-US" sz="3600"/><a:t>Talos PPTX workflow</a:t></a:r></a:p></p:txBody></p:sp>' +
         "</p:spTree></p:cSld><p:clrMapOvr><a:masterClrMapping/></p:clrMapOvr></p:sld>",
     ),
   );
@@ -1382,7 +1382,7 @@ async function getOfficeFixtures() {
           fixture.name,
           {
             ...fixture,
-            path: `/Users/alex/openyak-demo/${fixture.name}`,
+            path: `/Users/alex/talos-demo/${fixture.name}`,
             size: Buffer.from(fixture.content_base64, "base64").byteLength,
           },
         ]),
@@ -1536,7 +1536,7 @@ function sseStreamBody(streamId: string) {
         patterns: ["npm run preflight:ui"],
         arguments: {
           command: "npm run preflight:ui",
-          cwd: "/Users/alex/openyak-demo/frontend",
+          cwd: "/Users/alex/talos-demo/frontend",
         },
         message: "Allow running this shell command?\n\nnpm run preflight:ui",
         arguments_truncated: false,
@@ -1573,8 +1573,8 @@ function sseStreamBody(streamId: string) {
         title: "Preflight implementation plan",
         plan: "## GUI Preflight\n\n1. Exercise desktop chat.\n2. Exercise settings.\n3. Exercise remote mobile.",
         files_to_modify: [
-          "frontend/tests/ui/openyak-preflight.spec.ts",
-          "frontend/tests/ui/fixtures/openyak-api.ts",
+          "frontend/tests/ui/talos-preflight.spec.ts",
+          "frontend/tests/ui/fixtures/talos-api.ts",
         ],
       }),
       "",
@@ -1623,11 +1623,11 @@ function sseStreamBody(streamId: string) {
   ].join("\n");
 }
 
-export async function mockOpenYakApi(
+export async function mockTalosApi(
   page: Page,
-  options: OpenYakMockOptions = {},
-): Promise<OpenYakMockState> {
-  const state: OpenYakMockState = {
+  options: TalosMockOptions = {},
+): Promise<TalosMockState> {
+  const state: TalosMockState = {
     promptBodies: [],
     editBodies: [],
     chatResponses: [],
@@ -1666,7 +1666,7 @@ export async function mockOpenYakApi(
       name: "Morning brief",
       description: "Summarize overnight workspace changes",
       prompt: "Create a concise morning brief",
-      workspace: "/Users/alex/openyak-demo",
+      workspace: "/Users/alex/talos-demo",
       last_run_at: "2026-04-26T09:00:00.000Z",
       last_run_status: "success",
       last_session_id: "session-alpha",
@@ -1761,7 +1761,7 @@ export async function mockOpenYakApi(
         email:
           options.openaiSubscriptionConnected === false
             ? ""
-            : "chatgpt@openyak.test",
+            : "chatgpt@talos.test",
       });
     }
     if (path === "/api/config/local") {
@@ -1983,7 +1983,7 @@ export async function mockOpenYakApi(
           headers: {
             "Content-Disposition": 'attachment; filename="conversation.pdf"',
           },
-          body: Buffer.from("%PDF-1.4\n% OpenYak mock export\n%%EOF\n"),
+          body: Buffer.from("%PDF-1.4\n% Talos mock export\n%%EOF\n"),
         });
       }
       return route.fulfill({
@@ -1992,7 +1992,7 @@ export async function mockOpenYakApi(
         headers: {
           "Content-Disposition": 'attachment; filename="conversation.md"',
         },
-        body: "# OpenYak mock export\n\nGUI session export exercised.",
+        body: "# Talos mock export\n\nGUI session export exercised.",
       });
     }
     const sessionDetailMatch = path.match(/^\/api\/sessions\/([^/]+)$/);
@@ -2028,31 +2028,31 @@ export async function mockOpenYakApi(
         files: [
           {
             name: "plan.md",
-            path: "/Users/alex/openyak-demo/plan.md",
+            path: "/Users/alex/talos-demo/plan.md",
             type: "file",
             tool: "write",
           },
           {
             name: "office-brief.docx",
-            path: "/Users/alex/openyak-demo/docs/office-brief.docx",
+            path: "/Users/alex/talos-demo/docs/office-brief.docx",
             type: "file",
             tool: "write",
           },
           {
             name: "office-matrix.xlsx",
-            path: "/Users/alex/openyak-demo/data/office-matrix.xlsx",
+            path: "/Users/alex/talos-demo/data/office-matrix.xlsx",
             type: "file",
             tool: "write",
           },
           {
             name: "office-report.pdf",
-            path: "/Users/alex/openyak-demo/docs/office-report.pdf",
+            path: "/Users/alex/talos-demo/docs/office-report.pdf",
             type: "file",
             tool: "write",
           },
           {
             name: "office-deck.pptx",
-            path: "/Users/alex/openyak-demo/slides/office-deck.pptx",
+            path: "/Users/alex/talos-demo/slides/office-deck.pptx",
             type: "file",
             tool: "write",
           },
@@ -2170,7 +2170,7 @@ export async function mockOpenYakApi(
       return fulfillJson(route, {
         file_id: `file-${state.fileUploads.length}`,
         name: filename,
-        path: `/tmp/openyak-ui/${filename}`,
+        path: `/tmp/talos-ui/${filename}`,
         size: 128,
         mime_type: uploadedFilePart(filename, state.fileUploads.length - 1).data
           .mime_type,
@@ -2183,12 +2183,12 @@ export async function mockOpenYakApi(
         {
           name: "release-notes.md",
           relative_path: "docs/release-notes.md",
-          absolute_path: "/Users/alex/openyak-demo/docs/release-notes.md",
+          absolute_path: "/Users/alex/talos-demo/docs/release-notes.md",
         },
         {
           name: "preflight-matrix.csv",
           relative_path: "data/preflight-matrix.csv",
-          absolute_path: "/Users/alex/openyak-demo/data/preflight-matrix.csv",
+          absolute_path: "/Users/alex/talos-demo/data/preflight-matrix.csv",
         },
       ]);
     }
@@ -2261,21 +2261,21 @@ export async function mockOpenYakApi(
       });
     }
     if (path === "/api/files/browse-directory") {
-      return fulfillJson(route, { path: "/Users/alex/openyak-demo" });
+      return fulfillJson(route, { path: "/Users/alex/talos-demo" });
     }
     if (path === "/api/files/list-directory") {
       return fulfillJson(route, {
-        path: "/Users/alex/openyak-demo",
+        path: "/Users/alex/talos-demo",
         parent: "/Users/alex",
         entries: [
           {
             name: "docs",
-            path: "/Users/alex/openyak-demo/docs",
+            path: "/Users/alex/talos-demo/docs",
             is_directory: true,
           },
           {
             name: "src",
-            path: "/Users/alex/openyak-demo/src",
+            path: "/Users/alex/talos-demo/src",
             is_directory: true,
           },
         ],
@@ -2480,7 +2480,7 @@ export async function mockOpenYakApi(
             name: "github",
             version: "0.1.0",
             description: "GitHub workflows",
-            author: "OpenYak",
+            author: "Talos",
             enabled: true,
             source: "builtin",
             skills_count: 3,
@@ -2494,7 +2494,7 @@ export async function mockOpenYakApi(
         name: "github",
         version: "0.1.0",
         description: "GitHub workflows",
-        author: "OpenYak",
+        author: "Talos",
         enabled: true,
         source: "builtin",
         skills_count: 3,
@@ -2554,7 +2554,7 @@ export async function mockOpenYakApi(
     if (path === "/api/remote/status") {
       return fulfillJson(route, {
         enabled: state.remoteEnabled,
-        tunnel_url: state.remoteEnabled ? "https://remote.openyak.test" : null,
+        tunnel_url: state.remoteEnabled ? "https://remote.talos.test" : null,
         token_preview: state.remoteEnabled ? "remote..." : null,
         active_tasks: 1,
         tunnel_mode: "cloud",
@@ -2565,7 +2565,7 @@ export async function mockOpenYakApi(
       state.remoteEnabled = true;
       return fulfillJson(route, {
         token: "remote-token",
-        tunnel_url: "https://remote.openyak.test",
+        tunnel_url: "https://remote.talos.test",
       });
     }
     if (path === "/api/remote/disable") {
@@ -2615,7 +2615,7 @@ export async function mockOpenYakApi(
     if (path === "/api/workspace-memory/list") {
       return fulfillJson(route, [
         {
-          workspace_path: "/Users/alex/openyak-demo",
+          workspace_path: "/Users/alex/talos-demo",
           content: "# Project Memory\nPrefer concise release notes.",
           line_count: 2,
           time_updated: now,
@@ -2623,7 +2623,7 @@ export async function mockOpenYakApi(
       ]);
     }
     if (path === "/api/workspace-memory/export")
-      return fulfillJson(route, { exported_to: "/tmp/openyak-memory.md" });
+      return fulfillJson(route, { exported_to: "/tmp/talos-memory.md" });
     if (path === "/api/workspace-memory/refresh")
       return fulfillJson(route, { status: "refreshed" });
     if (path === "/api/workspace-memory") {
@@ -2631,7 +2631,7 @@ export async function mockOpenYakApi(
         return fulfillJson(route, {
           workspace_path:
             url.searchParams.get("workspace_path") ??
-            "/Users/alex/openyak-demo",
+            "/Users/alex/talos-demo",
           content: "# Project Memory\nPrefer concise release notes.",
           time_updated: now,
         });

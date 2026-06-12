@@ -4,7 +4,7 @@
 
 **Goal:** 让用户把一次成功的会话沉淀成「带结构化表单输入、可反复运行」的 Saved Agent，并在独立入口填表单运行。
 
-**Architecture:** 借鉴 CREAO 的 `persist-agentapp`，但全部复用 OpenYak 现有底座：新增 `persist_agent` builtin 工具（仿 `task.py` 用 `ctx._app_state["session_factory"]` 写 DB）把会话沉淀为 `SavedAgent` 行 + 磁盘 bundle；新增 hidden `persist` agent 触发沉淀；新增 `/saved-agents` API，`/run` 端点仿 `scheduler/executor.py:_run_session` 起 headless 会话执行。DB 用 `create_all` 自动建表，bundle 落 `.openyak/saved-agents/<id>/` 仅作导出（不被 registry 自动加载）。
+**Architecture:** 借鉴 CREAO 的 `persist-agentapp`，但全部复用 Talos 现有底座：新增 `persist_agent` builtin 工具（仿 `task.py` 用 `ctx._app_state["session_factory"]` 写 DB）把会话沉淀为 `SavedAgent` 行 + 磁盘 bundle；新增 hidden `persist` agent 触发沉淀；新增 `/saved-agents` API，`/run` 端点仿 `scheduler/executor.py:_run_session` 起 headless 会话执行。DB 用 `create_all` 自动建表，bundle 落 `.openyak/saved-agents/<id>/` 仅作导出（不被 registry 自动加载）。
 
 **Tech Stack:** Python 3.12 / FastAPI / SQLAlchemy(async) / SQLite；前端 Next.js 15 / React / TanStack Query / Zustand / Tailwind。
 
@@ -742,7 +742,7 @@ Expected: FAIL — `reg.get("persist")` 返回 None
 `backend/app/agent/prompts/persist.txt`（改编自 CREAO persist-agentapp，去掉 stdout marker/S3，改用 `persist_agent` 工具）：
 
 ```text
-You are the Persist Agent inside OpenYak. Your sole job: turn the just-completed
+You are the Persist Agent inside Talos. Your sole job: turn the just-completed
 session into ONE reusable Saved Agent by calling the `persist_agent` tool exactly once.
 
 ACT FAST. The conversation history is already in context — do NOT re-narrate or

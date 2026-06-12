@@ -1,13 +1,13 @@
 import { expect, test, type Page } from "@playwright/test";
 import {
-  mockOpenYakApi,
-  seedOpenYakStorage,
-  type OpenYakMockState,
-} from "./fixtures/openyak-api";
+  mockTalosApi,
+  seedTalosStorage,
+  type TalosMockState,
+} from "./fixtures/talos-api";
 
-async function setupMockedApp(page: Page): Promise<OpenYakMockState> {
-  await seedOpenYakStorage(page);
-  return mockOpenYakApi(page);
+async function setupMockedApp(page: Page): Promise<TalosMockState> {
+  await seedTalosStorage(page);
+  return mockTalosApi(page);
 }
 
 async function expectNoAppCrash(page: Page) {
@@ -24,7 +24,7 @@ async function sendPrompt(page: Page, text: string) {
   await promptResponse;
 }
 
-test.describe("OpenYak complete GUI workflows", () => {
+test.describe("Talos complete GUI workflows", () => {
   test.describe.configure({ timeout: 60_000 });
 
   test("chat task journey: workspace, attachment, mention, send, persist, search, reopen", async ({
@@ -33,11 +33,11 @@ test.describe("OpenYak complete GUI workflows", () => {
     const state = await setupMockedApp(page);
 
     await page.goto(
-      `/c/new?directory=${encodeURIComponent("/Users/alex/openyak-demo")}`,
+      `/c/new?directory=${encodeURIComponent("/Users/alex/talos-demo")}`,
     );
     await expect(
       page.getByRole("heading", {
-        name: /What should (OpenYak help you do|we do in)/i,
+        name: /What should (Talos help you do|we do in)/i,
       }),
     ).toBeVisible();
     await expect(
@@ -75,7 +75,7 @@ test.describe("OpenYak complete GUI workflows", () => {
       "Create a UI preflight checklist",
     );
     expect(JSON.stringify(state.promptBodies[0])).toContain(
-      "/Users/alex/openyak-demo",
+      "/Users/alex/talos-demo",
     );
     expect(JSON.stringify(state.promptBodies[0])).toContain("release-notes.md");
 
@@ -126,7 +126,7 @@ test.describe("OpenYak complete GUI workflows", () => {
       .poll(() =>
         page.evaluate(
           () =>
-            JSON.parse(window.localStorage.getItem("openyak-settings") ?? "{}")
+            JSON.parse(window.localStorage.getItem("talos-settings") ?? "{}")
               ?.state?.activeProvider,
         ),
       )
@@ -251,7 +251,7 @@ test.describe("OpenYak complete GUI workflows", () => {
     await page.getByRole("switch").click();
     await expect(page.getByText("Remote Access Active")).toBeVisible();
     await expect(
-      page.getByText("https://remote.openyak.test", { exact: true }).first(),
+      page.getByText("https://remote.talos.test", { exact: true }).first(),
     ).toBeVisible();
     await page.getByRole("button", { name: /Rotate Token/i }).click();
 
@@ -266,7 +266,7 @@ test.describe("OpenYak complete GUI workflows", () => {
     await expect
       .poll(() =>
         page.evaluate(() =>
-          window.localStorage.getItem("openyak_remote_provider"),
+          window.localStorage.getItem("talos_remote_provider"),
         ),
       )
       .toBe("chatgpt");
@@ -275,13 +275,13 @@ test.describe("OpenYak complete GUI workflows", () => {
     await expect(page.getByRole("heading", { name: "New Task" })).toBeVisible();
     await expect(page.locator("select")).toContainText("GPT-5.5");
     await page
-      .getByPlaceholder("What should OpenYak do?")
+      .getByPlaceholder("What should Talos do?")
       .fill("Check the release notes from my phone");
 
     const promptResponse = page.waitForResponse(
       (res) => res.url().includes("/api/chat/prompt") && res.status() === 200,
     );
-    await page.getByPlaceholder("What should OpenYak do?").press("Enter");
+    await page.getByPlaceholder("What should Talos do?").press("Enter");
     await promptResponse;
 
     await expect(page).toHaveURL(

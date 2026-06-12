@@ -186,7 +186,7 @@ This report was compiled using:
 
 ---
 
-**Report Prepared By:** GitHub Deep Research by OpenYak
+**Report Prepared By:** GitHub Deep Research by Talos
 **Date:** {REPORT_DATE}
 **Report Version:** 1.0
 **Status:** Complete

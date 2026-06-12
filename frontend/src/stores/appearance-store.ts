@@ -84,7 +84,7 @@ export const useAppearanceStore = create<AppearanceState>()(
       setPointerCursors: (v) => set({ pointerCursors: v }),
       reset: () => set(INITIAL),
     }),
-    { name: "openyak-appearance" },
+    { name: "talos-appearance" },
   ),
 );
 

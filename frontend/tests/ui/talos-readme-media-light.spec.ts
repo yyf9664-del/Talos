@@ -4,12 +4,12 @@ import fs from "node:fs/promises";
 import { createServer, type ServerResponse, type Server } from "node:http";
 import path from "node:path";
 import { promisify } from "node:util";
-import { mockOpenYakApi, seedOpenYakStorage } from "./fixtures/openyak-api";
+import { mockTalosApi, seedTalosStorage } from "./fixtures/talos-api";
 
 const execFile = promisify(execFileCallback);
 
 const repoRoot = path.resolve(__dirname, "../../..");
-const artifactRoot = path.join(repoRoot, ".codex-artifacts", "openyak-readme-media-20260511");
+const artifactRoot = path.join(repoRoot, ".codex-artifacts", "talos-readme-media-20260511");
 const frameRoot = path.join(artifactRoot, "frames");
 const stillRoot = path.join(artifactRoot, "stills");
 const readmeMediaRoot = path.join(repoRoot, "docs", "readme");
@@ -56,19 +56,19 @@ const files = {
 } satisfies Record<string, UploadFixture>;
 
 const gifs = [
-  ["workflow-artifacts", "openyak-workflow-artifacts.gif"],
-  ["memo-to-brief", "openyak-memo-to-brief.gif"],
-  ["auto-compress", "openyak-auto-compress.gif"],
+  ["workflow-artifacts", "talos-workflow-artifacts.gif"],
+  ["memo-to-brief", "talos-memo-to-brief.gif"],
+  ["auto-compress", "talos-auto-compress.gif"],
 ] as const;
 
 const stills = [
-  "openyak-artifact-panel.png",
-  "openyak-budget-analysis.png",
-  "openyak-docx-brief.png",
-  "openyak-long-context.png",
+  "talos-artifact-panel.png",
+  "talos-budget-analysis.png",
+  "talos-docx-brief.png",
+  "talos-long-context.png",
 ] as const;
 
-test.describe("OpenYak README media capture", () => {
+test.describe("Talos README media capture", () => {
   test.describe.configure({ mode: "serial", timeout: 900_000 });
   test.skip(
     process.env.OPENYAK_CAPTURE_README_MEDIA !== "true",
@@ -130,7 +130,7 @@ test.describe("OpenYak README media capture", () => {
     await pauseForCapture(page, 1_000);
     await recorder.stop();
 
-    await saveStill(page, "openyak-artifact-panel.png");
+    await saveStill(page, "talos-artifact-panel.png");
   });
 
   test("record memo-to-brief workflow", async ({ page }) => {
@@ -158,7 +158,7 @@ test.describe("OpenYak README media capture", () => {
     await pauseForCapture(page, 800);
     await recorder.stop();
 
-    await saveStill(page, "openyak-docx-brief.png");
+    await saveStill(page, "talos-docx-brief.png");
   });
 
   test("record spreadsheet analysis still", async ({ page }) => {
@@ -174,7 +174,7 @@ test.describe("OpenYak README media capture", () => {
     await submitCurrentPrompt(page);
     await expect(page.locator("#main-content").getByText("Finance workbook review").last()).toBeVisible({ timeout: 25_000 });
     await page.mouse.wheel(0, 280);
-    await saveStill(page, "openyak-budget-analysis.png");
+    await saveStill(page, "talos-budget-analysis.png");
   });
 
   test("record long-context still", async ({ page }) => {
@@ -182,7 +182,7 @@ test.describe("OpenYak README media capture", () => {
     await page.goto("/c/session-long");
     await expect(page.getByText("Long conversation load test").first()).toBeVisible();
     await expect(page.getByText("Final version: launch is approved with conditions.")).toBeVisible();
-    await saveStill(page, "openyak-long-context.png");
+    await saveStill(page, "talos-long-context.png");
   });
 
   test("record auto-compress workflow", async ({ page }) => {
@@ -209,12 +209,12 @@ test.describe("OpenYak README media capture", () => {
   });
 });
 
-async function setupCleanLightApp(page: Page, options?: Parameters<typeof mockOpenYakApi>[1]) {
-  await seedOpenYakStorage(page, { force: true });
+async function setupCleanLightApp(page: Page, options?: Parameters<typeof mockTalosApi>[1]) {
+  await seedTalosStorage(page, { force: true });
   await page.addInitScript(() => {
     window.localStorage.setItem("theme", "light");
     window.localStorage.setItem(
-      "openyak-settings",
+      "talos-settings",
       JSON.stringify({
         state: {
           hasCompletedOnboarding: true,
@@ -257,7 +257,7 @@ async function setupCleanLightApp(page: Page, options?: Parameters<typeof mockOp
     if (document.documentElement) inject();
     else document.addEventListener("DOMContentLoaded", inject, { once: true });
   });
-  await mockOpenYakApi(page, options);
+  await mockTalosApi(page, options);
   if (slowStreamPort) {
     await page.route("**/api/chat/stream/**", async (route) => {
       const original = new URL(route.request().url());
@@ -269,7 +269,7 @@ async function setupCleanLightApp(page: Page, options?: Parameters<typeof mockOp
 }
 
 async function expectHome(page: Page) {
-  await expect(page.getByRole("heading", { name: /What should (OpenYak help you do|we do in)/i })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /What should (Talos help you do|we do in)/i })).toBeVisible();
   await expect(page.locator("html")).not.toHaveClass(/dark/);
   await expect(page.getByText("Runtime", { exact: false })).toHaveCount(0);
   await expect(page.getByText("API 401", { exact: false })).toHaveCount(0);
@@ -500,7 +500,7 @@ function naturalStreamingText(kind: string) {
 }
 
 function autoCompactStreamingText() {
-  return " Auto compacted answer persisted after compression.\n\nContext checkpoint\n\nOpenYak preserved the launch-review thread, compressed older turns, and kept the active decision context available for the next reply.\n\n| Area | Preserved detail | Next action |\n| --- | --- | --- |\n| Owners | Product, CS, Finance, Legal, Security | Confirm one accountable owner per risk |\n| Deadlines | Board packet, renewal window, automation savings date | Keep the critical dates in the active summary |\n| Risks | Budget variance, onboarding readiness, vendor renewal | Use the compressed summary for follow-up planning |";
+  return " Auto compacted answer persisted after compression.\n\nContext checkpoint\n\nTalos preserved the launch-review thread, compressed older turns, and kept the active decision context available for the next reply.\n\n| Area | Preserved detail | Next action |\n| --- | --- | --- |\n| Owners | Product, CS, Finance, Legal, Security | Confirm one accountable owner per risk |\n| Deadlines | Board packet, renewal window, automation savings date | Keep the critical dates in the active summary |\n| Risks | Budget variance, onboarding readiness, vendor renewal | Use the compressed summary for follow-up planning |";
 }
 
 function delayMs(milliseconds: number) {

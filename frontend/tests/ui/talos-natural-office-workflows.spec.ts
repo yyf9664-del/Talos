@@ -1,9 +1,9 @@
 import { expect, test, type Page } from "@playwright/test";
 import {
-  mockOpenYakApi,
-  seedOpenYakStorage,
-  type OpenYakMockState,
-} from "./fixtures/openyak-api";
+  mockTalosApi,
+  seedTalosStorage,
+  type TalosMockState,
+} from "./fixtures/talos-api";
 
 type UploadFixture = {
   name: string;
@@ -56,9 +56,9 @@ const files = {
   },
 } satisfies Record<string, UploadFixture>;
 
-async function setupMockedApp(page: Page): Promise<OpenYakMockState> {
-  await seedOpenYakStorage(page);
-  return mockOpenYakApi(page);
+async function setupMockedApp(page: Page): Promise<TalosMockState> {
+  await seedTalosStorage(page);
+  return mockTalosApi(page);
 }
 
 function expectNaturalOfficePrompt(prompt: string) {
@@ -104,7 +104,7 @@ async function sendPrompt(page: Page, prompt: string) {
 
 async function startOfficeWorkflow(page: Page, uploadFixtures: UploadFixture[], prompt: string) {
   await page.goto("/c/new");
-  await expect(page.getByRole("heading", { name: /What should (OpenYak help you do|we do in)/i })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /What should (Talos help you do|we do in)/i })).toBeVisible();
   await uploadFiles(page, uploadFixtures);
   await sendPrompt(page, prompt);
 }
@@ -113,7 +113,7 @@ function mainContent(page: Page) {
   return page.locator("#main-content");
 }
 
-test.describe("OpenYak natural office GUI workflows", () => {
+test.describe("Talos natural office GUI workflows", () => {
   test.describe.configure({ timeout: 90_000 });
 
   test("memo workflow: uploaded customer notes become a VP-ready memo with owners and email copy", async ({ page }) => {

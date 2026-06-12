@@ -18,7 +18,7 @@
  * it and routes via the Next.js router so we do soft navigation instead of
  * a full reload (which would tear down the in-memory stream registry).
  */
-export const NAVIGATE_TO_SESSION_EVENT = "openyak:navigate-to-session";
+export const NAVIGATE_TO_SESSION_EVENT = "talos:navigate-to-session";
 
 export interface NavigateToSessionDetail {
   sessionId: string;
@@ -51,7 +51,7 @@ export async function notifyBackgroundFinish({ sessionId, title, body, kind }: N
   try {
     const n = new Notification(title, {
       body,
-      tag: `openyak-${kind}-${sessionId}`,
+      tag: `talos-${kind}-${sessionId}`,
     });
     n.onclick = () => {
       try {

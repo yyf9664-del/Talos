@@ -33,7 +33,7 @@
   description: "Test coverage improvement"
 - name: "question"
   color: "d876e3"
-  description: "Question about using or contributing to OpenYak"
+  description: "Question about using or contributing to Talos"
 - name: "security"
   color: "ee0701"
   description: "Security-related work or private vulnerability follow-up"

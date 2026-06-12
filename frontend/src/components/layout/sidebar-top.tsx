@@ -3,7 +3,7 @@
 import { PanelLeft } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
-import { OpenYakLogo } from "@/components/ui/openyak-logo";
+import { TalosLogo } from "@/components/ui/talos-logo";
 import { useSidebarStore, type SidebarTab } from "@/stores/sidebar-store";
 import { useIsMacOS } from "@/hooks/use-platform";
 import { IS_DESKTOP } from "@/lib/constants";
@@ -45,9 +45,9 @@ export function SidebarTop({ activeTab, onTabChange }: SidebarTopProps) {
         data-tauri-drag-region
         className="flex h-10 items-center gap-2 px-3"
       >
-        <OpenYakLogo size={20} className="shrink-0" />
+        <TalosLogo size={20} className="shrink-0" />
         <span className="text-sm font-semibold tracking-tight text-[var(--text-primary)]">
-          OpenYak
+          Talos
         </span>
         <div className="flex-1" />
         <Button

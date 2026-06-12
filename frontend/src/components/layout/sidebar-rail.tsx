@@ -18,7 +18,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { OpenYakLogo } from "@/components/ui/openyak-logo";
+import { TalosLogo } from "@/components/ui/talos-logo";
 import { useSidebarStore } from "@/stores/sidebar-store";
 import { useIsMacOS } from "@/hooks/use-platform";
 import { IS_DESKTOP } from "@/lib/constants";
@@ -96,7 +96,7 @@ export function SidebarRail() {
             onClick={toggle}
             aria-label={t("toggleSidebar")}
           >
-            <OpenYakLogo size={20} />
+            <TalosLogo size={20} />
           </Button>
         </TooltipTrigger>
         <TooltipContent side="right">{t("toggleSidebar")}</TooltipContent>
