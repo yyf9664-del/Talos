@@ -149,6 +149,12 @@ export function MessageList({
   // readiness check below distinguish THIS turn's freshly-finalized reply from
   // the previous turn's reply (which already has a terminal step-finish).
   const preGenLastAssistantIdRef = useRef<string | null>(null);
+  // The session these turn-boundary refs were last synced to. The refs above
+  // are single instances but the state they track is per-session, so on a
+  // session switch they must be re-synced to the NEW session — otherwise the
+  // previous session's "was generating" flag leaks across and a session that
+  // is still streaming gets mistaken for a fresh turn on navigate-back.
+  const prevSessionIdRef = useRef<string | undefined>(undefined);
   const [showStreamingFallback, setShowStreamingFallback] = useState(false);
 
   // True once the DB cache holds this turn's finalized reply: the latest
@@ -165,6 +171,27 @@ export function MessageList({
   }, [messages]);
 
   useIsoLayoutEffect(() => {
+    // Session switch (or first mount): re-sync the turn-boundary refs to THIS
+    // session's current state rather than carrying the previous session's. The
+    // critical case is navigating BACK into a session that is still streaming:
+    // its background stream keeps isGenerating true, but wasGeneratingRef may
+    // have been cleared by the other session. Without this re-sync the
+    // still-running turn would be treated as a brand-new turn, capturing the
+    // in-progress step as preGenLastAssistantId — which then flips
+    // isPreviousTurnReply on for that step and stops it from being hidden,
+    // leaving the persisted activity summary AND the live "thinking" block both
+    // on screen as two stacked blocks. Re-syncing wasGeneratingRef to the live
+    // isGenerating (and clearing the captured id) means an in-progress session
+    // is NOT seen as a fresh turn, so the live StreamingMessage keeps covering
+    // the whole current turn exactly as if we'd never left.
+    if (prevSessionIdRef.current !== sessionId) {
+      prevSessionIdRef.current = sessionId;
+      wasGeneratingRef.current = isGenerating;
+      preGenLastAssistantIdRef.current = null;
+      setShowStreamingFallback(false);
+      return;
+    }
+
     if (isGenerating) {
       // Capture the previous turn's last assistant id ONCE, when generation
       // begins — not on every msgs change during the turn.
@@ -196,7 +223,7 @@ export function MessageList({
         return () => clearTimeout(timer);
       }
     }
-  }, [isGenerating, messages.length]);
+  }, [isGenerating, messages.length, sessionId]);
 
   // Hand off the instant the DB holds this turn's finalized reply — not a frame
   // earlier (blank) or later (flash). Driven by the content-based check above,
