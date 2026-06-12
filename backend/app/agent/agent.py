@@ -100,10 +100,11 @@ BUILTIN_AGENTS: dict[str, AgentInfo] = {
         name="persist",
         description="Persist a session into a reusable Saved Agent",
         mode="hidden",
-        tools=["persist_agent"],
+        tools=["persist_agent", "question"],
         permissions=Ruleset(rules=[
             PermissionRule(action="deny", permission="*"),
             PermissionRule(action="allow", permission="persist_agent"),
+            PermissionRule(action="allow", permission="question"),
         ]),
         system_prompt=_load_prompt("persist"),
     ),

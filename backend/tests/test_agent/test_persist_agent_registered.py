@@ -6,6 +6,6 @@ def test_persist_agent_registered_and_hidden():
     agent = reg.get("persist")
     assert agent is not None
     assert agent.mode == "hidden"
-    assert agent.tools == ["persist_agent"]
+    assert agent.tools == ["persist_agent", "question"]
     assert "persist" not in [a.name for a in reg.list_agents(include_hidden=False)]
     assert agent.system_prompt

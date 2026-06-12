@@ -25,6 +25,7 @@
   "cancel": "Cancel",
   "startBatch": "Start batch",
   "persistAgent": "Save as reusable Agent",
+  "persistAgentShort": "Save as Agent",
   "persistAgentPrompt": "Please save this conversation as a reusable Agent (use the persist_agent tool).",
   "persistAgentStarted": "Saving this conversation as a reusable Agent — check the Agents page when it's done.",
   "workspaceProgress": "Progress",

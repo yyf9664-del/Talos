@@ -25,6 +25,7 @@
   "cancel": "取消",
   "startBatch": "开始批量任务",
   "persistAgent": "转为可复用 Agent",
+  "persistAgentShort": "存为 Agent",
   "persistAgentPrompt": "请把本次会话沉淀为一个可复用的 Agent（调用 persist_agent 工具）。",
   "persistAgentStarted": "正在把本次会话沉淀为可复用 Agent，完成后可到 Agents 页面查看。",
   "workspaceProgress": "进度",

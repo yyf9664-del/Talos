@@ -937,18 +937,29 @@ export function ChatForm({ isGenerating, isCompacting = false, onSend, onSendTas
               </Popover>
             )}
 
-            {onPersistAgent && (
-              <button
-                type="button"
-                disabled={isInputDisabled || !sessionId}
-                className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[var(--text-secondary)] transition-colors hover:bg-[var(--surface-secondary)] disabled:opacity-50"
-                aria-label={t("persistAgent")}
-                title={t("persistAgent")}
-                onClick={onPersistAgent}
-              >
-                <Wand2 className="h-3.5 w-3.5" />
-              </button>
-            )}
+            {onPersistAgent && (() => {
+              const persistEnabled = !isInputDisabled && !!sessionId;
+              return (
+                <button
+                  type="button"
+                  disabled={!persistEnabled}
+                  className={cn(
+                    "flex h-7 shrink-0 items-center gap-1.5 rounded-full text-[12px] font-medium transition-all duration-200",
+                    persistEnabled
+                      ? "px-2.5 bg-[var(--brand-primary)] text-[var(--brand-primary-text)] shadow-[var(--shadow-sm)] hover:bg-[var(--brand-primary-hover)]"
+                      : "w-7 justify-center text-[var(--text-secondary)] opacity-50",
+                  )}
+                  aria-label={t("persistAgent")}
+                  title={t("persistAgent")}
+                  onClick={onPersistAgent}
+                >
+                  <Wand2 className="h-3.5 w-3.5 shrink-0" />
+                  {persistEnabled && (
+                    <span className="whitespace-nowrap">{t("persistAgentShort")}</span>
+                  )}
+                </button>
+              );
+            })()}
 
             <div className="flex-1" />
 
