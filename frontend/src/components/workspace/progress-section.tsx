@@ -1,12 +1,12 @@
 "use client";
 
-import { CheckCircle2, Circle, Loader2, ChevronDown, XCircle, Ban, GitBranch } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { CheckCircle2, Circle, Loader2, XCircle, Ban, GitBranch, ListChecks } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import Link from "next/link";
 import { useWorkspaceStore, type WorkspaceAgentTask, type WorkspaceTodo } from "@/stores/workspace-store";
 import { cn } from "@/lib/utils";
 import { getChatRoute } from "@/lib/routes";
+import { WorkspaceCard } from "./workspace-card";
 
 function TodoItem({ todo }: { todo: WorkspaceTodo }) {
   return (
@@ -118,91 +118,46 @@ export function ProgressCard() {
   if (totalCount === 0) return null;
 
   return (
-    <div className="overflow-hidden rounded-3xl border border-white/8 bg-white/[0.03] shadow-[0_0_0_1px_rgba(255,255,255,0.02)_inset] backdrop-blur-sm">
-      <button
-        className="flex w-full items-start justify-between px-4 py-4 text-left transition-colors hover:bg-white/[0.02]"
-        onClick={() => toggleSection("progress")}
-      >
-        <div className="min-w-0 flex-1">
-          <span className="block text-[13px] font-medium text-[var(--text-primary)]">
-            {t("workspaceProgress")}
-          </span>
-          <span className="mt-1 block text-[12px] text-[var(--text-tertiary)]">
-            {activeCount === 0
-              ? t("tasksCompleted", { count: totalCount })
-              : t("activeTaskCount", { count: activeCount })}
-          </span>
-          <div className="mt-3 flex items-center gap-1.5">
-            {previewItems.map((item, i) => (
-              <div key={`${item.key}-${i}`} className="flex items-center gap-1.5">
-                <span
-                  className={cn(
-                    "h-6 w-6 rounded-full border flex items-center justify-center",
-                    item.status === "completed"
-                      ? "border-white/20 bg-white/[0.06] text-[var(--tool-completed)]"
-                      : item.status === "in_progress" || item.status === "running"
-                        ? "border-[var(--text-accent)]/50 bg-[var(--text-accent)]/10 text-[var(--text-accent)]"
-                        : item.status === "failed"
-                          ? "border-[var(--tool-error)]/40 bg-[var(--tool-error)]/10 text-[var(--tool-error)]"
-                        : "border-white/15 text-[var(--text-quaternary)]",
-                  )}
-                >
-                  {item.status === "completed" ? (
-                    <CheckCircle2 className="h-3.5 w-3.5" />
-                  ) : item.status === "in_progress" || item.status === "running" ? (
-                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                  ) : item.status === "failed" ? (
-                    <XCircle className="h-3.5 w-3.5" />
-                  ) : (
-                    <Circle className="h-3.5 w-3.5" />
-                  )}
-                </span>
-                {i < previewItems.length - 1 && (
-                  <span className="h-px w-3 bg-white/10" />
-                )}
-              </div>
-            ))}
-          </div>
+    <WorkspaceCard
+      title={t("workspaceProgress")}
+      description={activeCount === 0 ? t("tasksCompleted", { count: totalCount }) : t("activeTaskCount", { count: activeCount })}
+      icon={ListChecks}
+      count={totalCount}
+      collapsed={collapsed}
+      onToggle={() => toggleSection("progress")}
+      badges={previewItems.map((item) => ({
+        label:
+          item.status === "completed"
+            ? t("statusCompleted")
+            : item.status === "in_progress" || item.status === "running"
+              ? t("statusRunning")
+              : item.status === "failed"
+                ? t("statusError")
+                : t("statusPending"),
+        tone:
+          item.status === "completed"
+            ? "success"
+            : item.status === "in_progress" || item.status === "running"
+              ? "warning"
+              : item.status === "failed"
+                ? "error"
+                : "default",
+      }))}
+      contentClassName="px-4 pb-4 pt-2 space-y-0.5"
+    >
+      {taskBatch && (
+        <div className="pb-1">
+          <p className="px-0 pb-1 pt-1 text-[11px] font-medium uppercase tracking-[0.08em] text-[var(--text-tertiary)]">
+            {t(taskBatch.mode === "parallel" ? "taskBatchParallel" : "taskBatchSequential")}
+          </p>
+          {agentTasks.map((task) => (
+            <AgentTaskItem key={task.task_id} task={task} />
+          ))}
         </div>
-        <div className="ml-3 flex items-center gap-2">
-          <span className="rounded-full border border-white/10 bg-white/[0.03] px-2 py-0.5 text-[10px] font-medium text-[var(--text-tertiary)]">
-            {totalCount}
-          </span>
-          <ChevronDown
-            className={cn(
-              "h-4 w-4 text-[var(--text-tertiary)] transition-transform duration-200",
-              collapsed && "-rotate-90",
-            )}
-          />
-        </div>
-      </button>
-      <AnimatePresence initial={false}>
-        {!collapsed && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className="overflow-hidden"
-          >
-            <div className="border-t border-white/6 px-4 pb-4 pt-2 space-y-0.5">
-              {taskBatch && (
-                <div className="pb-1">
-                  <p className="px-0 pb-1 pt-1 text-[11px] font-medium uppercase tracking-[0.08em] text-[var(--text-quaternary)]">
-                    {t(taskBatch.mode === "parallel" ? "taskBatchParallel" : "taskBatchSequential")}
-                  </p>
-                  {agentTasks.map((task) => (
-                    <AgentTaskItem key={task.task_id} task={task} />
-                  ))}
-                </div>
-              )}
-              {todos.map((todo, i) => (
-                <TodoItem key={`${todo.content}-${i}`} todo={todo} />
-              ))}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
+      )}
+      {todos.map((todo, i) => (
+        <TodoItem key={`${todo.content}-${i}`} todo={todo} />
+      ))}
+    </WorkspaceCard>
   );
 }

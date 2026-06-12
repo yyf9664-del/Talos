@@ -1,13 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown, ChevronRight, FileText } from "lucide-react";
+import { ChevronDown, ChevronRight, FileText, Paperclip } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useWorkspaceStore, type WorkspaceFile } from "@/stores/workspace-store";
 import { useArtifactStore } from "@/stores/artifact-store";
 import { artifactTypeFromExtension, languageFromExtension } from "@/lib/artifacts";
 import { cn } from "@/lib/utils";
+import { WorkspaceCard } from "./workspace-card";
 
 function FileItem({ file }: { file: WorkspaceFile }) {
   const { t } = useTranslation("chat");
@@ -39,13 +39,18 @@ function FileItem({ file }: { file: WorkspaceFile }) {
 
   return (
     <button
-      className="w-full flex items-center gap-2.5 px-4 py-1.5 text-left transition-colors"
+      className="group flex w-full items-center gap-3 rounded-2xl border border-transparent px-3 py-2 text-left transition-colors hover:border-[var(--border-subtle)] hover:bg-[var(--surface-secondary)]/70"
       onClick={handleClick}
     >
-      <FileText className="h-4 w-4 shrink-0 text-[var(--text-tertiary)]" />
-      <span className="text-[13px] text-[var(--text-secondary)] truncate">
-        {displayName}
+      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-[var(--surface-secondary)] text-[var(--text-tertiary)] group-hover:text-[var(--text-primary)]">
+        <FileText className="h-4 w-4" />
       </span>
+      <div className="min-w-0 flex-1">
+        <p className="truncate text-[13px] text-[var(--text-primary)]">{displayName}</p>
+        <p className="mt-0.5 truncate text-[11px] text-[var(--text-tertiary)]">
+          {file.path}
+        </p>
+      </div>
     </button>
   );
 }
@@ -107,70 +112,36 @@ export function FilesCard() {
   const latestFile = workspaceFiles[workspaceFiles.length - 1];
 
   return (
-    <div className="overflow-hidden rounded-3xl border border-white/8 bg-white/[0.03] shadow-[0_0_0_1px_rgba(255,255,255,0.02)_inset] backdrop-blur-sm">
-      <button
-        className="flex w-full items-start justify-between px-4 py-4 text-left transition-colors hover:bg-white/[0.02]"
-        onClick={() => toggleSection("files")}
-      >
-        <div className="min-w-0 flex-1">
-          <span className="block text-[13px] font-medium text-[var(--text-primary)]">
-            {t("workspaceFiles")}
-          </span>
-          <span className="mt-1 block text-[12px] text-[var(--text-tertiary)]">
-            {workspaceFiles.length > 0
-              ? t("workspaceGeneratedFiles", { count: workspaceFiles.length })
-              : hasContent
-                ? t("workspaceNotesAvailable")
-                : t("workspaceNoFilesYet")}
-          </span>
-          {latestFile && (
-            <span className="mt-2 block truncate text-[12px] text-[var(--text-secondary)]">
-              {t("workspaceLatestFile", { name: latestFile.name })}
-            </span>
-          )}
+    <WorkspaceCard
+      title={t("workspaceFiles")}
+      description={
+        workspaceFiles.length > 0
+          ? t("workspaceGeneratedFiles", { count: workspaceFiles.length })
+          : hasContent
+            ? t("workspaceNotesAvailable")
+            : t("workspaceNoFilesYet")
+      }
+      icon={Paperclip}
+      count={workspaceFiles.length > 0 ? workspaceFiles.length : null}
+      badges={latestFile ? [{ label: t("workspaceLatestFile", { name: latestFile.name }) }] : undefined}
+      collapsed={collapsed}
+      onToggle={() => toggleSection("files")}
+      contentClassName="pb-1 pt-2"
+    >
+      {workspaceFiles.length > 0 ? (
+        <div className="space-y-1 px-2">
+          {workspaceFiles.map((file) => (
+            <FileItem key={file.path} file={file} />
+          ))}
         </div>
-        <div className="ml-3 flex items-center gap-2">
-          {workspaceFiles.length > 0 && (
-            <span className="rounded-full border border-white/10 bg-white/[0.03] px-2 py-0.5 text-[10px] font-medium text-[var(--text-tertiary)]">
-              {workspaceFiles.length}
-            </span>
-          )}
-          <ChevronDown
-            className={cn(
-              "h-4 w-4 text-[var(--text-tertiary)] transition-transform duration-200",
-              collapsed && "-rotate-90",
-            )}
-          />
-        </div>
-      </button>
-      <AnimatePresence initial={false}>
-        {!collapsed && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className="overflow-hidden"
-          >
-            <div className="border-t border-white/6 pb-1 pt-2">
-              {workspaceFiles.length > 0 ? (
-                <div className="space-y-0.5">
-                  {workspaceFiles.map((file) => (
-                    <FileItem key={file.path} file={file} />
-                  ))}
-                </div>
-              ) : (
-                <p className="px-4 py-2 text-[12px] text-[var(--text-quaternary)]">
-                  {t("workspaceNoFilesYet")}
-                </p>
-              )}
-              <div className="mt-2">
-                <Scratchpad />
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
+      ) : (
+        <p className="mx-4 rounded-2xl border border-dashed border-[var(--border-subtle)] px-3 py-4 text-center text-[12px] text-[var(--text-tertiary)]">
+          {t("workspaceFilesEmptyDescription")}
+        </p>
+      )}
+      <div className="mt-2">
+        <Scratchpad />
+      </div>
+    </WorkspaceCard>
   );
 }
