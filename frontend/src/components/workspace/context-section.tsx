@@ -1,8 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown, Plug, Brain, Pencil, Check, X, Download, RefreshCw } from "lucide-react";
+import { Plug, Brain, Pencil, Check, X, Download, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import { useConnectors } from "@/hooks/use-connectors";
@@ -16,6 +15,7 @@ import {
   useExportWorkspaceMemory,
 } from "@/hooks/use-workspace-memory";
 import { cn } from "@/lib/utils";
+import { WorkspaceCard } from "./workspace-card";
 
 const STATUS_DOT: Record<string, string> = {
   connected: "bg-green-500",
@@ -277,62 +277,26 @@ export function ContextCard() {
   const workspacePath = useWorkspaceStore((s) => s.activeWorkspacePath);
 
   return (
-    <div className="overflow-hidden rounded-3xl border border-white/8 bg-white/[0.03] shadow-[0_0_0_1px_rgba(255,255,255,0.02)_inset] backdrop-blur-sm">
-      <button
-        className="flex w-full items-start justify-between px-4 py-4 text-left transition-colors hover:bg-white/[0.02]"
-        onClick={() => toggleSection("context")}
-      >
-        <div className="min-w-0 flex-1">
-          <span className="block text-[13px] font-medium text-[var(--text-primary)]">
-            {t("workspaceContext")}
-          </span>
-          <span className="mt-1 block truncate text-[12px] text-[var(--text-tertiary)]">
-            {workspacePath ? t("workspaceContextReady") : t("workspaceContextAware")}
-          </span>
-          <div className="mt-3 flex flex-wrap gap-1.5">
-            {workspacePath ? (
-              <>
-                <span className="rounded-full border border-white/10 bg-white/[0.03] px-2 py-1 text-[10px] text-[var(--text-secondary)]">
-                  {t("workspaceMemory")}
-                </span>
-                <span className="rounded-full border border-white/10 bg-white/[0.03] px-2 py-1 text-[10px] text-[var(--text-secondary)]">
-                  {t("workspaceSkills")}
-                </span>
-                <span className="rounded-full border border-white/10 bg-white/[0.03] px-2 py-1 text-[10px] text-[var(--text-secondary)]">
-                  {t("workspaceConnectors")}
-                </span>
-              </>
-            ) : (
-              <span className="rounded-full border border-white/10 bg-white/[0.03] px-2 py-1 text-[10px] text-[var(--text-secondary)]">
-                {t("workspaceWaitingForWorkspace")}
-              </span>
-            )}
-          </div>
-        </div>
-        <ChevronDown
-          className={cn(
-            "h-4 w-4 text-[var(--text-tertiary)] transition-transform duration-200",
-            collapsed && "-rotate-90",
-          )}
-        />
-      </button>
-      <AnimatePresence initial={false}>
-        {!collapsed && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className="overflow-hidden"
-          >
-            <div className="border-t border-white/6 pb-3 pt-2">
-              <MemoryBlock />
-              <ConnectorsBlock />
-              <SkillsSummary />
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
+    <WorkspaceCard
+      title={t("workspaceContext")}
+      description={workspacePath ? t("workspaceContextReady") : t("workspaceContextAware")}
+      icon={Brain}
+      badges={
+        workspacePath
+          ? [
+              { label: t("workspaceMemory") },
+              { label: t("workspaceSkills") },
+              { label: t("workspaceConnectors") },
+            ]
+          : [{ label: t("workspaceWaitingForWorkspace") }]
+      }
+      collapsed={collapsed}
+      onToggle={() => toggleSection("context")}
+      contentClassName="pb-3 pt-2"
+    >
+      <MemoryBlock />
+      <ConnectorsBlock />
+      <SkillsSummary />
+    </WorkspaceCard>
   );
 }

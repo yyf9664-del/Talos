@@ -19,17 +19,16 @@ import { useChatStore } from "@/stores/chat-store";
 import { useArtifactStore } from "@/stores/artifact-store";
 import { useActivityStore } from "@/stores/activity-store";
 import { useSettingsStore } from "@/stores/settings-store";
-import { cn } from "@/lib/utils";
 
 const FEATURED_STARTERS = [
-  { icon: Mail, textKey: "starterDraftFromNotes", promptKey: "starterDraftFromNotesPrompt" },
-  { icon: FileDiff, textKey: "starterCompareDocs", promptKey: "starterCompareDocsPrompt" },
-  { icon: CalendarDays, textKey: "starterWeeklyDigest", promptKey: "starterWeeklyDigestPrompt" },
-  { icon: Receipt, textKey: "starterOrganizeBills", promptKey: "starterOrganizeBillsPrompt" },
-  { icon: FolderOpen, textKey: "starterSummarizeFolder", promptKey: "starterSummarizeFolderPrompt" },
-  { icon: Trash2, textKey: "starterCleanupFiles", promptKey: "starterCleanupFilesPrompt" },
-  { icon: Images, textKey: "starterRenamePhotos", promptKey: "starterRenamePhotosPrompt" },
-  { icon: Table2, textKey: "starterExtractPdfTables", promptKey: "starterExtractPdfTablesPrompt" },
+  { icon: Mail, textKey: "starterDraftFromNotes", descKey: "starterDraftFromNotesDesc", promptKey: "starterDraftFromNotesPrompt" },
+  { icon: FileDiff, textKey: "starterCompareDocs", descKey: "starterCompareDocsDesc", promptKey: "starterCompareDocsPrompt" },
+  { icon: CalendarDays, textKey: "starterWeeklyDigest", descKey: "starterWeeklyDigestDesc", promptKey: "starterWeeklyDigestPrompt" },
+  { icon: Receipt, textKey: "starterOrganizeBills", descKey: "starterOrganizeBillsDesc", promptKey: "starterOrganizeBillsPrompt" },
+  { icon: FolderOpen, textKey: "starterSummarizeFolder", descKey: "starterSummarizeFolderDesc", promptKey: "starterSummarizeFolderPrompt" },
+  { icon: Trash2, textKey: "starterCleanupFiles", descKey: "starterCleanupFilesDesc", promptKey: "starterCleanupFilesPrompt" },
+  { icon: Images, textKey: "starterRenamePhotos", descKey: "starterRenamePhotosDesc", promptKey: "starterRenamePhotosPrompt" },
+  { icon: Table2, textKey: "starterExtractPdfTables", descKey: "starterExtractPdfTablesDesc", promptKey: "starterExtractPdfTablesPrompt" },
 ];
 
 const STARTERS_PER_MOUNT = 3;
@@ -171,8 +170,10 @@ export function Landing({ directoryParam = null }: LandingProps) {
       <OfflineOverlay />
       <ChatHeader />
 
-      <div className="relative flex flex-1 flex-col items-center justify-center px-4 pb-8">
-        <div className="w-full max-w-3xl xl:max-w-4xl">
+      <div className="relative flex flex-1 flex-col items-center justify-center overflow-y-auto px-4 py-8">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,var(--sidebar-bg)_0%,transparent_58%)] opacity-45" />
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-[var(--border-subtle)]" />
+        <div className="relative w-full max-w-3xl xl:max-w-4xl">
           {/* Provider setup prompt */}
           {!activeProvider && (
             <motion.div
@@ -202,10 +203,10 @@ export function Landing({ directoryParam = null }: LandingProps) {
           )}
 
           {/* Greeting — becomes workspace-aware when a folder is set, mirroring Codex */}
-          <div className="mb-6 text-center pb-2">
-            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-[var(--border-default)] bg-[var(--surface-secondary)] px-3 py-1.5 text-[11px] font-medium text-[var(--text-secondary)]">
-              <Sparkles className="h-3.5 w-3.5 text-[var(--brand-primary)]" />
-              Talos AI Workspace
+          <div className="mb-7 text-center pb-2">
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-[var(--border-subtle)] bg-[var(--sidebar-bg)]/70 px-3 py-1.5 text-[11px] font-medium text-[var(--text-secondary)] shadow-[var(--shadow-sm)]">
+              <Sparkles className="h-3.5 w-3.5 text-[var(--text-tertiary)]" />
+              {t("landingEyebrow")}
             </div>
             <h1 className="text-3xl font-medium tracking-tight text-[var(--text-primary)] sm:text-[2.5rem]">
               {workspaceName
@@ -213,45 +214,68 @@ export function Landing({ directoryParam = null }: LandingProps) {
                 : t('greeting')}
             </h1>
             <p className="mx-auto mt-3 max-w-xl text-sm leading-6 text-[var(--text-secondary)]">
-              连接公司 AI 网关，处理文件、数据、素材和日常办公任务。
+              {t("landingSubtitle")}
             </p>
+            <div className="mt-4 inline-flex items-center gap-2 rounded-full border border-[var(--border-subtle)] bg-[var(--surface-primary)]/70 px-3 py-1.5 text-[12px] text-[var(--text-tertiary)] shadow-[var(--shadow-sm)]">
+              <FolderOpen className="h-3.5 w-3.5" />
+              <span>
+                {workspaceName
+                  ? t("landingWorkspaceBadge", { workspace: workspaceName })
+                  : t("landingNoWorkspaceBadge")}
+              </span>
+            </div>
           </div>
 
           {/* Input — the focal point */}
-          <ChatForm
-            isGenerating={isGenerating}
-            onSend={sendMessage}
-            onSendTaskBatch={sendTaskBatch}
-            onStop={stopGeneration}
-            directory={globalWorkspace}
-            className="px-0"
-          />
+          <div className="rounded-[2rem] border border-[var(--border-subtle)] bg-[var(--surface-primary)]/72 p-2 shadow-[var(--shadow-md)] backdrop-blur-xl">
+            <ChatForm
+              isGenerating={isGenerating}
+              onSend={sendMessage}
+              onSendTaskBatch={sendTaskBatch}
+              onStop={stopGeneration}
+              directory={globalWorkspace}
+              className="px-0"
+            />
+          </div>
 
-          {/* Suggested starters — mx-7 aligns suggestion icons with the folder picker icon inside the input container */}
-          <div className="-mt-3 mx-7" style={{ perspective: 1200 }}>
+          {/* Suggested starters */}
+          <div className="mt-5" style={{ perspective: 1200 }}>
+            <div className="mb-2 flex items-center gap-2 px-1 text-[12px] font-medium text-[var(--text-tertiary)]">
+              <MessagesSquare className="h-3.5 w-3.5" />
+              <span>{t("recommendedActions")}</span>
+            </div>
             <AnimatePresence mode="popLayout" initial={false}>
-              {starters.map((starter, index) => (
-                <motion.button
-                  key={`${round}-${index}`}
-                  initial={{ opacity: 0, rotateX: -90 }}
-                  animate={{ opacity: 1, rotateX: 0 }}
-                  exit={{ opacity: 0, rotateX: 90 }}
-                  transition={{
-                    duration: 0.55,
-                    delay: index * 0.12,
-                    ease: [0.16, 1, 0.3, 1],
-                  }}
-                  onClick={() => useArtifactStore.getState().requestFix(t(starter.promptKey))}
-                  disabled={isGenerating}
-                  className={cn(
-                    "group flex w-full items-center gap-3 px-3 py-2.5 text-left text-[14px] text-[var(--text-tertiary)] transition-colors hover:text-[var(--text-secondary)] disabled:cursor-not-allowed disabled:opacity-50",
-                    index > 0 && "border-t border-[var(--border-default)]/40",
-                  )}
-                >
-                  <MessagesSquare className="h-[18px] w-[18px] shrink-0 text-[var(--text-tertiary)] group-hover:text-[var(--text-secondary)]" strokeWidth={1.75} />
-                  <span className="truncate">{t(starter.textKey)}</span>
-                </motion.button>
-              ))}
+              <div className="grid gap-2 sm:grid-cols-3">
+                {starters.map((starter, index) => {
+                  const StarterIcon = starter.icon;
+                  return (
+                    <motion.button
+                      key={`${round}-${index}`}
+                      initial={{ opacity: 0, rotateX: -90, y: 8 }}
+                      animate={{ opacity: 1, rotateX: 0, y: 0 }}
+                      exit={{ opacity: 0, rotateX: 90, y: -8 }}
+                      transition={{
+                        duration: 0.55,
+                        delay: index * 0.12,
+                        ease: [0.16, 1, 0.3, 1],
+                      }}
+                      onClick={() => useArtifactStore.getState().requestFix(t(starter.promptKey))}
+                      disabled={isGenerating}
+                      className="group min-h-[104px] rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-primary)]/70 p-3 text-left shadow-[var(--shadow-sm)] transition-all hover:-translate-y-0.5 hover:border-[var(--border-default)] hover:bg-[var(--surface-secondary)]/70 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      <span className="mb-3 flex h-8 w-8 items-center justify-center rounded-xl bg-[var(--surface-secondary)] text-[var(--text-tertiary)] transition-colors group-hover:text-[var(--text-primary)]">
+                        <StarterIcon className="h-4 w-4" strokeWidth={1.75} />
+                      </span>
+                      <span className="block truncate text-[13px] font-medium text-[var(--text-primary)]">
+                        {t(starter.textKey)}
+                      </span>
+                      <span className="mt-1 line-clamp-2 block text-[11px] leading-4 text-[var(--text-tertiary)]">
+                        {t(starter.descKey)}
+                      </span>
+                    </motion.button>
+                  );
+                })}
+              </div>
             </AnimatePresence>
           </div>
         </div>
