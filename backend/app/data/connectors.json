@@ -277,5 +277,12 @@
     "description": "Search biomedical literature and research papers",
     "category": "bio-research",
     "command": ["uvx", "pubmed-mcp"]
+  },
+  "chrome-devtools": {
+    "name": "Chrome DevTools",
+    "type": "local",
+    "description": "Control and inspect a live Chrome browser — automation, debugging, and performance analysis",
+    "category": "dev-tools",
+    "command": ["npx", "-y", "chrome-devtools-mcp@latest"]
   }
 }

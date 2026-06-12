@@ -1,0 +1,8 @@
+{
+  "name": "chrome-devtools",
+  "version": "1.0.0",
+  "description": "Control and inspect a live Chrome browser for automation, debugging, and performance analysis via the Chrome DevTools MCP server.",
+  "author": {
+    "name": "ChromeDevTools"
+  }
+}
