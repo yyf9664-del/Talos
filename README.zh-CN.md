@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <img src="docs/readme/openyak-workflow-artifacts.gif" width="820" alt="Talos 把办公文件整理成结构化结果" />
+  <img src="docs/readme/talos-hero.png" width="820" alt="Talos — 本地优先 AI 工作台" />
 </p>
 
 <h3 align="center">运行在你电脑上的本地优先 AI Agent</h3>

@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <img src="docs/readme/openyak-workflow-artifacts.gif" width="820" alt="Talos turns office files into structured results" />
+  <img src="docs/readme/talos-hero.png" width="820" alt="Talos — local-first AI workbench" />
 </p>
 
 <h3 align="center">A local-first AI agent that runs on your own computer.</h3>
