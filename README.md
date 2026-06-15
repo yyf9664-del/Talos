@@ -2,12 +2,12 @@
 
 <p align="center">
   <a href="README.zh-CN.md"><img src="https://img.shields.io/badge/lang-中文-blue?style=flat-square" alt="中文" /></a>
-  <a href="https://github.com/openyak/openyak/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/openyak/openyak/ci.yml?branch=main&style=flat-square&label=CI" alt="CI" /></a>
-  <a href="https://github.com/openyak/openyak/stargazers"><img src="https://img.shields.io/github/stars/openyak/openyak?style=flat-square" alt="GitHub Stars" /></a>
-  <a href="https://github.com/openyak/openyak/blob/main/LICENSE"><img src="https://img.shields.io/github/license/openyak/openyak?style=flat-square" alt="License" /></a>
-  <a href="https://github.com/openyak/openyak/releases/latest"><img src="https://img.shields.io/github/v/release/openyak/openyak?style=flat-square" alt="Latest Release" /></a>
+  <a href="https://github.com/yyf9664-del/Talos/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/yyf9664-del/Talos/ci.yml?branch=main&style=flat-square&label=CI" alt="CI" /></a>
+  <a href="https://github.com/yyf9664-del/Talos/stargazers"><img src="https://img.shields.io/github/stars/yyf9664-del/Talos?style=flat-square" alt="GitHub Stars" /></a>
+  <a href="https://github.com/yyf9664-del/Talos/blob/main/LICENSE"><img src="https://img.shields.io/github/license/yyf9664-del/Talos?style=flat-square" alt="License" /></a>
+  <a href="https://github.com/yyf9664-del/Talos/releases/latest"><img src="https://img.shields.io/github/v/release/yyf9664-del/Talos?style=flat-square" alt="Latest Release" /></a>
   <img src="https://img.shields.io/badge/platform-macOS%20%7C%20Windows%20%7C%20Linux-blue?style=flat-square" alt="Platform: macOS | Windows | Linux" />
-  <a href="https://github.com/openyak/openyak/pulls"><img src="https://img.shields.io/badge/PRs-welcome-brightgreen?style=flat-square" alt="PRs Welcome" /></a>
+  <a href="https://github.com/yyf9664-del/Talos/pulls"><img src="https://img.shields.io/badge/PRs-welcome-brightgreen?style=flat-square" alt="PRs Welcome" /></a>
 </p>
 
 <p align="center">
@@ -103,7 +103,7 @@ Real office work rarely fits in one message. Talos is designed for follow-ups, r
 | Windows | x64 | `.exe` installer |
 | Linux | x64 | `.deb`, `.rpm` |
 
-> [Download the latest release](https://github.com/openyak/openyak/releases/latest) or visit [open-yak.com/download](https://open-yak.com/download/).
+> [Download the latest release](https://github.com/yyf9664-del/Talos/releases/latest) from the GitHub Releases page.
 >
 > Linux users can also read [LINUX.md](LINUX.md) for requirements and troubleshooting.
 
@@ -215,8 +215,8 @@ Enable remote access in settings, scan the QR code, and open the mobile web clie
 
 ## Community
 
-- **Questions and Discussions:** [GitHub Discussions](https://github.com/openyak/openyak/discussions)
-- **Bug Reports:** [GitHub Issues](https://github.com/openyak/openyak/issues)
+- **Questions and Discussions:** [GitHub Discussions](https://github.com/yyf9664-del/Talos/discussions)
+- **Bug Reports:** [GitHub Issues](https://github.com/yyf9664-del/Talos/issues)
 - **Contributing:** [CONTRIBUTING.md](CONTRIBUTING.md)
 
 ## License

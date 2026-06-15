@@ -2,12 +2,12 @@
 
 <p align="center">
   <a href="README.md"><img src="https://img.shields.io/badge/lang-English-blue?style=flat-square" alt="English" /></a>
-  <a href="https://github.com/openyak/openyak/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/openyak/openyak/ci.yml?branch=main&style=flat-square&label=CI" alt="CI" /></a>
-  <a href="https://github.com/openyak/openyak/stargazers"><img src="https://img.shields.io/github/stars/openyak/openyak?style=flat-square" alt="GitHub Stars" /></a>
-  <a href="https://github.com/openyak/openyak/blob/main/LICENSE"><img src="https://img.shields.io/github/license/openyak/openyak?style=flat-square" alt="License" /></a>
-  <a href="https://github.com/openyak/openyak/releases/latest"><img src="https://img.shields.io/github/v/release/openyak/openyak?style=flat-square" alt="Latest Release" /></a>
+  <a href="https://github.com/yyf9664-del/Talos/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/yyf9664-del/Talos/ci.yml?branch=main&style=flat-square&label=CI" alt="CI" /></a>
+  <a href="https://github.com/yyf9664-del/Talos/stargazers"><img src="https://img.shields.io/github/stars/yyf9664-del/Talos?style=flat-square" alt="GitHub Stars" /></a>
+  <a href="https://github.com/yyf9664-del/Talos/blob/main/LICENSE"><img src="https://img.shields.io/github/license/yyf9664-del/Talos?style=flat-square" alt="License" /></a>
+  <a href="https://github.com/yyf9664-del/Talos/releases/latest"><img src="https://img.shields.io/github/v/release/yyf9664-del/Talos?style=flat-square" alt="Latest Release" /></a>
   <img src="https://img.shields.io/badge/platform-macOS%20%7C%20Windows%20%7C%20Linux-blue?style=flat-square" alt="Platform: macOS | Windows | Linux" />
-  <a href="https://github.com/openyak/openyak/pulls"><img src="https://img.shields.io/badge/PRs-welcome-brightgreen?style=flat-square" alt="PRs Welcome" /></a>
+  <a href="https://github.com/yyf9664-del/Talos/pulls"><img src="https://img.shields.io/badge/PRs-welcome-brightgreen?style=flat-square" alt="PRs Welcome" /></a>
 </p>
 
 <p align="center">
@@ -103,7 +103,7 @@ Talos 可以在同一个线程里综合多份文件，并在右侧 artifact pane
 | Windows | x64 | `.exe` 安装包 |
 | Linux | x64 | `.deb`, `.rpm` |
 
-> [下载最新版本](https://github.com/openyak/openyak/releases/latest) 或访问 [open-yak.com/download](https://open-yak.com/download/)。
+> [下载最新版本](https://github.com/yyf9664-del/Talos/releases/latest)（GitHub Releases 页面）。
 >
 > Linux 用户可以查看 [LINUX.md](LINUX.md) 了解依赖、安装和排障说明。
 
@@ -215,8 +215,8 @@ Talos 运行在你的桌面上，围绕本地文件、artifact、工具、权限
 
 ## 社区
 
-- **提问与讨论：** [GitHub Discussions](https://github.com/openyak/openyak/discussions)
-- **Bug 反馈：** [GitHub Issues](https://github.com/openyak/openyak/issues)
+- **提问与讨论：** [GitHub Discussions](https://github.com/yyf9664-del/Talos/discussions)
+- **Bug 反馈：** [GitHub Issues](https://github.com/yyf9664-del/Talos/issues)
 - **参与贡献：** [CONTRIBUTING.md](CONTRIBUTING.md)
 
 ## 许可证
